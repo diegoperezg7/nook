@@ -29,6 +29,8 @@ final class NotchViewModel {
     var tab: Tab = .shelf
     private(set) var openReason: OpenReason = .hover
     var isDropTargeted = false
+    /// Raton sobre el notch cerrado, antes de abrirse: se asoma un poco.
+    var isPeeking = false
     var searchText = ""
     /// Cada incremento pide foco para el buscador.
     private(set) var searchFocusRequest = 0
@@ -63,6 +65,7 @@ final class NotchViewModel {
         if reason == .hotKey { searchFocusRequest += 1 }
         guard !isOpen else { return }
         closeToken += 1
+        isPeeking = false
         withAnimation(AppMotion.open) {
             isOpen = true
             expandedWidth = true

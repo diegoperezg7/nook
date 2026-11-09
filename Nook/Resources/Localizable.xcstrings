@@ -121,6 +121,16 @@
         }
       }
     },
+    "Abrir al pasar el ratón": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open on hover after"
+          }
+        }
+      }
+    },
     "Abrir el historial con ⌃⌘V": {
       "localizations": {
         "en": {
@@ -187,6 +197,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Settings…"
+          }
+        }
+      }
+    },
+    "Al instante": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instantly"
           }
         }
       }
@@ -387,6 +407,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Screenshots"
+          }
+        }
+      }
+    },
+    "Cerrar al salir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close on exit after"
           }
         }
       }
@@ -807,6 +837,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Anything password managers mark as private is never saved. History stays on this Mac."
+          }
+        }
+      }
+    },
+    "Notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notch"
           }
         }
       }

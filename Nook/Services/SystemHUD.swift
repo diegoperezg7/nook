@@ -34,7 +34,7 @@ final class SystemHUD {
             case let .level(level, muted):
                 if self.defaults.bool(forKey: SettingsKey.hudVolume) { self.show(.volume(level: level, muted: muted)) }
             case let .device(name, icon):
-                if self.defaults.bool(forKey: SettingsKey.hudDevices) { self.show(.audioDevice(name: name, icon: icon), for: 2.5) }
+                if self.defaults.bool(forKey: SettingsKey.hudDevices) { self.show(.audioDevice(name: name, icon: icon), for: 3) }
             }
         }
         battery = BatteryMonitor { [weak self] level, charging in
@@ -49,7 +49,7 @@ final class SystemHUD {
     }
 
     /// Muestra un aviso; `duration` nil lo deja hasta el siguiente.
-    func show(_ kind: Kind, for duration: TimeInterval? = 1.6) {
+    func show(_ kind: Kind, for duration: TimeInterval? = 1.5) {
         current = kind
         hideWork?.cancel()
         guard let duration else { return }

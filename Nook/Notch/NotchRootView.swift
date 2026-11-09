@@ -60,6 +60,8 @@ struct NotchRootView: View {
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
             .animation(AppMotion.open, value: activity)
             .animation(AppMotion.open, value: notice == nil)
+            // Cerrado y con el raton encima, se asoma un poco desde arriba.
+            .scaleEffect(model.isPeeking && !model.isOpen && !AppMotion.reduceMotion ? 1.02 : 1, anchor: .top)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.
             .scaleEffect(model.isDropTargeted && model.isOpen && !AppMotion.reduceMotion ? 1.03 : 1, anchor: .top)
             .animation(AppMotion.snappy, value: model.isDropTargeted)

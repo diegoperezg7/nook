@@ -8,6 +8,8 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.hotKeyEnabled) private var hotKeyEnabled = true
     @AppStorage(SettingsKey.showWithoutNotch) private var showWithoutNotch = true
     @AppStorage(SettingsKey.hideFromCaptures) private var hideFromCaptures = true
+    @AppStorage(SettingsKey.openDelay) private var openDelay = 0.1
+    @AppStorage(SettingsKey.closeDelay) private var closeDelay = 0.18
     @AppStorage(SettingsKey.hudVolume) private var hudVolume = true
     @AppStorage(SettingsKey.hudDevices) private var hudDevices = true
     @AppStorage(SettingsKey.hudBattery) private var hudBattery = true
@@ -51,6 +53,15 @@ struct SettingsView: View {
                 Toggle("Descargas", isOn: $hudDownloads)
             }
 
+            Section("Notch") {
+                Picker("Abrir al pasar el ratón", selection: $openDelay) {
+                    ForEach(SettingsKey.openDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
+                }
+                Picker("Cerrar al salir", selection: $closeDelay) {
+                    ForEach(SettingsKey.closeDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
+                }
+            }
+
             Section("General") {
                 Toggle("Mostrar en pantallas sin notch", isOn: $showWithoutNotch)
                 Toggle("Ocultar en capturas de pantalla", isOn: $hideFromCaptures)
@@ -66,6 +77,11 @@ struct SettingsView: View {
             access = ClipboardAccess.current
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
+    }
+
+    private static func delayLabel(_ seconds: Double) -> String {
+        seconds <= 0 ? String(localized: "Al instante")
+            : seconds.formatted(.number.precision(.fractionLength(0...2))) + " s"
     }
 
     private var accessLabel: LocalizedStringKey {

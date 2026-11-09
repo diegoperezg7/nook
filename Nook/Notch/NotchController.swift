@@ -184,15 +184,26 @@ final class NotchController {
                 scheduleClose()
             }
         } else if model.closedHotRect.contains(point) {
+            setPeeking(true)
             scheduleOpen()
         } else {
+            setPeeking(false)
             pendingOpen?.cancel()
             pendingOpen = nil
         }
     }
 
-    /// Un respiro de 100 ms evita abrir al cruzar el notch de paso hacia un menu (y deja
-    /// ver como se asoma).
+    /// Al entrar en el notch se asoma (escala 1,02) con un toque del trackpad.
+    private func setPeeking(_ peeking: Bool) {
+        guard model.isPeeking != peeking else { return }
+        if peeking {
+            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+        }
+        withAnimation(AppMotion.peek) { model.isPeeking = peeking }
+    }
+
+    /// Un respiro (100 ms por defecto, configurable) evita abrir al cruzar el notch
+    /// de paso hacia un menu y deja ver como se asoma.
     private func scheduleOpen() {
         guard pendingOpen == nil else { return }
         let work = DispatchWorkItem { [weak self] in
@@ -203,7 +214,7 @@ final class NotchController {
             }
         }
         pendingOpen = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + UserDefaults.standard.double(forKey: SettingsKey.openDelay), execute: work)
     }
 
     private func scheduleClose() {
@@ -227,7 +238,7 @@ final class NotchController {
             }
         }
         pendingClose = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + UserDefaults.standard.double(forKey: SettingsKey.closeDelay), execute: work)
     }
 
     private func scheduleCloseIfMouseOutside() {

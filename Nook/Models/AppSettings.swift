@@ -8,6 +8,11 @@ enum SettingsKey {
     static let showWithoutNotch = "showWithoutNotch"
     /// El panel no sale en capturas ni grabaciones de pantalla.
     static let hideFromCaptures = "hideFromCaptures"
+    /// Segundos con el raton sobre el notch antes de abrirlo, y fuera antes de cerrarlo.
+    static let openDelay = "openDelay"
+    static let closeDelay = "closeDelay"
+    static let openDelayOptions: [Double] = [0.1, 0.3, 0.5, 1.0]
+    static let closeDelayOptions: [Double] = [0, 0.18, 0.5, 1.0]
     /// Avisos que salen del notch cerrado.
     static let hudVolume = "hudVolume"
     static let hudDevices = "hudDevices"
@@ -25,6 +30,8 @@ enum SettingsKey {
             hotKeyEnabled: true,
             showWithoutNotch: true,
             hideFromCaptures: true,
+            openDelay: 0.1,
+            closeDelay: 0.18,
             hudVolume: true,
             hudDevices: true,
             hudBattery: true,
