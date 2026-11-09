@@ -47,12 +47,44 @@ codesign -d --entitlements - --xml "$APP" 2>/dev/null | grep -q "<string>$GROUP<
 }
 codesign --verify --strict --verbose=2 "$APP"
 
-# DMG con acceso directo a Aplicaciones.
+# DMG con fondo (flecha de Nook a Aplicaciones). Finder coloca fondo e iconos en un
+# DMG editable, que luego se comprime.
 STAGING=$(mktemp -d)
 ditto "$APP" "$STAGING/Nook.app"
 ln -s /Applications "$STAGING/Applications"
-hdiutil create -volname Nook -srcfolder "$STAGING" -ov -format UDZO "$DMG" -quiet
+mkdir "$STAGING/.background"
+cp "$(dirname "$0")/dmg/background.tiff" "$STAGING/.background/background.tiff"
+RW="$OUT/Nook-rw.dmg"
+rm -f "$RW"
+hdiutil create -volname Nook -srcfolder "$STAGING" -ov -format UDRW "$RW" -quiet
 rm -rf "$STAGING"
+MOUNT=$(hdiutil attach "$RW" -readwrite -noverify -noautoopen | awk -F'\t' '/\/Volumes\//{print $NF}')
+VOLUME=$(basename "$MOUNT")
+osascript <<APPLESCRIPT
+tell application "Finder"
+  tell disk "$VOLUME"
+    open
+    set current view of container window to icon view
+    set toolbar visible of container window to false
+    set statusbar visible of container window to false
+    set bounds of container window to {200, 120, 840, 468}
+    set opts to icon view options of container window
+    set arrangement of opts to not arranged
+    set icon size of opts to 104
+    set text size of opts to 13
+    set background picture of opts to file ".background:background.tiff"
+    set position of item "Nook.app" of container window to {160, 160}
+    set position of item "Applications" of container window to {480, 160}
+    update without registering applications
+    delay 1
+    close
+  end tell
+end tell
+APPLESCRIPT
+sync
+hdiutil detach "$MOUNT" -quiet
+hdiutil convert "$RW" -format UDZO -ov -o "$DMG" -quiet
+rm -f "$RW"
 codesign --force --timestamp --sign "$IDENTITY" "$DMG"
 
 if [ -n "${NOTARY_PROFILE:-}" ]; then

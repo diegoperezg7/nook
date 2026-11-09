@@ -3550,6 +3550,16 @@
           }
         }
       }
+    },
+    "Mover a la papelera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

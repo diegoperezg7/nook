@@ -70,7 +70,7 @@ struct MailView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 5) {
                     ForEach(mail.messages) { message in
-                        MailRow(message: message) {
+                        MailRow(message: message, mail: mail) {
                             withAnimation(AppMotion.snappy) { reading = message }
                         }
                             .transition(.move(edge: .top).combined(with: .opacity))
@@ -119,6 +119,7 @@ struct MailView: View {
 
 private struct MailRow: View {
     let message: MailService.Message
+    let mail: MailService
     let open: () -> Void
     @State private var hovering = false
 
@@ -158,8 +159,21 @@ private struct MailRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .onHover { hovering = $0 }
         .help(Text("Leer el correo"))
+        // Acciones rapidas sin abrir el correo (fuera del boton de la fila, para
+        // que cada una reciba su propio clic).
+        .overlay(alignment: .trailing) {
+            if hovering {
+                HStack(spacing: 4) {
+                    ReaderButton(icon: "envelope.open.fill", help: "Marcar como leído") { mail.markRead(message) }
+                    ReaderButton(icon: "trash.fill", help: "Mover a la papelera") { mail.trash(message) }
+                }
+                .padding(.trailing, 8)
+                .transition(.opacity)
+            }
+        }
+        .onHover { hovering = $0 }
+        .animation(AppMotion.snappy, value: hovering)
     }
 
     private var initials: String {

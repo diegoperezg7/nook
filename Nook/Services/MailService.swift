@@ -267,6 +267,14 @@ final class MailService {
         queue.async { _ = Self.run(script) }
     }
 
+    /// A la papelera (Mail: Papelera; Outlook: Elementos eliminados).
+    func trash(_ message: Message) {
+        let script = Self.actionScript(for: source, id: message.id, action: "delete m")
+        messages.removeAll { $0.id == message.id }
+        seen?.remove(message.id)
+        queue.async { _ = Self.run(script) }
+    }
+
     /// Abre la ventana de respuesta en Mail u Outlook.
     func reply(to message: Message) {
         let action = source == .mail
