@@ -8,20 +8,14 @@ enum AppMotion {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
 
-    /// Apertura: el panel sale del notch hacia abajo con un rebote suave.
+    /// Apertura: el panel sale del centro del notch y se agranda con un rebote suave.
     static var open: Animation {
-        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.46, dampingFraction: 0.78)
+        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.44, dampingFraction: 0.74)
     }
 
     /// Cierre: mas rapido y sin rebote, para que no "tiemble" al recogerse.
     static var close: Animation {
         reduceMotion ? .easeInOut(duration: 0.12) : .spring(response: 0.3, dampingFraction: 0.95)
-    }
-
-    /// Asomarse al acercar el raton.
-    static var peek: Animation {
-        // Rebote marcado: la gota se forma, se estira y se asienta.
-        .spring(response: 0.42, dampingFraction: 0.5)
     }
 
     /// Microinteracciones: hover, seleccion de pestaña, insercion de elementos.

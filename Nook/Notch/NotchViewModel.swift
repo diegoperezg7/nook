@@ -21,8 +21,6 @@ final class NotchViewModel {
     /// La forma crece desde el notch, en ancho y alto a la vez.
     private(set) var expandedWidth = false
     private(set) var expandedHeight = false
-    /// El raton se acerca al notch: se asoma un poco antes de abrirse.
-    private(set) var isPeeking = false
     var tab: Tab = .shelf
     private(set) var openReason: OpenReason = .hover
     var isDropTargeted = false
@@ -60,7 +58,6 @@ final class NotchViewModel {
         closeToken += 1
         withAnimation(AppMotion.open) {
             isOpen = true
-            isPeeking = false
             expandedWidth = true
             expandedHeight = true
         }
@@ -84,12 +81,6 @@ final class NotchViewModel {
             self.searchText = ""
             self.onDidClose?()
         }
-    }
-
-    /// Asomarse: el notch crece un poco al acercar el raton, antes de abrirse.
-    func setPeeking(_ peeking: Bool) {
-        guard !isOpen, peeking != isPeeking, !AppMotion.reduceMotion else { return }
-        withAnimation(AppMotion.peek) { isPeeking = peeking }
     }
 
     /// Tras copiar un elemento: con el atajo el usuario quiere volver a pegar ya.

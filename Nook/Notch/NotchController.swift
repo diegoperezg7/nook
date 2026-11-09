@@ -178,13 +178,10 @@ final class NotchController {
                 scheduleClose()
             }
         } else if model.metrics.closedHotRect.contains(point) {
-            model.setPeeking(true)
             scheduleOpen()
         } else {
             pendingOpen?.cancel()
             pendingOpen = nil
-            // Cerca del notch se asoma; al alejarse vuelve a su sitio.
-            model.setPeeking(model.metrics.closedHotRect.insetBy(dx: -48, dy: -28).contains(point))
         }
     }
 

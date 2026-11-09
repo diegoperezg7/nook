@@ -17,21 +17,16 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/animacion.gif" width="720" alt="Al acercar el ratón cuelga una gota de agua del notch y, al entrar, el panel sale del notch">
+  <img src="docs/images/animacion.gif" width="720" alt="Al pasar el ratón por el notch, el panel sale de su centro y se agranda">
 </p>
 
 ---
 
 ## Sale del notch
 
-Acerca el ratón al notch y aparece una gota de agua de cristal colgando de él: refracta lo
-que hay detrás, tiene su reflejo y concentra la luz abajo, como una gota de verdad. Al entrar,
-el panel sale del propio notch, hacia abajo y a los lados a la vez, y el negro se disuelve en
-Liquid Glass. Todo es cristal: el panel, las pestañas, los botones y las tarjetas.
-
-<p align="center">
-  <img src="docs/images/gota.png" width="300" alt="Gota de agua de cristal colgando del notch">
-</p>
+Pasa el ratón por el notch y el panel sale de su centro: crece hacia abajo y a los lados a la
+vez, con un rebote suave, mientras el negro se disuelve en Liquid Glass y el contenido aparece
+detrás. Todo es cristal: el panel, las pestañas, los botones y las tarjetas.
 
 ## Bandeja
 

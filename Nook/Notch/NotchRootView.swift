@@ -3,11 +3,9 @@ import SwiftUI
 /// Raiz del panel. La ventana tiene siempre el tamaño abierto y lo que se anima es la
 /// forma de dentro: asi no hay tirones de redimensionado de ventana.
 ///
-/// Animacion:
-/// 1. Al acercar el raton, del notch cuelga una gota de agua de cristal.
-/// 2. Al entrar, el panel sale del propio notch: crece hacia abajo y a los lados a la
-///    vez, mientras el negro se disuelve en Liquid Glass y la gota se funde con el.
-/// 3. El contenido aparece con un leve zoom desde arriba.
+/// Animacion: al entrar, el panel sale del centro del notch y se agranda (ancho y alto
+/// a la vez, con un rebote suave) mientras el negro se disuelve en Liquid Glass. El
+/// contenido aparece despues, creciendo desde el centro.
 struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
@@ -23,8 +21,6 @@ struct NotchRootView: View {
         )
 
         ZStack(alignment: .top) {
-            droplet
-
             ZStack(alignment: .top) {
                 GlassBackground(shape: shape, isGlass: model.expandedHeight)
 
@@ -57,24 +53,6 @@ struct NotchRootView: View {
         .onChange(of: model.isDropTargeted) { _, targeted in
             model.dropTargetChanged(targeted)
         }
-    }
-
-    /// Gota de agua de cristal bajo el notch. Cerca del notch se forma con rebote;
-    /// al abrir, el panel crece sobre ella y la gota se funde con el.
-    private var droplet: some View {
-        let metrics = model.metrics
-        let drop: (radius: CGFloat, length: CGFloat, opacity: Double)
-        if model.expandedHeight {
-            drop = (14, 26, 0)
-        } else if model.isPeeking {
-            drop = (12, 22, 1)
-        } else {
-            drop = (3, 0, 0)
-        }
-        return GlassDroplet(attachY: metrics.closedSize.height, radius: drop.radius, length: drop.length)
-            .opacity(drop.opacity)
-            .frame(width: 120, height: metrics.openSize.height)
-            .allowsHitTesting(false)
     }
 
     /// El contenido entra cuando el panel ya ha salido, con un leve zoom desde arriba
@@ -138,6 +116,6 @@ private struct RevealModifier: ViewModifier {
         content
             .opacity(progress)
             .blur(radius: (1 - progress) * 6)
-            .scaleEffect(0.94 + 0.06 * progress, anchor: .top)
+            .scaleEffect(0.86 + 0.14 * progress, anchor: .center)
     }
 }
