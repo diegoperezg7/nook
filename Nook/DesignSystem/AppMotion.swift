@@ -9,7 +9,7 @@ enum AppMotion {
     }
 
     /// Apertura: el panel sale del centro del notch y se agranda con un rebote suave
-    /// (mismo muelle que Droppy: 0,47 / 0,76).
+    /// (muelle 0,47 / 0,76).
     static var open: Animation {
         reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.47, dampingFraction: 0.76)
     }

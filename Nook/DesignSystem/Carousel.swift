@@ -41,15 +41,20 @@ struct Carousel<Data: RandomAccessCollection, Card: View>: View where Data.Eleme
         .mask(Rectangle().padding(.horizontal, -6))
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { viewport = $0 }
         .overlay(alignment: .leading) {
-            if canGoBack { arrow(-1).offset(x: -10) }
+            if canGoBack { arrow(-1).offset(x: -(margin + 1)) }
         }
         .overlay(alignment: .trailing) {
             // Siempre a la vista: asi se sabe que hay mas sin pasar el raton.
-            if canGoForward { arrow(1).offset(x: 10) }
+            if canGoForward { arrow(1).offset(x: margin + 1) }
         }
         .animation(AppMotion.snappy, value: canGoBack)
         .animation(AppMotion.snappy, value: canGoForward)
         .padding(.horizontal, margin)
+        // Si llega algo nuevo delante y estabas al principio, se sigue al principio.
+        .onChange(of: ids.first) { old, new in
+            guard let new, position == nil || position == old else { return }
+            withAnimation(AppMotion.snappy) { position = new }
+        }
     }
 
     /// Hueco para que quepan tarjetas enteras: tantas como entren con el minimo y
@@ -95,9 +100,9 @@ private struct CarouselArrow: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(AppColors.textPrimary)
-                .frame(width: 30, height: 30)
+                .frame(width: 22, height: 22)
                 .background(.regularMaterial, in: Circle())
                 .overlay(Circle().strokeBorder(AppColors.cardBorder, lineWidth: 1))
                 .shadow(color: AppColors.shadow, radius: 6, y: 2)

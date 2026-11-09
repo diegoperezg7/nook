@@ -1971,6 +1971,16 @@
         }
       }
     },
+    "Llamadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls"
+          }
+        }
+      }
+    },
     "Los pendientes de hoy en el calendario.": {
       "localizations": {
         "en": {
@@ -2077,16 +2087,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tomorrow"
-          }
-        }
-      }
-    },
-    "Micro en llamadas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mic in calls"
           }
         }
       }

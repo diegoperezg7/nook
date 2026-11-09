@@ -462,7 +462,7 @@ struct NoticeGrid: View {
             Chip(symbol: "arrow.down.circle.fill", title: "Descargas", isOn: $downloads)
             Chip(symbol: "capslock.fill", title: "Bloq Mayús", isOn: $capsLock)
             Chip(symbol: "wifi", title: "Conexión", isOn: $network)
-            Chip(symbol: "mic.fill", title: "Micro en llamadas", isOn: $media)
+            Chip(symbol: "mic.fill", title: "Llamadas", isOn: $media)
             Chip(symbol: "video.fill", title: "Reuniones", isOn: $meetings)
             Chip(symbol: "envelope.fill", title: "Correo", isOn: $mailNotice)
             Chip(symbol: "bell.fill", title: "Notificaciones", isOn: $notifications)

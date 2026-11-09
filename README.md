@@ -5,123 +5,116 @@
 <h1 align="center">Nook</h1>
 
 <p align="center">
-  <strong>El notch de tu Mac convertido en un sitio útil.</strong><br>
-  Bandeja de archivos, historial del portapapeles, calendario, correo, agentes de IA,
-  temporizadores y avisos del sistema, todo a un gesto del ratón.
+  <strong>El notch de tu Mac, convertido en un sitio útil.</strong><br>
+  Pasa el ratón por arriba y tienes a mano tus archivos, lo que copiaste, tu agenda,<br>
+  tu correo y tus agentes de IA. Sin ventanas, sin buscar, sin taparte nada.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/macOS-14.2%2B-1F5BFF" alt="macOS 14.2+">
-  <img src="https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-1F5BFF" alt="Swift">
-  <img src="https://img.shields.io/badge/firmada-Developer%20ID%20%2B%20notarizada-4C7DFF" alt="Firmada y notarizada">
-  <img src="https://img.shields.io/badge/idiomas-ES%20%7C%20EN-4C7DFF" alt="ES y EN">
+  <img src="https://img.shields.io/badge/macOS-14.2%2B-1F5BFF" alt="macOS 14.2 o posterior">
+  <img src="https://img.shields.io/badge/firmada%20y%20notarizada-por%20Apple-4C7DFF" alt="Firmada y notarizada">
+  <img src="https://img.shields.io/badge/español%20%7C%20english-4C7DFF" alt="Español e inglés">
+  <img src="https://img.shields.io/badge/licencia-MIT-4C7DFF" alt="Licencia MIT">
 </p>
 
 <p align="center">
-  <img src="docs/images/bandeja.png" width="720" alt="Panel de Nook abierto bajo el notch con cuatro archivos en la bandeja">
+  <img src="docs/images/bandeja.png" width="760" alt="Nook abierto bajo el notch con cuatro archivos en la bandeja">
 </p>
 
 ---
 
-## Cómo funciona
+## Deja cosas a mano
 
-Pasa el ratón por el notch y el panel sale de él con un muelle suave. Cerrado, el notch
-mide exactamente lo mismo que el recorte de la pantalla (MacBook Air y MacBook Pro); cuando
-pasa algo, se ensancha lo justo para avisarte a los lados y vuelve a su sitio.
+Arrastra un archivo, una imagen o un texto al notch y ahí se queda hasta que lo necesites.
+Luego lo sacas arrastrando a donde quieras: un correo, un chat, una carpeta. Aunque cierres
+el Mac, sigue ahí.
 
-Arriba están las pestañas (bandeja, portapapeles, capturas, calendario, agentes) y, a la
-derecha, el reloj con temporizadores y alarmas, la batería de tus AirPods (cuando están
-conectados) y el menú.
+> ¿Arrastrando y sin llegar al notch? **Agita el ratón** y aparece una cesta flotante.
 
-## Bandeja
-
-Arrastra archivos, imágenes o texto al notch y se quedan a mano, con su vista previa real,
-hasta que los saques arrastrando. Nook guarda una copia, así que siguen ahí aunque borres el
-original o reinicies el Mac.
-
-- **Cesta al agitar:** agita el ratón mientras arrastras archivos y aparece una cesta flotante.
-- **Vista previa grande y Quick Look**, compartir por AirDrop, comprimir en `.zip`, convertir
-  imágenes (PNG, JPEG, HEIC) y copiar el texto de una imagen (OCR local).
-- Con más de los que caben, las tarjetas pasan en **carrusel**: flechas a los lados y
-  desplazamiento lateral.
-
-## Historial del portapapeles
+## Recupera lo que copiaste
 
 <p align="center">
-  <img src="docs/images/historial.png" width="720" alt="Historial del portapapeles con buscador y filtros por tipo">
+  <img src="docs/images/historial.png" width="760" alt="Historial del portapapeles con un enlace, una dirección, un comando y una nota">
 </p>
 
-Todo lo que copias queda guardado (texto, enlaces, imágenes y archivos) con el icono de la
-app de origen. Filtra por tipo, busca, incluso dentro de las imágenes, y fija lo importante.
+Todo lo que copias queda guardado: textos, enlaces, imágenes y archivos. Busca lo que
+copiaste ayer (incluso el texto que hay dentro de una captura) y pégalo con
+<kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> desde cualquier app. Las contraseñas no se guardan.
 
-- <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> desde cualquier app abre el historial; al elegir, se
-  pega directamente donde estabas.
-- Lo que los gestores de contraseñas marcan como privado no se guarda. Nunca se borra solo.
+## Tu día de un vistazo
 
-## Agentes de IA
+- **Agenda** de hoy y los próximos días, con un botón para **unirte a la reunión** y una
+  cuenta atrás en el notch cuando está a punto de empezar.
+- **Recordatorios** pendientes, para tacharlos sin abrir nada.
+- **Escribe y listo:** «Café con Ana mañana a las 10» crea el evento.
+- **Correo:** quién te ha escrito y de qué va. Ábrelo y léelo en el propio notch, responde
+  o márcalo como leído. Funciona con Mail y con Outlook.
+
+## Tus agentes de IA, sin perderlos de vista
 
 <p align="center">
-  <img src="docs/images/agentes.png" width="720" alt="Pestaña de agentes con dos sesiones de Claude Code en curso y el consumo restante">
+  <img src="docs/images/agentes.png" width="760" alt="Tres sesiones de Claude Code en curso y el consumo restante de la suscripción">
 </p>
 
-Las sesiones de agentes de código abiertas en tu Mac, con su estado (en curso, esperando,
-terminado), el proyecto y el consumo que queda en la ventana de 5 horas y en la semana.
+Si trabajas con agentes de código, Nook te avisa **cuando uno termina o se queda esperando
+tu respuesta**. Un clic en su tarjeta y estás en su terminal. Y ves cuánto te queda de la
+suscripción antes de quedarte sin.
 
-## Calendario, recordatorios y correo
+## Avisos que no estorban
 
-- **Calendario** de Apple con todas tus cuentas de *Cuentas de Internet*, incluido Microsoft
-  365/Outlook. Entrada rápida en lenguaje natural ("Café con Ana mañana a las 10").
-- **Recordatorios del día**: vencidos, de hoy y sin fecha, con su casilla para completarlos.
-  Si escribes algo sin fecha en la entrada rápida, se guarda como recordatorio.
-- **Controles de reunión**: cuenta atrás antes de cada reunión y botón para unirte.
-- **Correo sin leer** de Mail o de Outlook clásico: quién te escribe y el asunto, y un aviso
-  en el notch al llegar uno nuevo.
+Volumen, batería, AirPods conectados, descargas terminadas, reuniones, correos nuevos,
+notificaciones… salen a los lados del notch un momento y se van. Nunca tapan los iconos de
+la barra de menús: si no hay sitio en un lado, usan el otro.
 
-## Avisos en el notch
+Con tus **AirPods** puestos, verás su batería en un aro; un clic y tienes la de cada
+auricular y la del estuche.
 
-Volumen, batería y cargador, auriculares y altavoces Bluetooth (con su batería), conexión y
-VPN, descargas terminadas, micrófono o cámara durante una llamada, notificaciones del sistema,
-temporizadores y alarmas. Cada aviso crece solo hasta los menús y los iconos de la barra, sin
-taparlos, y se puede desactivar en Ajustes.
+## Y unos cuantos atajos
 
-**AirPods:** con ellos conectados, la cabecera muestra su modelo en un aro de batería; al
-pulsarlo ves el izquierdo, el derecho y el estuche.
-
-## Atajos y herramientas
-
-| Atajo | Qué hace |
+| | |
 |---|---|
-| <kbd>⌥</kbd> <kbd>Espacio</kbd> | **Lanzador**: abre apps y archivos, calcula (`15% de 80`) y convierte unidades (`10 km en mi`). |
-| <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> | Historial del portapapeles. |
+| <kbd>⌥</kbd> <kbd>Espacio</kbd> | Abre apps y archivos, calcula y convierte unidades. |
+| <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> | Historial de lo que has copiado. |
 | <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>Espacio</kbd> | Anillo de acciones junto al cursor. |
-| <kbd>⌃</kbd> <kbd>⌥</kbd> + flechas | Ajustar ventanas: mitades, cuartos, tercios, maximizar y centrar. |
+| <kbd>⌃</kbd> <kbd>⌥</kbd> + flechas | Coloca la ventana a la mitad, en un cuarto, a pantalla completa… |
+| Seleccionar texto | Cópialo, búscalo, tradúcelo o guárdalo con un clic. |
 
-Además: acciones al seleccionar texto (copiar, buscar, traducir, a la bandeja), dictado,
-captura de una zona con OCR.
+## Se configura solo, paso a paso
 
-## Primer arranque y permisos
+La primera vez que lo abres, Nook te acompaña: qué es, cómo conectar tu calendario y tu
+correo (Apple u Outlook), qué permisos desbloquean qué y qué atajos quieres. Todo es
+opcional y se puede cambiar después.
 
-Al abrir Nook por primera vez, una introducción te guía: calendario y recordatorios, correo
-(Mail de Apple u Outlook), permisos avanzados y qué atajos y avisos quieres. Nook funciona sin
-permisos especiales; cada uno desbloquea algo concreto:
+<table>
+  <tr>
+    <td><img src="docs/images/bienvenida.png" alt="Bienvenida a Nook"></td>
+    <td><img src="docs/images/calendario-correo.png" alt="Conectar calendario, recordatorios y correo"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/permisos.png" alt="Permisos opcionales y para qué sirve cada uno"></td>
+    <td><img src="docs/images/atajos-avisos.png" alt="Elegir atajos y avisos"></td>
+  </tr>
+</table>
 
-| Permiso | Para qué |
-|---|---|
-| Calendarios y Recordatorios | Eventos, reuniones y recordatorios del día. |
-| Accesibilidad | Pegar desde el historial, ajustar ventanas, texto seleccionado, controles de reunión. |
-| Acceso total al disco | Leer las notificaciones del sistema (solo las nuevas; no se guardan). |
-| Automatización (Mail / Outlook) | Ver los correos sin leer. |
+## Tu privacidad
 
-Nada sale de tu Mac: no hay servidores ni analítica.
+- **Nada sale de tu Mac.** Sin cuentas, sin servidores, sin analítica.
+- Del correo solo se lee lo que ves, y las imágenes remotas no se cargan hasta que lo pides.
+- Puedes ocultar el panel de las capturas y grabaciones de pantalla.
 
 ## Instalar
 
-Descarga el DMG de la última versión, arrastra Nook a Aplicaciones y ábrelo. Está firmado con
-Developer ID y notarizado por Apple, así que se abre sin avisos de Gatekeeper.
+1. Descarga el último `Nook-x.y.z.dmg` desde [Releases](../../releases/latest).
+2. Arrastra Nook a **Aplicaciones** y ábrelo.
 
-## Compilar
+Funciona en cualquier Mac con macOS 14.2 o posterior; en los que no tienen notch aparece
+como una pastilla arriba en el centro.
 
-Requisitos: Xcode 26 o posterior y [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+<details>
+<summary><strong>Para desarrolladores</strong></summary>
+
+Hecho en Swift con SwiftUI y AppKit. Hace falta Xcode 26 y
+[XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 xcodegen generate
@@ -129,17 +122,11 @@ xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd build
 xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd test
 ```
 
-La build Debug usa su propio identificador y sus propios datos, así que probarla no toca la
-bandeja ni el historial de la app instalada. Argumentos solo de Debug:
+La versión de desarrollo usa sus propios datos, así que no toca los de la app instalada.
+Para distribuir: `NOTARY_PROFILE=<perfil-de-notarytool> ./scripts/release.sh`.
 
-- `-NookOpen shelf|clipboard|screenshots|calendar|agents|mail` abre esa pestaña al arrancar.
-- `-hideFromCaptures NO` deja ver el panel en capturas de pantalla.
-- `-mailEnabled NO`, `-captureClipboard NO` desactivan el correo y el historial.
+</details>
 
-## Distribución
+## Licencia
 
-```bash
-NOTARY_PROFILE=keyfold-notary ./scripts/release.sh   # DMG firmado, notarizado y grapado
-```
-
-El DMG queda en `dist/`.
+[MIT](LICENSE)

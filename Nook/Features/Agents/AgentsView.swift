@@ -32,7 +32,7 @@ struct AgentsView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: NotchMetrics.cardRowHeight)
             } else {
-                Carousel(data: monitor.sessions) { _, session in
+                Carousel(data: monitor.sessions, minSpacing: 8) { _, session in
                     Button { monitor.focus(session) } label: { AgentCard(session: session) }
                         .buttonStyle(.plain)
                         .help(Text("Ir a su terminal"))
@@ -188,7 +188,7 @@ private struct AgentCard: View {
             .lineLimit(1)
         }
         .padding(10)
-        .frame(width: 172, height: 120, alignment: .topLeading)
+        .frame(width: 168, height: 120, alignment: .topLeading)
         .liquidGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 

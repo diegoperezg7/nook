@@ -4,7 +4,7 @@
 #
 # Uso:
 #   ./scripts/release.sh                                  # DMG firmado, sin notarizar
-#   NOTARY_PROFILE=keyfold-notary ./scripts/release.sh    # firmado + notarizado
+#   NOTARY_PROFILE=<perfil-de-notarytool> ./scripts/release.sh    # firmado + notarizado
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
