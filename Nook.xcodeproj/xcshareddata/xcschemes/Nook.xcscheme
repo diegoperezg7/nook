@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "45DC64F4606392864F14C513"
-               BuildableName = "Perch.app"
-               BlueprintName = "Perch"
-               ReferencedContainer = "container:Perch.xcodeproj">
+               BlueprintIdentifier = "8E7BD5965AE4DD3F52BB8C83"
+               BuildableName = "Nook.app"
+               BlueprintName = "Nook"
+               ReferencedContainer = "container:Nook.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "45DC64F4606392864F14C513"
-            BuildableName = "Perch.app"
-            BlueprintName = "Perch"
-            ReferencedContainer = "container:Perch.xcodeproj">
+            BlueprintIdentifier = "8E7BD5965AE4DD3F52BB8C83"
+            BuildableName = "Nook.app"
+            BlueprintName = "Nook"
+            ReferencedContainer = "container:Nook.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -44,10 +44,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "687C8F85AD19D926995FCD41"
-               BuildableName = "PerchTests.xctest"
-               BlueprintName = "PerchTests"
-               ReferencedContainer = "container:Perch.xcodeproj">
+               BlueprintIdentifier = "A2BDB367E2CB3D493D1E5329"
+               BuildableName = "NookTests.xctest"
+               BlueprintName = "NookTests"
+               ReferencedContainer = "container:Nook.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "45DC64F4606392864F14C513"
-            BuildableName = "Perch.app"
-            BlueprintName = "Perch"
-            ReferencedContainer = "container:Perch.xcodeproj">
+            BlueprintIdentifier = "8E7BD5965AE4DD3F52BB8C83"
+            BuildableName = "Nook.app"
+            BlueprintName = "Nook"
+            ReferencedContainer = "container:Nook.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -87,10 +87,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "45DC64F4606392864F14C513"
-            BuildableName = "Perch.app"
-            BlueprintName = "Perch"
-            ReferencedContainer = "container:Perch.xcodeproj">
+            BlueprintIdentifier = "8E7BD5965AE4DD3F52BB8C83"
+            BuildableName = "Nook.app"
+            BlueprintName = "Nook"
+            ReferencedContainer = "container:Nook.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>

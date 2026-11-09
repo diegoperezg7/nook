@@ -13,29 +13,29 @@ IDENTITY="${SIGN_IDENTITY:-Developer ID Application}"
 VERSION=$(grep 'MARKETING_VERSION' project.yml | head -1 | sed -E 's/.*"(.*)".*/\1/')
 DERIVED=build/dd
 OUT=dist
-APP="$OUT/Perch.app"
-DMG="$OUT/Perch-$VERSION.dmg"
+APP="$OUT/Nook.app"
+DMG="$OUT/Nook-$VERSION.dmg"
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
 xcodegen generate --quiet
-xcodebuild -project Perch.xcodeproj -scheme Perch -configuration Release \
+xcodebuild -project Nook.xcodeproj -scheme Nook -configuration Release \
   -destination "generic/platform=macOS" -derivedDataPath "$DERIVED" build -quiet
 
-ditto "$DERIVED/Build/Products/Release/Perch.app" "$APP"
+ditto "$DERIVED/Build/Products/Release/Nook.app" "$APP"
 
 # Firma explicita con Developer ID: la de Xcode es la de desarrollo.
 codesign --force --options runtime --timestamp \
-  --entitlements Perch/Perch.entitlements \
+  --entitlements Nook/Nook.entitlements \
   --sign "$IDENTITY" "$APP"
 codesign --verify --strict --verbose=2 "$APP"
 
 # DMG con acceso directo a Aplicaciones.
 STAGING=$(mktemp -d)
-ditto "$APP" "$STAGING/Perch.app"
+ditto "$APP" "$STAGING/Nook.app"
 ln -s /Applications "$STAGING/Applications"
-hdiutil create -volname Perch -srcfolder "$STAGING" -ov -format UDZO "$DMG" -quiet
+hdiutil create -volname Nook -srcfolder "$STAGING" -ov -format UDZO "$DMG" -quiet
 rm -rf "$STAGING"
 codesign --force --timestamp --sign "$IDENTITY" "$DMG"
 

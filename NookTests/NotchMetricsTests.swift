@@ -1,5 +1,5 @@
 import XCTest
-@testable import Perch
+@testable import Nook
 
 final class NotchMetricsTests: XCTestCase {
     /// MacBook Air 13" (1470x956 pt): notch de 32 pt de alto.

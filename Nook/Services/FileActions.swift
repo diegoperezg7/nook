@@ -78,7 +78,7 @@ enum FileActions {
 
     static func temporaryFolder() throws -> URL {
         let folder = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Perch-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("Nook-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
     }

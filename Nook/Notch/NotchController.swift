@@ -231,9 +231,9 @@ final class NotchController {
     }
 
     #if DEBUG
-    /// Abre el panel para capturas: `-PerchOpen shelf|clipboard`.
+    /// Abre el panel para capturas: `-NookOpen shelf|clipboard`.
     func applyDebugLaunchArguments() {
-        guard let value = UserDefaults.standard.string(forKey: "PerchOpen") else { return }
+        guard let value = UserDefaults.standard.string(forKey: "NookOpen") else { return }
         model.open(reason: .pinned, tab: value == "clipboard" ? .clipboard : .shelf)
     }
     #endif

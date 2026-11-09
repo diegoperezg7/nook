@@ -1,7 +1,7 @@
 import AppKit
 import SwiftData
 import XCTest
-@testable import Perch
+@testable import Nook
 
 @MainActor
 final class ItemStoreTests: XCTestCase {

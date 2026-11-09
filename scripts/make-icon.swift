@@ -1,6 +1,6 @@
-// Genera el icono de Perch (todas las resoluciones) con CoreGraphics.
+// Genera el icono de Nook (todas las resoluciones) con CoreGraphics.
 // Una gota de cristal liquido que cuelga del notch, sobre azul electrico.
-// Uso: swift scripts/make-icon.swift Perch/Resources/Assets.xcassets/AppIcon.appiconset
+// Uso: swift scripts/make-icon.swift Nook/Resources/Assets.xcassets/AppIcon.appiconset
 import AppKit
 import CoreImage
 

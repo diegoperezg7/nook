@@ -51,12 +51,12 @@
         }
       }
     },
-    "Ajustes de Perch": {
+    "Ajustes de Nook": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perch Settings"
+            "value": "Nook Settings"
           }
         }
       }
@@ -401,12 +401,12 @@
         }
       }
     },
-    "Salir de Perch": {
+    "Salir de Nook": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quit Perch"
+            "value": "Quit Nook"
           }
         }
       }
@@ -427,6 +427,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No clipboard access"
+          }
+        }
+      }
+    },
+    "Sin límite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlimited"
           }
         }
       }

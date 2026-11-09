@@ -88,7 +88,7 @@ struct NotchContentView: View {
                 }
             }
             Divider()
-            Button("Salir de Perch", systemImage: "power") { NSApp.terminate(nil) }
+            Button("Salir de Nook", systemImage: "power") { NSApp.terminate(nil) }
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 12, weight: .bold))

@@ -22,6 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             context: container.mainContext,
             itemsDirectory: ItemStore.supportDirectory.appendingPathComponent("Items", isDirectory: true)
         )
+        #if !DEBUG
+        LegacyImport.run(into: store)
+        #endif
         let notch = NotchController(store: store, container: container)
         let monitor = ClipboardMonitor(store: store)
 
@@ -45,8 +48,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         #if DEBUG
-        // `-PerchReset YES` borra la bandeja y el historial (limpieza tras pruebas).
-        if UserDefaults.standard.bool(forKey: "PerchReset") {
+        // `-NookReset YES` borra la bandeja y el historial (limpieza tras pruebas).
+        if UserDefaults.standard.bool(forKey: "NookReset") {
             store.clearShelf()
             store.clearHistory()
         }
@@ -71,7 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch?.model.close()
         if settingsWindow == nil {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
-            window.title = String(localized: "Ajustes de Perch")
+            window.title = String(localized: "Ajustes de Nook")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.center()
@@ -84,7 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private static func makeContainer() -> ModelContainer {
         let directory = ItemStore.supportDirectory
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let configuration = ModelConfiguration(url: directory.appendingPathComponent("Perch.store"))
+        let configuration = ModelConfiguration(url: directory.appendingPathComponent("Nook.store"))
         if let container = try? ModelContainer(for: NotchItem.self, configurations: configuration) {
             return container
         }

@@ -4,7 +4,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage(SettingsKey.captureClipboard) private var captureClipboard = true
-    @AppStorage(SettingsKey.historyLimit) private var historyLimit = 100
+    @AppStorage(SettingsKey.historyLimit) private var historyLimit = SettingsKey.unlimitedHistory
     @AppStorage(SettingsKey.hotKeyEnabled) private var hotKeyEnabled = true
     @AppStorage(SettingsKey.showWithoutNotch) private var showWithoutNotch = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -15,7 +15,13 @@ struct SettingsView: View {
             Section("Portapapeles") {
                 Toggle("Guardar el historial del portapapeles", isOn: $captureClipboard)
                 Picker("Elementos en el historial", selection: $historyLimit) {
-                    ForEach(SettingsKey.historyLimitOptions, id: \.self) { Text(verbatim: "\($0)").tag($0) }
+                    ForEach(SettingsKey.historyLimitOptions, id: \.self) { limit in
+                        if limit == SettingsKey.unlimitedHistory {
+                            Text("Sin límite").tag(limit)
+                        } else {
+                            Text(verbatim: "\(limit)").tag(limit)
+                        }
+                    }
                 }
                 Toggle("Abrir el historial con ⌃⌘V", isOn: $hotKeyEnabled)
                 LabeledContent("Acceso al portapapeles") {

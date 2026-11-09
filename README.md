@@ -1,4 +1,4 @@
-# Perch
+# Nook
 
 App de macOS que vive en el notch: una **bandeja** donde dejar archivos, imágenes o texto
 para usarlos después y un **historial del portapapeles** con búsqueda. Todo se arrastra
@@ -40,14 +40,14 @@ Requisitos: Xcode 26+, [XcodeGen](https://github.com/yonaskolb/XcodeGen). macOS 
 
 ```bash
 xcodegen generate
-xcodebuild -project Perch.xcodeproj -scheme Perch -derivedDataPath build/dd build
-xcodebuild -project Perch.xcodeproj -scheme Perch -derivedDataPath build/dd test
+xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd build
+xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd test
 ```
 
 Argumentos de depuración (solo Debug):
 
-- `-PerchOpen shelf|clipboard` abre el panel al arrancar y no lo cierra (capturas).
-- `-PerchReset YES` borra bandeja e historial.
+- `-NookOpen shelf|clipboard` abre el panel al arrancar y no lo cierra (capturas).
+- `-NookReset YES` borra bandeja e historial.
 
 ## Distribución
 
@@ -61,8 +61,8 @@ El DMG queda en `dist/`.
 ## Arquitectura
 
 ```
-Perch/
-  App/            PerchApp, AppDelegate (arranque, ajustes, atajo)
+Nook/
+  App/            NookApp, AppDelegate (arranque, ajustes, atajo)
   Notch/          Panel, controlador (raton, apertura/cierre), forma animada, medidas
   Features/       Bandeja, historial, tarjeta, ajustes
   Services/       ItemStore (SwiftData + archivos), ClipboardMonitor, DropReader, HotKey

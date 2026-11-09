@@ -31,7 +31,7 @@ final class ItemStore {
 
     static var supportDirectory: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return base.appendingPathComponent("Perch", isDirectory: true)
+        return base.appendingPathComponent("Nook", isDirectory: true)
     }
 
     // MARK: - Bandeja
@@ -133,15 +133,17 @@ final class ItemStore {
         return true
     }
 
-    /// Borra lo mas antiguo por encima del limite. Los fijados no cuentan ni se borran.
+    /// Borra lo mas antiguo por encima del limite, solo si el usuario ha puesto uno
+    /// (por defecto no hay). Los fijados no cuentan ni se borran.
     func trimHistory() {
+        let limit = historyLimit()
+        guard limit > 0 else { return }
         let clipboard = ItemOrigin.clipboard.rawValue
         let descriptor = FetchDescriptor<NotchItem>(
             predicate: #Predicate { $0.originRaw == clipboard && $0.isPinned == false },
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         guard let items = try? context.fetch(descriptor) else { return }
-        let limit = max(historyLimit(), 1)
         guard items.count > limit else { return }
         items[limit...].forEach(removeFilesAndDelete)
         save()
@@ -252,7 +254,7 @@ final class ItemStore {
         )
     }
 
-    private func insert(_ item: NotchItem) {
+    func insert(_ item: NotchItem) {
         context.insert(item)
         save()
     }

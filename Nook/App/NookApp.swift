@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct PerchApp: App {
+struct NookApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {

@@ -1,6 +1,6 @@
 import AppKit
 import XCTest
-@testable import Perch
+@testable import Nook
 
 final class FileActionsTests: XCTestCase {
     private var folder: URL!
@@ -33,8 +33,8 @@ final class FileActionsTests: XCTestCase {
     }
 
     func testRecognizesTextInImage() throws {
-        let text = try FileActions.recognizeText(in: try makeImage(text: "Hola Perch"))
-        XCTAssertTrue(text.localizedCaseInsensitiveContains("Perch"), "OCR devolvio: \(text)")
+        let text = try FileActions.recognizeText(in: try makeImage(text: "Hola Nook"))
+        XCTAssertTrue(text.localizedCaseInsensitiveContains("Nook"), "OCR devolvio: \(text)")
     }
 
     func testConvertsPNGToJPEG() throws {
