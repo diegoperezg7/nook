@@ -71,6 +71,26 @@
         }
       }
     },
+    "%lld sin leer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld unread"
+          }
+        }
+      }
+    },
+    "(Sin asunto)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(No Subject)"
+          }
+        }
+      }
+    },
     "1 captura": {
       "localizations": {
         "en": {
@@ -151,6 +171,16 @@
         }
       }
     },
+    "Abrir el correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Message"
+          }
+        }
+      }
+    },
     "Abrir el historial con ⌃⌘V": {
       "localizations": {
         "en": {
@@ -171,12 +201,32 @@
         }
       }
     },
+    "Abrir en segundo plano": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in Background"
+          }
+        }
+      }
+    },
     "Acceso al portapapeles": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Clipboard access"
+          }
+        }
+      }
+    },
+    "Actualizar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
           }
         }
       }
@@ -391,6 +441,16 @@
         }
       }
     },
+    "Bandeja de entrada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inbox"
+          }
+        }
+      }
+    },
     "Batería y cargador": {
       "localizations": {
         "en": {
@@ -447,6 +507,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calendar"
+          }
+        }
+      }
+    },
+    "Calendarios": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendars"
           }
         }
       }
@@ -621,12 +691,32 @@
         }
       }
     },
+    "Correo nuevo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Mail"
+          }
+        }
+      }
+    },
     "Cuenta atrás de reuniones": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Meeting Countdown"
+          }
+        }
+      }
+    },
+    "Da acceso al calendario desde la pestaña Calendario del notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grant calendar access from the Calendar tab in the notch."
           }
         }
       }
@@ -781,6 +871,16 @@
         }
       }
     },
+    "Este Outlook no deja leer el correo (usa el clásico o Mail)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Outlook doesn't allow reading mail (use Legacy Outlook or Mail)"
+          }
+        }
+      }
+    },
     "Evento": {
       "localizations": {
         "en": {
@@ -911,12 +1011,52 @@
         }
       }
     },
+    "Leer de": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read from"
+          }
+        }
+      }
+    },
     "Listo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Done"
+          }
+        }
+      }
+    },
+    "Mail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mail"
+          }
+        }
+      }
+    },
+    "Mail no está abierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mail isn't open"
+          }
+        }
+      }
+    },
+    "Mail no responde": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mail isn't responding"
           }
         }
       }
@@ -1061,6 +1201,26 @@
         }
       }
     },
+    "No tienes correos sin leer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No unread mail"
+          }
+        }
+      }
+    },
+    "Nook necesita permiso para leer la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nook needs permission to read your inbox"
+          }
+        }
+      }
+    },
     "Notch": {
       "localizations": {
         "en": {
@@ -1097,6 +1257,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hide in screenshots"
+          }
+        }
+      }
+    },
+    "Outlook": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outlook"
+          }
+        }
+      }
+    },
+    "Outlook (clásico)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outlook (Legacy)"
+          }
+        }
+      }
+    },
+    "Outlook / Exchange · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outlook / Exchange · %@"
+          }
+        }
+      }
+    },
+    "Outlook no está abierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outlook isn't open"
+          }
+        }
+      }
+    },
+    "Para ver Outlook, añade la cuenta de Microsoft 365 en Ajustes del Sistema > Cuentas de Internet.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To see Outlook, add your Microsoft 365 account in System Settings > Internet Accounts."
           }
         }
       }
@@ -1361,6 +1571,16 @@
         }
       }
     },
+    "Solo remitente, asunto y hora, y solo si la app está abierta. Nada sale de este Mac. El Outlook nuevo no deja leer el correo: usa Mail con la cuenta añadida en Cuentas de Internet o el Outlook clásico.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only sender, subject and time, and only while the app is open. Nothing leaves this Mac. New Outlook doesn't allow reading mail: use Mail with the account added in Internet Accounts, or Legacy Outlook."
+          }
+        }
+      }
+    },
     "Sonará hoy": {
       "localizations": {
         "en": {
@@ -1481,6 +1701,16 @@
         }
       }
     },
+    "Todo leído": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All read"
+          }
+        }
+      }
+    },
     "Tus capturas de pantalla, a mano": {
       "localizations": {
         "en": {
@@ -1547,6 +1777,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empty Shelf…"
+          }
+        }
+      }
+    },
+    "Ver los correos sin leer en el notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show unread mail in the notch"
           }
         }
       }

@@ -34,6 +34,29 @@ final class CalendarService {
     /// Dias del mes visible que tienen algun evento.
     private(set) var busyDays: Set<Date> = []
 
+    /// Calendarios del Mac agrupados por cuenta (iCloud, Exchange/Outlook, Google...).
+    struct Account: Identifiable {
+        let id: String
+        let title: String
+        let calendars: [Info]
+    }
+    struct Info: Identifiable {
+        let id: String
+        let title: String
+        let color: NSColor
+    }
+    private(set) var accounts: [Account] = []
+    /// Calendarios quitados en Ajustes (por defecto se ven todos).
+    private(set) var hidden: Set<String> = Set(UserDefaults.standard.stringArray(forKey: SettingsKey.hiddenCalendars) ?? [])
+
+    func isVisible(_ id: String) -> Bool { !hidden.contains(id) }
+
+    func setVisible(_ id: String, _ visible: Bool) {
+        if visible { hidden.remove(id) } else { hidden.insert(id) }
+        UserDefaults.standard.set(Array(hidden), forKey: SettingsKey.hiddenCalendars)
+        reloadAll()
+    }
+
     @ObservationIgnored private let store = EKEventStore()
     @ObservationIgnored private var observer: NSObjectProtocol?
 
@@ -86,7 +109,7 @@ final class CalendarService {
     @discardableResult
     func add(_ sentence: String) -> Event? {
         guard access == .granted, let parsed = QuickEventParser.parse(sentence),
-              let calendar = store.defaultCalendarForNewEvents else { return nil }
+              let calendar = calendarForNewEvents else { return nil }
         let event = EKEvent(eventStore: store)
         event.title = parsed.title
         event.startDate = parsed.start
@@ -118,8 +141,32 @@ final class CalendarService {
         }
     }
 
+    /// El calendario por defecto si se ve; si no, el primero visible que se pueda editar.
+    private var calendarForNewEvents: EKCalendar? {
+        if let preferred = store.defaultCalendarForNewEvents, isVisible(preferred.calendarIdentifier) { return preferred }
+        return store.calendars(for: .event).first { isVisible($0.calendarIdentifier) && $0.allowsContentModifications }
+            ?? store.defaultCalendarForNewEvents
+    }
+
+    private func reloadAccounts() {
+        let calendars = store.calendars(for: .event)
+        let grouped = Dictionary(grouping: calendars) { $0.source?.sourceIdentifier ?? "" }
+        accounts = grouped.compactMap { _, calendars in
+            guard let source = calendars.first?.source else { return nil }
+            let title = source.sourceType == .exchange ? String(localized: "Outlook / Exchange · \(source.title)") : source.title
+            return Account(
+                id: source.sourceIdentifier, title: title,
+                calendars: calendars
+                    .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+                    .map { Info(id: $0.calendarIdentifier, title: $0.title, color: $0.color ?? .controlAccentColor) }
+            )
+        }
+        .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+    }
+
     private func reloadAll() {
         guard access == .granted else { return }
+        reloadAccounts()
         let today = Calendar.current.startOfDay(for: .now)
         todayEvents = events(from: today, to: Calendar.current.date(byAdding: .day, value: 1, to: today)!)
         reloadDay()
@@ -140,7 +187,13 @@ final class CalendarService {
     }
 
     private func events(from start: Date, to end: Date) -> [Event] {
-        let predicate = store.predicateForEvents(withStart: start, end: end, calendars: nil)
+        // Sin filtro (nil) se ven todos; si el usuario quito todos, nada.
+        var calendars: [EKCalendar]?
+        if !hidden.isEmpty {
+            calendars = store.calendars(for: .event).filter { isVisible($0.calendarIdentifier) }
+            if calendars?.isEmpty == true { return [] }
+        }
+        let predicate = store.predicateForEvents(withStart: start, end: end, calendars: calendars)
         return store.events(matching: predicate)
             .sorted { ($0.isAllDay ? 0 : 1, $0.startDate) < ($1.isAllDay ? 0 : 1, $1.startDate) }
             .map(Self.map)

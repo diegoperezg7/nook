@@ -14,7 +14,7 @@ struct HUDActivity: View {
         case .timer, .stayAwake: return 70
         case .capsLock, .timerDone, .alarm: return 96
         case .network, .meeting: return 104
-        case .audioDevice, .download: return 112
+        case .audioDevice, .download, .mail: return 112
         }
     }
 
@@ -66,6 +66,8 @@ struct HUDActivity: View {
         case .timerDone:
             Image(systemName: "timer").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.clock)
                 .symbolEffect(.bounce, options: .repeat(3))
+        case .mail:
+            Image(systemName: "envelope.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
         case .alarm:
             Image(systemName: "alarm.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.clock)
                 .symbolEffect(.pulse)
@@ -114,6 +116,8 @@ struct HUDActivity: View {
             Text(!online ? "Sin conexión" : vpn ? "VPN" : "Conectado").font(.system(size: 11, weight: .semibold))
         case .timerDone:
             Text("¡Tiempo!").font(.system(size: 12, weight: .bold))
+        case let .mail(sender):
+            Text(verbatim: sender).font(.system(size: 11, weight: .semibold)).lineLimit(1).truncationMode(.tail)
         case let .alarm(time):
             Text(verbatim: time.formatted(date: .omitted, time: .shortened))
                 .font(.system(size: 12, weight: .bold).monospacedDigit())

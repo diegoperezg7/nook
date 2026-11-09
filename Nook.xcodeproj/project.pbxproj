@@ -41,6 +41,7 @@
 		91D2688A2C36DBC6FBE75065 /* SystemHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = F56E04FF0D99585993F1B914 /* SystemHUD.swift */; };
 		91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */; };
 		91E968B46AACE3CA62BFCAB3 /* AgeTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0796269F03450FB486C23A5 /* AgeTextTests.swift */; };
+		927648C76E5BB24104758F28 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E4DF97F3F17284304D808B2 /* MailView.swift */; };
 		97EA39A14083218528CFB83B /* Carousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD3CAE2AA017E82652A1978 /* Carousel.swift */; };
 		9F62B875BB54039E08E7C42B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 9ED0324EB54CC305C7C511CA /* Localizable.xcstrings */; };
 		A2421D45EB5CF2A50C00129D /* ScreenshotLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070732A66A26FFFB232AFD32 /* ScreenshotLibrary.swift */; };
@@ -52,9 +53,11 @@
 		C9DFFEA1F255B973B1956C1F /* ItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B838B524EC00D7BEE032A3B /* ItemStore.swift */; };
 		D151E68959A619D9824D9012 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E25FE7833ADE7338D7590F /* CalendarService.swift */; };
 		D4A6C9C3C52BB2668532C9B4 /* AppMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D139EB8143C96D2F9DF88190 /* AppMotion.swift */; };
+		DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */; };
 		DECF331C9665469D551BD770 /* ItemCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436339EB11D1F557D33BF2D4 /* ItemCard.swift */; };
 		E039E503F9F18558DE8D55CA /* LegacyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81A6D53766532D322DFE0B /* LegacyImport.swift */; };
 		E9B9C1761C6E6994D7F32DC7 /* QuickLookPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */; };
+		EB41B7D20BD79DA4E0AC74E1 /* MailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3669070BD1F9FFE76275B9 /* MailService.swift */; };
 		EF89335914D692DD6952FAE6 /* NotchMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007AA4253F285A9F465AE5F5 /* NotchMetrics.swift */; };
 		F54D8185779B29779B5F87E3 /* ScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87031FAA3EC00613740ED01 /* ScreenshotsView.swift */; };
 		F63748B0064A8FFD854FD1EF /* FocusTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD887C2BB4E9320640105B18 /* FocusTimer.swift */; };
@@ -81,6 +84,7 @@
 		170212C508F45D65AB1B9513 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AA0306FA026889F8FA33579 /* NotchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchController.swift; sourceTree = "<group>"; };
 		1E12DEFF243E7B4B84A7A135 /* NookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NookApp.swift; sourceTree = "<group>"; };
+		1E3669070BD1F9FFE76275B9 /* MailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailService.swift; sourceTree = "<group>"; };
 		1FC91D5134A42734B16E0B8B /* NotchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchContentView.swift; sourceTree = "<group>"; };
 		2D8AFA3334D93034DA95A1EB /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
 		3962A19399805A00EC692FF6 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
@@ -99,6 +103,7 @@
 		68FF8528E1C5508B42E2CB2E /* AgentMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentMonitor.swift; sourceTree = "<group>"; };
 		6AF31C476DBDFF1170647A72 /* Nook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AD3CAE2AA017E82652A1978 /* Carousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Carousel.swift; sourceTree = "<group>"; };
+		7E4DF97F3F17284304D808B2 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
 		822BB33D3C50EBD983E28BE0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		85211BF4348740C571E070F0 /* NotchPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchPanel.swift; sourceTree = "<group>"; };
 		8B838B524EC00D7BEE032A3B /* ItemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStore.swift; sourceTree = "<group>"; };
@@ -127,6 +132,7 @@
 		EDDBB41C044D6FE7DD35C1C9 /* NotchItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchItem.swift; sourceTree = "<group>"; };
 		F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEventParserTests.swift; sourceTree = "<group>"; };
 		F56E04FF0D99585993F1B914 /* SystemHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemHUD.swift; sourceTree = "<group>"; };
+		FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -159,6 +165,7 @@
 				C9D52E5AFBCF5050933B2E85 /* HotKey.swift */,
 				8B838B524EC00D7BEE032A3B /* ItemStore.swift */,
 				DA81A6D53766532D322DFE0B /* LegacyImport.swift */,
+				1E3669070BD1F9FFE76275B9 /* MailService.swift */,
 				BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */,
 				070732A66A26FFFB232AFD32 /* ScreenshotLibrary.swift */,
 				F56E04FF0D99585993F1B914 /* SystemHUD.swift */,
@@ -233,6 +240,7 @@
 				F5105F492194C0F9A3596229 /* Calendar */,
 				03EE0CE637975FDC7ACAA969 /* Clipboard */,
 				00343CACFF65480AF42AECBA /* HUD */,
+				F78E707515BFE4BBCC1420F1 /* Mail */,
 				B07629C533A3F4105FC8937A /* Screenshots */,
 				0E2F2ABBAF0AF8A80B59A534 /* Settings */,
 				E05F41E1B5435D182FC30520 /* Shelf */,
@@ -278,6 +286,7 @@
 				E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */,
 				10F7823DCD380341A906632A /* HistoryFeaturesTests.swift */,
 				4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */,
+				FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */,
 				478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */,
 				AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */,
 				F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */,
@@ -325,6 +334,14 @@
 				649398E11B2755299D34B4F9 /* CalendarView.swift */,
 			);
 			path = Calendar;
+			sourceTree = "<group>";
+		};
+		F78E707515BFE4BBCC1420F1 /* Mail */ = {
+			isa = PBXGroup;
+			children = (
+				7E4DF97F3F17284304D808B2 /* MailView.swift */,
+			);
+			path = Mail;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -445,6 +462,8 @@
 				C9DFFEA1F255B973B1956C1F /* ItemStore.swift in Sources */,
 				E039E503F9F18558DE8D55CA /* LegacyImport.swift in Sources */,
 				5DD31974213CCADFEBF22A86 /* LiquidGlass.swift in Sources */,
+				EB41B7D20BD79DA4E0AC74E1 /* MailService.swift in Sources */,
+				927648C76E5BB24104758F28 /* MailView.swift in Sources */,
 				A4A0E1DA0DDA1431733498E3 /* NookApp.swift in Sources */,
 				24A351E78F53E7ABE1A79020 /* NotchContentView.swift in Sources */,
 				6B12A977BA9AEB9604BFBF01 /* NotchController.swift in Sources */,
@@ -473,6 +492,7 @@
 				8D4CD8A37EA0EE8386DEA8EB /* FileActionsTests.swift in Sources */,
 				107508E840EEEDAB19E78331 /* HistoryFeaturesTests.swift in Sources */,
 				1F76E53B63D53B3331E218C7 /* ItemStoreTests.swift in Sources */,
+				DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */,
 				91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */,
 				B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */,
 				C49B334F0072110059AEEC30 /* QuickEventParserTests.swift in Sources */,
@@ -673,12 +693,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Nook muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Diego Pérez García";
@@ -686,7 +707,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.6.0;
+				MARKETING_VERSION = 0.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook;
 				PRODUCT_NAME = Nook;
 				SDKROOT = macosx;
@@ -700,12 +721,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Nook muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Diego Pérez García";
@@ -713,7 +735,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.6.0;
+				MARKETING_VERSION = 0.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.debug;
 				PRODUCT_NAME = Nook;
 				SDKROOT = macosx;

@@ -23,6 +23,7 @@ final class SystemHUD {
         case capsLock(on: Bool)
         case network(online: Bool, vpn: Bool)
         case timerDone
+        case mail(sender: String)
         // Actividades que duran.
         case meeting(title: String, start: Date)
         case timer(end: Date, total: TimeInterval)

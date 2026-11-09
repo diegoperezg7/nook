@@ -18,6 +18,10 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.hudNetwork) private var hudNetwork = true
     @AppStorage(SettingsKey.hudMediaInUse) private var hudMediaInUse = true
     @AppStorage(SettingsKey.hudMeetings) private var hudMeetings = true
+    @AppStorage(SettingsKey.hudMail) private var hudMail = true
+    @AppStorage(SettingsKey.mailEnabled) private var mailEnabled = true
+    @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
+    let calendar: CalendarService
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
 
@@ -59,6 +63,47 @@ struct SettingsView: View {
                 Toggle("Conexión a internet y VPN", isOn: $hudNetwork)
                 Toggle("Micrófono o cámara en uso", isOn: $hudMediaInUse)
                 Toggle("Cuenta atrás de reuniones", isOn: $hudMeetings)
+                Toggle("Correo nuevo", isOn: $hudMail)
+            }
+
+            Section("Bandeja de entrada") {
+                Toggle("Ver los correos sin leer en el notch", isOn: $mailEnabled)
+                Picker("Leer de", selection: $mailSource) {
+                    Text("Mail").tag(MailService.Source.mail.rawValue)
+                    Text("Outlook (clásico)").tag(MailService.Source.outlook.rawValue)
+                }
+                .disabled(!mailEnabled)
+                Text("Solo remitente, asunto y hora, y solo si la app está abierta. Nada sale de este Mac. El Outlook nuevo no deja leer el correo: usa Mail con la cuenta añadida en Cuentas de Internet o el Outlook clásico.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Calendarios") {
+                if calendar.accounts.isEmpty {
+                    Text("Da acceso al calendario desde la pestaña Calendario del notch.")
+                        .foregroundStyle(.secondary)
+                }
+                ForEach(calendar.accounts) { account in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(verbatim: account.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        ForEach(account.calendars) { info in
+                            Toggle(isOn: Binding(
+                                get: { calendar.isVisible(info.id) },
+                                set: { calendar.setVisible(info.id, $0) }
+                            )) {
+                                HStack(spacing: 6) {
+                                    Circle().fill(Color(nsColor: info.color)).frame(width: 9, height: 9)
+                                    Text(verbatim: info.title)
+                                }
+                            }
+                        }
+                    }
+                }
+                Text("Para ver Outlook, añade la cuenta de Microsoft 365 en Ajustes del Sistema > Cuentas de Internet.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Notch") {

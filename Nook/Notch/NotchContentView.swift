@@ -10,6 +10,7 @@ struct NotchContentView: View {
     @Environment(AgentMonitor.self) private var agents
     @Environment(CalendarService.self) private var calendarService
     @Environment(FocusTimer.self) private var focus
+    @Environment(MailService.self) private var mail
     @State private var showAlarm = false
     @State private var alarmTime = Date.now.addingTimeInterval(3600)
     @Namespace private var tabNamespace
@@ -30,6 +31,8 @@ struct NotchContentView: View {
                     ScreenshotsView(model: model, store: store, library: screenshots)
                 case .calendar:
                     CalendarView(calendar: calendarService)
+                case .mail:
+                    MailView(mail: mail)
                 case .agents:
                     AgentsView(monitor: agents)
                 }
@@ -57,6 +60,7 @@ struct NotchContentView: View {
                     .accessibilityLabel(Text("Añadir archivos…"))
                     .transition(.scale.combined(with: .opacity))
                 }
+                if mail.isEnabled { mailButton }
                 timerMenu
                 menu
             }
@@ -87,6 +91,31 @@ struct NotchContentView: View {
         TabButton(title: title, icon: icon, logo: logo, selected: model.tab == tab, namespace: tabNamespace) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
         }
+    }
+
+    /// Bandeja de entrada: no cabe como pestaña junto al notch, asi que va aqui,
+    /// con el numero de correos sin leer.
+    private var mailButton: some View {
+        Button {
+            withAnimation(AppMotion.snappy) { model.tab = model.tab == .mail ? .shelf : .mail }
+        } label: {
+            CircleIconLabel(icon: model.tab == .mail ? "envelope.open.fill" : "envelope", active: model.tab == .mail)
+                .overlay(alignment: .topTrailing) {
+                    if !mail.messages.isEmpty {
+                        Text(verbatim: mail.messages.count > 40 ? "40+" : "\(mail.messages.count)")
+                            .font(.system(size: 9, weight: .bold).monospacedDigit())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 4)
+                            .frame(minWidth: 15, minHeight: 15)
+                            .background(Capsule().fill(AppColors.danger))
+                            .offset(x: 3, y: -2)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+        .help(Text("Bandeja de entrada"))
+        .accessibilityLabel(Text("Bandeja de entrada"))
     }
 
     /// Temporizador (Pomodoro), alarmas y Mantener despierto. El boton se pone
@@ -161,7 +190,7 @@ struct NotchContentView: View {
                 Button("Vaciar bandeja…", systemImage: "trash", role: .destructive) { confirmClearShelf() }
             case .clipboard:
                 Button("Borrar historial…", systemImage: "trash", role: .destructive) { confirmClearHistory() }
-            case .agents, .calendar:
+            case .agents, .calendar, .mail:
                 EmptyView()
             case .screenshots:
                 Button("Cambiar carpeta de capturas…", systemImage: "folder.badge.gearshape") {

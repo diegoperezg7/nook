@@ -22,6 +22,12 @@ enum SettingsKey {
     static let hudNetwork = "hudNetwork"
     static let hudMediaInUse = "hudMediaInUse"
     static let hudMeetings = "hudMeetings"
+    static let hudMail = "hudMail"
+    /// Bandeja de entrada: activa y de que app se lee (mail / outlook).
+    static let mailEnabled = "mailEnabled"
+    static let mailSource = "mailSource"
+    /// Calendarios que el usuario ha quitado (identificadores de EventKit).
+    static let hiddenCalendars = "hiddenCalendars"
 
     /// 0 = sin limite: el historial solo se borra cuando lo pide el usuario.
     static let unlimitedHistory = 0
@@ -44,6 +50,9 @@ enum SettingsKey {
             hudNetwork: true,
             hudMediaInUse: true,
             hudMeetings: true,
+            hudMail: true,
+            mailEnabled: true,
+            mailSource: "mail",
         ])
     }
 }

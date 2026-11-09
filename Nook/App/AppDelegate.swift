@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hud: SystemHUD?
     private var calendar: CalendarService?
     private var focus: FocusTimer?
+    private var mail: MailService?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -36,9 +37,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let hud = SystemHUD()
         let calendar = CalendarService()
         let focus = FocusTimer()
+        let mail = MailService()
+        mail.onNew = { [weak hud] message in
+            guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail) else { return }
+            hud?.show(.mail(sender: message.sender), for: 3)
+        }
         hud.focus = focus
         hud.calendar = calendar
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus)
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -53,11 +59,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.hud = hud
         self.calendar = calendar
         self.focus = focus
+        self.mail = mail
 
         notch.start()
         monitor.start()
         hud.start()
         calendar.start()
+        mail.start()
         store.trimHistory()
         store.recognizeMissingText()
 
@@ -98,9 +106,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showSettings() {
+        guard let calendar else { return }
         notch?.model.close()
         if settingsWindow == nil {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
+            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(calendar: calendar)))
             window.title = String(localized: "Ajustes de Nook")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
