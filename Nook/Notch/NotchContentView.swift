@@ -181,6 +181,36 @@ struct NotchContentView: View {
         }
     }
 
+    /// Acciones con todo lo de la bandeja: enviar y crear un PDF.
+    @ViewBuilder
+    private var shelfActions: some View {
+        let files = store.shelfFileURLs()
+        let pages = files.filter { FileActions.isPDF($0) || FileActions.isImage($0) }
+        if !files.isEmpty {
+            Divider()
+            Button("Enviar todo por AirDrop", systemImage: "dot.radiowaves.left.and.right") {
+                model.close()
+                QuickShare.send(files, via: .sendViaAirDrop)
+            }
+            Button("Enviar todo por correo", systemImage: "envelope") {
+                model.close()
+                QuickShare.send(files, via: .composeEmail)
+            }
+        }
+        if pages.count >= 2 {
+            Button(String(localized: "Unir en un PDF (\(pages.count))"), systemImage: "doc.on.doc") {
+                Task {
+                    let name = String(localized: "Documentos unidos")
+                    if let output = try? await Task.detached { try FileActions.makePDF(from: pages, name: name) }.value {
+                        withAnimation(AppMotion.snappy) { try? store.addGeneratedFile(output) }
+                    } else {
+                        NSSound.beep()
+                    }
+                }
+            }
+        }
+    }
+
     private var menu: some View {
         Menu {
             Button("Ajustes…", systemImage: "gearshape") { model.onOpenSettings?() }
@@ -188,6 +218,8 @@ struct NotchContentView: View {
             switch model.tab {
             case .shelf:
                 Button("Añadir archivos…", systemImage: "plus") { chooseFiles() }
+                shelfActions
+                Divider()
                 Button("Vaciar bandeja…", systemImage: "trash", role: .destructive) { confirmClearShelf() }
             case .clipboard:
                 Button("Borrar historial…", systemImage: "trash", role: .destructive) { confirmClearHistory() }

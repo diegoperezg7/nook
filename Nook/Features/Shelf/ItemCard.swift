@@ -164,6 +164,9 @@ struct ItemCard: View {
         Button("Copiar", systemImage: "doc.on.doc", action: copy)
         Button("Vista previa", systemImage: "eye") { showPeek = true }
         share
+        Button("Enviar por AirDrop", systemImage: "dot.radiowaves.left.and.right") { QuickShare.send(shareItems, via: .sendViaAirDrop) }
+            .disabled(fileURL == nil)
+        Button("Enviar por correo", systemImage: "envelope") { QuickShare.send(shareItems, via: .composeEmail) }
         if let url = fileURL {
             Button("Mostrar en Finder", systemImage: "folder") {
                 NSWorkspace.shared.activateFileViewerSelecting([url])
@@ -179,6 +182,18 @@ struct ItemCard: View {
         if let url = fileURL, FileActions.isImage(url) {
             Divider()
             Button("Copiar texto de la imagen", systemImage: "text.viewfinder") { recognizeText(url) }
+        }
+        if item.storedPath != nil || item.origin == .clipboard, let url = fileURL {
+            if FileActions.isImage(url) {
+                Button("Quitar fondo", systemImage: "person.crop.rectangle.badge.plus") { run { try FileActions.removeBackground(url) } }
+                Button("Convertir a PDF", systemImage: "doc.richtext") {
+                    run { try FileActions.makePDF(from: [url], name: url.deletingPathExtension().lastPathComponent) }
+                }
+            }
+            if FileActions.isVideo(url) {
+                Button("Comprimir vídeo", systemImage: "arrow.down.right.and.arrow.up.left") { run { try await FileActions.compressVideo(url) } }
+                Button("Convertir a GIF", systemImage: "photo.stack") { run { try await FileActions.videoToGIF(url) } }
+            }
         }
         if item.storedPath != nil, let url = fileURL {
             Divider()
@@ -327,11 +342,17 @@ struct ItemCard: View {
     }
 
     /// Accion de archivo en segundo plano; el resultado se guarda en la bandeja.
-    private func run(_ action: @escaping @Sendable () throws -> URL) {
+    /// Lo que se manda por AirDrop o correo: el archivo o el texto.
+    private var shareItems: [Any] {
+        if let url = fileURL { return [url] }
+        return item.text.map { [$0] } ?? []
+    }
+
+    private func run(_ action: @escaping @Sendable () async throws -> URL) {
         withAnimation(AppMotion.snappy) { feedback = .working }
         Task {
             do {
-                let output = try await Task.detached(priority: .userInitiated) { try action() }.value
+                let output = try await Task.detached(priority: .userInitiated) { try await action() }.value
                 try withAnimation(AppMotion.snappy) { try store.addGeneratedFile(output) }
                 show(.done)
             } catch {

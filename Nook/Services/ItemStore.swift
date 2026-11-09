@@ -163,6 +163,16 @@ final class ItemStore {
         if !item.isPinned { trimHistory() }
     }
 
+    /// Archivos de la bandeja, del mas antiguo al mas reciente (el orden en que se dejaron).
+    func shelfFileURLs() -> [URL] {
+        let raw = ItemOrigin.shelf.rawValue
+        let descriptor = FetchDescriptor<NotchItem>(
+            predicate: #Predicate { $0.originRaw == raw },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return ((try? context.fetch(descriptor)) ?? []).filter { $0.kind != .text }.compactMap(fileURL(for:))
+    }
+
     func clearShelf() {
         deleteAll(origin: .shelf, keepPinned: false)
     }

@@ -19,6 +19,7 @@
 		1F76E53B63D53B3331E218C7 /* ItemStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */; };
 		238B9B387E64B45154BD88C2 /* Thumbnails.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFACE65651CBEBEB9C289B09 /* Thumbnails.swift */; };
 		24A351E78F53E7ABE1A79020 /* NotchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC91D5134A42734B16E0B8B /* NotchContentView.swift */; };
+		26DE8BA106AFAE71258F243D /* TransformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C390526C59AFC77B9997665E /* TransformTests.swift */; };
 		2BB3602A4B19FC4C05F0C451 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 170212C508F45D65AB1B9513 /* Assets.xcassets */; };
 		2BC89E7CD9FDB6A48EDC12C8 /* NotchItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDBB41C044D6FE7DD35C1C9 /* NotchItem.swift */; };
 		30A59FA6278318A44BD649ED /* FileActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */; };
@@ -53,6 +54,7 @@
 		C9DFFEA1F255B973B1956C1F /* ItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B838B524EC00D7BEE032A3B /* ItemStore.swift */; };
 		D151E68959A619D9824D9012 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E25FE7833ADE7338D7590F /* CalendarService.swift */; };
 		D4A6C9C3C52BB2668532C9B4 /* AppMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D139EB8143C96D2F9DF88190 /* AppMotion.swift */; };
+		D6013745710651EB09D297A5 /* QuickShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DB70FBFA418B03D230543E /* QuickShare.swift */; };
 		DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */; };
 		DECF331C9665469D551BD770 /* ItemCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436339EB11D1F557D33BF2D4 /* ItemCard.swift */; };
 		E039E503F9F18558DE8D55CA /* LegacyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA81A6D53766532D322DFE0B /* LegacyImport.swift */; };
@@ -121,11 +123,13 @@
 		B92CD6123F423D3A887A1A1C /* ClipboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardView.swift; sourceTree = "<group>"; };
 		BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPresenter.swift; sourceTree = "<group>"; };
 		C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActions.swift; sourceTree = "<group>"; };
+		C390526C59AFC77B9997665E /* TransformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformTests.swift; sourceTree = "<group>"; };
 		C9D52E5AFBCF5050933B2E85 /* HotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKey.swift; sourceTree = "<group>"; };
 		CD921CC11A139E1721BD0361 /* NookTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF27E7D4490EDDBE1D8BE9BE /* NotchShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchShape.swift; sourceTree = "<group>"; };
 		D139EB8143C96D2F9DF88190 /* AppMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMotion.swift; sourceTree = "<group>"; };
 		D87031FAA3EC00613740ED01 /* ScreenshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotsView.swift; sourceTree = "<group>"; };
+		D8DB70FBFA418B03D230543E /* QuickShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickShare.swift; sourceTree = "<group>"; };
 		DA81A6D53766532D322DFE0B /* LegacyImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyImport.swift; sourceTree = "<group>"; };
 		DD887C2BB4E9320640105B18 /* FocusTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimer.swift; sourceTree = "<group>"; };
 		E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActionsTests.swift; sourceTree = "<group>"; };
@@ -167,6 +171,7 @@
 				DA81A6D53766532D322DFE0B /* LegacyImport.swift */,
 				1E3669070BD1F9FFE76275B9 /* MailService.swift */,
 				BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */,
+				D8DB70FBFA418B03D230543E /* QuickShare.swift */,
 				070732A66A26FFFB232AFD32 /* ScreenshotLibrary.swift */,
 				F56E04FF0D99585993F1B914 /* SystemHUD.swift */,
 				AFACE65651CBEBEB9C289B09 /* Thumbnails.swift */,
@@ -291,6 +296,7 @@
 				AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */,
 				F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */,
 				9526444630A27DAF2E64ACBC /* ScreenshotLibraryTests.swift */,
+				C390526C59AFC77B9997665E /* TransformTests.swift */,
 			);
 			path = NookTests;
 			sourceTree = "<group>";
@@ -474,6 +480,7 @@
 				11E1B35AEAC096AA7D4775EA /* NotchShape.swift in Sources */,
 				8660AB314716BF15488962FC /* NotchViewModel.swift in Sources */,
 				E9B9C1761C6E6994D7F32DC7 /* QuickLookPresenter.swift in Sources */,
+				D6013745710651EB09D297A5 /* QuickShare.swift in Sources */,
 				A2421D45EB5CF2A50C00129D /* ScreenshotLibrary.swift in Sources */,
 				F54D8185779B29779B5F87E3 /* ScreenshotsView.swift in Sources */,
 				5CBDC3EABBAF0CE1A7E34C8A /* SettingsView.swift in Sources */,
@@ -497,6 +504,7 @@
 				B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */,
 				C49B334F0072110059AEEC30 /* QuickEventParserTests.swift in Sources */,
 				04EAAD5D4D361333BF65FB34 /* ScreenshotLibraryTests.swift in Sources */,
+				26DE8BA106AFAE71258F243D /* TransformTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
