@@ -1,0 +1,334 @@
+import AppKit
+import SwiftUI
+
+/// Tarjeta de un elemento, con vista previa real (Quick Look). Se arrastra fuera tal
+/// cual; un clic lo copia y un doble clic abre la vista previa. El resto de acciones,
+/// en el menu contextual.
+struct ItemCard: View {
+    let item: NotchItem
+    let store: ItemStore
+    let index: Int
+    var onCopied: () -> Void = {}
+    var onDragStart: () -> Void = {}
+
+    @State private var hovering = false
+    @State private var appeared = false
+    @State private var feedback: Feedback?
+    @State private var thumbnail: NSImage?
+
+    static let size = CGSize(width: 108, height: 120)
+    private static let previewHeight: CGFloat = 76
+    private static let corner: CGFloat = 14
+
+    /// Mensaje breve sobre la tarjeta tras una accion.
+    private enum Feedback: Equatable {
+        case working, copied, textCopied, noText, saved, done, failed
+
+        var icon: String {
+            switch self {
+            case .working: return ""
+            case .copied, .textCopied, .done: return "checkmark.circle.fill"
+            case .noText: return "text.magnifyingglass"
+            case .saved: return "tray.and.arrow.down.fill"
+            case .failed: return "exclamationmark.triangle.fill"
+            }
+        }
+
+        var text: LocalizedStringKey {
+            switch self {
+            case .working: return ""
+            case .copied: return "Copiado"
+            case .textCopied: return "Texto copiado"
+            case .noText: return "Sin texto"
+            case .saved: return "Guardado"
+            case .done: return "Listo"
+            case .failed: return "Error"
+            }
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            preview
+                .frame(width: Self.size.width - 12, height: Self.previewHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                .overlay(alignment: .bottomTrailing) { typeBadge }
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(AppTypography.cardTitle)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Text(item.createdAt, style: .relative)
+                    .font(AppTypography.cardCaption)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 3)
+        }
+        .padding(6)
+        .frame(width: Self.size.width, height: Self.size.height, alignment: .top)
+        .background(
+            RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
+                .fill(hovering ? AppColors.cardHover : AppColors.card)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
+                .strokeBorder(hovering ? AppColors.accent : AppColors.cardBorder, lineWidth: hovering ? 1.5 : 0.5)
+        )
+        .overlay(alignment: .topLeading) {
+            if item.isPinned {
+                Image(systemName: "pin.fill")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(AppColors.onAccent)
+                    .frame(width: 18, height: 18)
+                    .background(Circle().fill(AppColors.accent))
+                    .offset(x: -5, y: -5)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if hovering {
+                Button { withAnimation(AppMotion.snappy) { store.delete(item) } } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .frame(width: 18, height: 18)
+                        .background(Circle().fill(.thickMaterial))
+                        .overlay(Circle().strokeBorder(AppColors.cardBorder))
+                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                }
+                .buttonStyle(.plain)
+                .offset(x: 5, y: -5)
+                .help(Text("Eliminar"))
+                .transition(.scale(scale: 0.5).combined(with: .opacity))
+            }
+        }
+        .overlay { if let feedback { badge(feedback) } }
+        .shadow(color: .black.opacity(hovering ? 0.22 : 0), radius: 8, y: 4)
+        .scaleEffect(hovering && !AppMotion.reduceMotion ? 1.045 : 1)
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared || AppMotion.reduceMotion ? 0 : 8)
+        .contentShape(RoundedRectangle(cornerRadius: Self.corner, style: .continuous))
+        .onHover { inside in withAnimation(AppMotion.snappy) { hovering = inside } }
+        .onTapGesture(perform: copy)
+        .simultaneousGesture(TapGesture(count: 2).onEnded(openPreview))
+        .onDrag {
+            onDragStart()
+            return store.itemProvider(for: item)
+        } preview: {
+            dragPreview
+        }
+        .contextMenu { menu }
+        .onAppear {
+            withAnimation(AppMotion.stagger(index)) { appeared = true }
+        }
+        .task(id: item.id) { await loadThumbnail() }
+        .help(item.kind == .text ? Text(verbatim: String((item.text ?? "").prefix(400))) : Text(title))
+    }
+
+    // MARK: - Menu
+
+    @ViewBuilder
+    private var menu: some View {
+        Button("Copiar", systemImage: "doc.on.doc", action: copy)
+        if item.kind != .text {
+            Button("Vista previa", systemImage: "eye", action: openPreview)
+        }
+        share
+        if let url = fileURL {
+            Button("Mostrar en Finder", systemImage: "folder") {
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            }
+        }
+        if item.origin == .clipboard {
+            Button("Guardar en la bandeja", systemImage: "tray.and.arrow.down") {
+                withAnimation(AppMotion.snappy) { store.saveToShelf(item) }
+                show(.saved)
+            }
+        }
+
+        if let url = fileURL, FileActions.isImage(url) {
+            Divider()
+            Button("Copiar texto de la imagen", systemImage: "text.viewfinder") { recognizeText(url) }
+        }
+        if item.storedPath != nil, let url = fileURL {
+            Divider()
+            Button("Comprimir en .zip", systemImage: "doc.zipper") { run { try FileActions.zip(url) } }
+            if FileActions.isImage(url) {
+                Menu("Convertir a", systemImage: "arrow.triangle.2.circlepath") {
+                    ForEach(ImageFormat.allCases.filter { $0 != FileActions.format(of: url) }) { format in
+                        Button { run { try FileActions.convert(url, to: format) } } label: {
+                            Text(verbatim: format.label)
+                        }
+                    }
+                }
+            }
+        }
+
+        if item.origin == .clipboard {
+            Divider()
+            Button(item.isPinned ? "Desfijar" : "Fijar", systemImage: item.isPinned ? "pin.slash" : "pin") {
+                withAnimation(AppMotion.snappy) { store.togglePin(item) }
+            }
+        }
+        Divider()
+        Button("Eliminar", systemImage: "trash", role: .destructive) {
+            withAnimation(AppMotion.snappy) { store.delete(item) }
+        }
+    }
+
+    @ViewBuilder
+    private var share: some View {
+        if let url = fileURL {
+            ShareLink(item: url) { Label("Compartir", systemImage: "square.and.arrow.up") }
+        } else if let text = item.text {
+            ShareLink(item: text) { Label("Compartir", systemImage: "square.and.arrow.up") }
+        }
+    }
+
+    // MARK: - Vistas
+
+    @ViewBuilder
+    private var preview: some View {
+        switch item.kind {
+        case .text:
+            Text(item.text ?? "")
+                .font(AppTypography.cardText)
+                .foregroundStyle(AppColors.textPrimary)
+                .lineLimit(4)
+                .padding(8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(AppColors.previewWell)
+        case .image, .file:
+            ZStack {
+                AppColors.previewWell
+                if let thumbnail {
+                    Image(nsImage: thumbnail)
+                        .resizable()
+                        .aspectRatio(contentMode: isPhoto ? .fill : .fit)
+                        .padding(isPhoto ? 0 : 6)
+                        .transition(.opacity)
+                }
+            }
+        }
+    }
+
+    /// Imagenes a sangre; documentos encajados (su miniatura ya trae la pagina).
+    private var isPhoto: Bool {
+        guard let url = fileURL else { return false }
+        return FileActions.isImage(url)
+    }
+
+    /// Extension del archivo (PDF, ZIP...) en una pastilla sobre la vista previa.
+    @ViewBuilder
+    private var typeBadge: some View {
+        if item.kind != .text, let ext = fileURL?.pathExtension, !ext.isEmpty {
+            Text(verbatim: ext.uppercased())
+                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(.black.opacity(0.55)))
+                .padding(5)
+        }
+    }
+
+    private var dragPreview: some View {
+        Group {
+            if let thumbnail {
+                Image(nsImage: thumbnail).resizable().aspectRatio(contentMode: .fit).frame(width: 72, height: 72)
+            } else {
+                Text(title).font(AppTypography.cardTitle).padding(8)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(.regularMaterial))
+            }
+        }
+    }
+
+    private func badge(_ feedback: Feedback) -> some View {
+        RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
+            .fill(.ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
+                    .fill(feedback == .failed || feedback == .noText ? Color.black.opacity(0.25) : AppColors.accent.opacity(0.75))
+            )
+            .overlay {
+                if feedback == .working {
+                    ProgressView().controlSize(.small).tint(AppColors.onAccent)
+                } else {
+                    VStack(spacing: 5) {
+                        Image(systemName: feedback.icon).font(.system(size: 18, weight: .semibold))
+                        Text(feedback.text).font(AppTypography.bodyStrong).multilineTextAlignment(.center)
+                    }
+                    .foregroundStyle(AppColors.onAccent)
+                    .padding(6)
+                }
+            }
+            .transition(.opacity.combined(with: .scale(scale: 0.94)))
+    }
+
+    private var title: String {
+        switch item.kind {
+        case .text: return String(localized: "Texto")
+        case .image: return String(localized: "Imagen")
+        case .file: return item.fileName ?? String(localized: "Archivo")
+        }
+    }
+
+    private var fileURL: URL? { item.kind == .text ? nil : store.fileURL(for: item) }
+
+    // MARK: - Acciones
+
+    private func copy() {
+        store.copyToPasteboard(item)
+        show(.copied) { onCopied() }
+    }
+
+    private func openPreview() {
+        guard let url = fileURL else { return }
+        QuickLookPresenter.shared.show(url)
+    }
+
+    private func recognizeText(_ url: URL) {
+        withAnimation(AppMotion.snappy) { feedback = .working }
+        Task {
+            let text = try? await Task.detached(priority: .userInitiated) {
+                try FileActions.recognizeText(in: url)
+            }.value
+            guard let text, !text.isEmpty else { return show(.noText) }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(text, forType: .string)
+            show(.textCopied)
+        }
+    }
+
+    /// Accion de archivo en segundo plano; el resultado se guarda en la bandeja.
+    private func run(_ action: @escaping @Sendable () throws -> URL) {
+        withAnimation(AppMotion.snappy) { feedback = .working }
+        Task {
+            do {
+                let output = try await Task.detached(priority: .userInitiated) { try action() }.value
+                try withAnimation(AppMotion.snappy) { try store.addGeneratedFile(output) }
+                show(.done)
+            } catch {
+                show(.failed)
+            }
+        }
+    }
+
+    private func show(_ value: Feedback, then: (() -> Void)? = nil) {
+        withAnimation(AppMotion.snappy) { feedback = value }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            withAnimation(AppMotion.snappy) { if feedback == value { feedback = nil } }
+            then?()
+        }
+    }
+
+    private func loadThumbnail() async {
+        guard item.kind != .text, let url = store.fileURL(for: item) else { return }
+        let image = await Thumbnails.image(for: url)
+        withAnimation(.easeOut(duration: 0.2)) { thumbnail = image }
+    }
+}
