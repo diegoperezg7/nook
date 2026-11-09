@@ -25,11 +25,39 @@ struct MailView: View {
                     content
                         .padding(.horizontal, NotchContentView.margin)
                         .frame(height: NotchMetrics.cardRowHeight + NotchMetrics.readerExtra, alignment: .top)
+                        .overlay(alignment: .bottom) { undoBar }
                 }
                 .transition(.move(edge: .leading).combined(with: .opacity))
             }
         }
         .onAppear { mail.refresh() }
+        .animation(AppMotion.snappy, value: mail.pendingTrash)
+    }
+
+    /// "Movido a la papelera · Deshacer" mientras se puede deshacer.
+    @ViewBuilder
+    private var undoBar: some View {
+        if mail.pendingTrash != nil {
+            HStack(spacing: 10) {
+                Image(systemName: "trash.fill")
+                    .foregroundStyle(AppColors.textSecondary)
+                Text("Movido a la papelera")
+                    .foregroundStyle(AppColors.textPrimary)
+                Button {
+                    withAnimation(AppMotion.snappy) { mail.undoTrash() }
+                } label: {
+                    Text("Deshacer").foregroundStyle(AppColors.accent)
+                }
+                .buttonStyle(.plain)
+            }
+            .font(AppTypography.bodyStrong)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Capsule().fill(AppColors.floating))
+            .overlay(Capsule().strokeBorder(AppColors.textPrimary.opacity(0.12), lineWidth: 1))
+            .padding(.bottom, 14)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 
     private var header: some View {
@@ -289,6 +317,10 @@ private struct MailReader: View {
             ReaderButton(icon: "arrowshape.turn.up.left.fill", help: "Responder") { mail.reply(to: message) }
             ReaderButton(icon: "envelope.open.fill", help: "Marcar como leído") {
                 mail.markRead(message)
+                back()
+            }
+            ReaderButton(icon: "trash.fill", help: "Mover a la papelera") {
+                mail.trash(message)
                 back()
             }
             ReaderButton(icon: "arrow.up.forward.app.fill", help: "Abrir en la app") { mail.open(message) }

@@ -321,6 +321,16 @@
         }
       }
     },
+    "Acciones rápidas en el correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick actions in mail"
+          }
+        }
+      }
+    },
     "Acciones sobre el texto seleccionado": {
       "localizations": {
         "en": {
@@ -1181,6 +1191,16 @@
         }
       }
     },
+    "Continuar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
     "Convertir a": {
       "localizations": {
         "en": {
@@ -1277,6 +1297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mail"
+          }
+        }
+      }
+    },
+    "Correo más cómodo de leer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Easier-to-read mail"
           }
         }
       }
@@ -1407,6 +1437,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unpin"
+          }
+        }
+      }
+    },
+    "Deshacer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
           }
         }
       }
@@ -1841,6 +1881,16 @@
         }
       }
     },
+    "Icono nuevo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New icon"
+          }
+        }
+      }
+    },
     "Imagen": {
       "localizations": {
         "en": {
@@ -1987,6 +2037,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calls"
+          }
+        }
+      }
+    },
+    "Los correos escritos a mano se ven en oscuro, a juego con el notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hand-written emails are shown in dark, matching the notch."
           }
         }
       }
@@ -2167,6 +2227,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show Folder in Finder"
+          }
+        }
+      }
+    },
+    "Mover a la papelera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash"
+          }
+        }
+      }
+    },
+    "Movido a la papelera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moved to Trash"
           }
         }
       }
@@ -2361,6 +2441,16 @@
         }
       }
     },
+    "Novedades de Nook %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's new in Nook %@"
+          }
+        }
+      }
+    },
     "Nueva alarma": {
       "localizations": {
         "en": {
@@ -2497,6 +2587,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hover over the notch to open Nook. Settings are in the panel's ⋯ menu."
+          }
+        }
+      }
+    },
+    "Pasa el ratón por un correo para marcarlo como leído o mandarlo a la papelera, sin abrirlo. Si te equivocas, puedes deshacerlo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hover over an email to mark it as read or move it to the Trash without opening it. Made a mistake? You can undo it."
           }
         }
       }
@@ -3261,6 +3361,16 @@
         }
       }
     },
+    "Una gota de cristal que cuelga del notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A glass drop hanging from the notch."
+          }
+        }
+      }
+    },
     "Unir en un PDF (%lld)": {
       "localizations": {
         "en": {
@@ -3547,16 +3657,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "⌥Space for the launcher"
-          }
-        }
-      }
-    },
-    "Mover a la papelera": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move to Trash"
           }
         }
       }

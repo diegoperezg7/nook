@@ -74,6 +74,7 @@
 		A2421D45EB5CF2A50C00129D /* ScreenshotLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070732A66A26FFFB232AFD32 /* ScreenshotLibrary.swift */; };
 		A4A0E1DA0DDA1431733498E3 /* NookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E12DEFF243E7B4B84A7A135 /* NookApp.swift */; };
 		A8791B8672B6B8D9C5FDB854 /* HUDActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B99070D615C306E37876A84 /* HUDActivity.swift */; };
+		AA5FEA1BAB21C10A424260D3 /* WhatsNewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF2E3AE2419175546FFE9BEF /* WhatsNewTests.swift */; };
 		B9C5A68A5CF767B18C643FD0 /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB7CFDCAFA11ABC8F25E3A /* ShakeDetector.swift */; };
 		B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */; };
 		BB61B646BAA1DD1EB3CFBDE1 /* NotchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 602FD69B4C2C9E727EBC2063 /* NotchRootView.swift */; };
@@ -84,6 +85,7 @@
 		D151E68959A619D9824D9012 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E25FE7833ADE7338D7590F /* CalendarService.swift */; };
 		D1D1B6D0A65278AA2BF31C63 /* MailHTMLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 489CFBE97631512088A34585 /* MailHTMLView.swift */; };
 		D4A6C9C3C52BB2668532C9B4 /* AppMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D139EB8143C96D2F9DF88190 /* AppMotion.swift */; };
+		D4FFCACEE8BD309D1EBD9D54 /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0075AB60D81C30BBCED0FF0C /* WhatsNewView.swift */; };
 		D6013745710651EB09D297A5 /* QuickShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DB70FBFA418B03D230543E /* QuickShare.swift */; };
 		DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */; };
 		DECF331C9665469D551BD770 /* ItemCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 436339EB11D1F557D33BF2D4 /* ItemCard.swift */; };
@@ -110,6 +112,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0075AB60D81C30BBCED0FF0C /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		007AA4253F285A9F465AE5F5 /* NotchMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchMetrics.swift; sourceTree = "<group>"; };
 		022144C0BA47F49B651F7CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0703CC2EA9365ACDE4E73D12 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
@@ -177,6 +180,7 @@
 		B92CD6123F423D3A887A1A1C /* ClipboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardView.swift; sourceTree = "<group>"; };
 		BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPresenter.swift; sourceTree = "<group>"; };
 		BF1975631397C825FAB3F33A /* ActionRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionRing.swift; sourceTree = "<group>"; };
+		BF2E3AE2419175546FFE9BEF /* WhatsNewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewTests.swift; sourceTree = "<group>"; };
 		C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActions.swift; sourceTree = "<group>"; };
 		C13A027553EC87BD26A7E07F /* BatteryCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryCenter.swift; sourceTree = "<group>"; };
 		C16CEFF310C97BABADCF9DE3 /* MIMETests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIMETests.swift; sourceTree = "<group>"; };
@@ -359,6 +363,7 @@
 			children = (
 				7DCCF7F58403EFEC7715731F /* OnboardingView.swift */,
 				C3A0D568259038C34AAC8ABF /* PermissionRow.swift */,
+				0075AB60D81C30BBCED0FF0C /* WhatsNewView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -437,6 +442,7 @@
 				22E3C14231B92AD684A7FA07 /* ShakeDetectorTests.swift */,
 				43526CBCF95F7B2241B1D0CC /* ToolsTests.swift */,
 				C390526C59AFC77B9997665E /* TransformTests.swift */,
+				BF2E3AE2419175546FFE9BEF /* WhatsNewTests.swift */,
 				7B146723843256F484B6AD50 /* WindowLayoutTests.swift */,
 			);
 			path = NookTests;
@@ -651,6 +657,7 @@
 				F379C46688C1D44E36A429CE /* SystemStats.swift in Sources */,
 				238B9B387E64B45154BD88C2 /* Thumbnails.swift in Sources */,
 				BC142D612DE98CF0C7352F83 /* Weather.swift in Sources */,
+				D4FFCACEE8BD309D1EBD9D54 /* WhatsNewView.swift in Sources */,
 				4E58E30C9AAB2D6FFAB5636C /* WindowSnap.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -680,6 +687,7 @@
 				057A11D2B97C4D3DD5925376 /* ShakeDetectorTests.swift in Sources */,
 				91DEA2A2928F949F4DF19562 /* ToolsTests.swift in Sources */,
 				26DE8BA106AFAE71258F243D /* TransformTests.swift in Sources */,
+				AA5FEA1BAB21C10A424260D3 /* WhatsNewTests.swift in Sources */,
 				46E1ED685D06FDC224C602BE /* WindowLayoutTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -877,7 +885,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 23;
+				CURRENT_PROJECT_VERSION = 24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
@@ -894,7 +902,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.19.0;
+				MARKETING_VERSION = 0.20.0;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook;
 				PRODUCT_NAME = Nook;
@@ -909,7 +917,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 23;
+				CURRENT_PROJECT_VERSION = 24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
@@ -926,7 +934,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.19.0;
+				MARKETING_VERSION = 0.20.0;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook.debug;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.debug;
 				PRODUCT_NAME = Nook;

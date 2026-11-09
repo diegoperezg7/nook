@@ -45,6 +45,9 @@ final class MailService {
 
     private(set) var messages: [Message] = []
     private(set) var state: State = .idle
+    /// Ultimo correo mandado a la papelera: se borra de verdad a los 5 s, salvo que
+    /// se pulse "Deshacer".
+    private(set) var pendingTrash: Message?
     /// Llega un correo sin leer que no estaba antes (para el aviso del notch).
     @ObservationIgnored var onNew: ((Message) -> Void)?
 
@@ -53,6 +56,9 @@ final class MailService {
     @ObservationIgnored private var seen: Set<String>?
     @ObservationIgnored private var loading = false
     @ObservationIgnored private let queue = DispatchQueue(label: "com.diegoperez.nook.mail")
+    @ObservationIgnored private var trashWork: DispatchWorkItem?
+    @ObservationIgnored private var trashSource: Source = .mail
+    @ObservationIgnored private var trashIndex = 0
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -135,7 +141,7 @@ final class MailService {
                 for message in parsed where !seen.contains(message.id) { onNew?(message) }
             }
             seen = Set(parsed.map(\.id))
-            messages = parsed
+            messages = parsed.filter { $0.id != pendingTrash?.id }
             state = .ok
         case .denied: state = .denied; messages = []
         case .unsupported: state = .unsupported; messages = []
@@ -267,11 +273,36 @@ final class MailService {
         queue.async { _ = Self.run(script) }
     }
 
-    /// A la papelera (Mail: Papelera; Outlook: Elementos eliminados).
+    /// A la papelera (Mail: Papelera; Outlook: Elementos eliminados). Sale de la lista
+    /// al momento, pero no se borra hasta pasados 5 s, para poder deshacerlo.
     func trash(_ message: Message) {
-        let script = Self.actionScript(for: source, id: message.id, action: "delete m")
+        commitTrash()
+        trashIndex = messages.firstIndex { $0.id == message.id } ?? 0
+        trashSource = source
         messages.removeAll { $0.id == message.id }
+        pendingTrash = message
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated { self?.commitTrash() }
+        }
+        trashWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: work)
+    }
+
+    func undoTrash() {
+        guard let message = pendingTrash else { return }
+        trashWork?.cancel()
+        trashWork = nil
+        pendingTrash = nil
+        messages.insert(message, at: min(trashIndex, messages.count))
+    }
+
+    private func commitTrash() {
+        trashWork?.cancel()
+        trashWork = nil
+        guard let message = pendingTrash else { return }
+        pendingTrash = nil
         seen?.remove(message.id)
+        let script = Self.actionScript(for: trashSource, id: message.id, action: "delete m")
         queue.async { _ = Self.run(script) }
     }
 

@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKey: HotKey?
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var whatsNewWindow: NSWindow?
     private let permissions = PermissionState()
     private var defaultsObserver: NSObjectProtocol?
     private var services: ServiceProvider?
@@ -151,10 +152,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         notch.applyDebugLaunchArguments()
         if UserDefaults.standard.string(forKey: "NookOpen") == "settings" { showSettings(); return }
+        if UserDefaults.standard.bool(forKey: "NookWhatsNew") { showWhatsNew(); return }
         #endif
-        if !UserDefaults.standard.bool(forKey: SettingsKey.onboardingDone) {
+        let firstLaunch = !UserDefaults.standard.bool(forKey: SettingsKey.onboardingDone)
+        if WhatsNew.shouldShow(firstLaunch: firstLaunch) {
+            showWhatsNew()
+        } else if firstLaunch {
             showOnboarding()
         }
+    }
+
+    /// Novedades tras actualizar (una vez por version).
+    private func showWhatsNew() {
+        if whatsNewWindow == nil {
+            let view = WhatsNewView { [weak self] in self?.whatsNewWindow?.close() }
+            let window = NSWindow(contentViewController: NSHostingController(rootView: view))
+            window.styleMask = [.titled, .closable, .fullSizeContentView]
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = true
+            window.isReleasedWhenClosed = false
+            window.center()
+            whatsNewWindow = window
+        }
+        NSApp.activate()
+        whatsNewWindow?.makeKeyAndOrderFront(nil)
     }
 
     private func applySettings() {
