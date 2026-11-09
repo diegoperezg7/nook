@@ -18,6 +18,8 @@ final class MenuBarSpace {
     @ObservationIgnored private var scanning = false
     @ObservationIgnored private let queue = DispatchQueue(label: "com.diegoperez.nook.menubar", qos: .utility)
     @ObservationIgnored private var notchRange: ClosedRange<CGFloat> = 0...0
+    /// Iconos de estado de la ultima lectura completa (cambian poco).
+    @ObservationIgnored private var extras: [CGRect] = []
     /// Borde superior de la pantalla del notch en coordenadas de Accesibilidad.
     @ObservationIgnored private var top: CGFloat = 0
 
@@ -25,16 +27,17 @@ final class MenuBarSpace {
         notchRange = (screen.frame.midX - notchWidth / 2)...(screen.frame.midX + notchWidth / 2)
         let primaryHeight = NSScreen.screens.first?.frame.maxY ?? screen.frame.maxY
         top = primaryHeight - screen.frame.maxY
-        guard timer == nil else { return refresh() }
-        refresh()
-        // Los iconos de estado cambian poco; los menus, al cambiar de app.
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
+        guard timer == nil else { return refresh(full: true) }
+        refresh(full: true)
+        // Los iconos de estado (recorrer todas las apps) cada 30 s; al cambiar de
+        // app, solo sus menus, que es barato.
+        timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refresh(full: true) }
         }
         observer = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
+            MainActor.assumeIsolated { self?.refresh(full: false) }
         }
     }
 
@@ -43,16 +46,17 @@ final class MenuBarSpace {
         (menusEnd.map { notchRange.lowerBound - $0 }, extrasStart.map { $0 - notchRange.upperBound })
     }
 
-    func refresh() {
+    func refresh(full: Bool) {
         guard AXAccess.isTrusted, !scanning else { return }
         scanning = true
         let range = notchRange, top = top
         let onBar: (CGRect) -> Bool = { abs($0.minY - top) < 4 }
         let front = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        let pids = NSWorkspace.shared.runningApplications.map(\.processIdentifier)
+        let pids = full ? NSWorkspace.shared.runningApplications.map(\.processIdentifier) : []
+        let cached = extras
         queue.async {
             let menus = front.map { Self.frames(of: $0, attribute: kAXMenuBarAttribute) } ?? []
-            let extras = pids.flatMap { Self.frames(of: $0, attribute: "AXExtrasMenuBar") }
+            let extras = full ? pids.flatMap { Self.frames(of: $0, attribute: "AXExtrasMenuBar") } : cached
             // Si los menus no caben, macOS sigue poniendolos a la derecha del notch:
             // tambien cuentan para el lado derecho.
             let menusEnd = menus.filter { onBar($0) && $0.maxX <= range.lowerBound + 1 }.map(\.maxX).max()
@@ -60,6 +64,7 @@ final class MenuBarSpace {
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     self.scanning = false
+                    if full { self.extras = extras }
                     if self.menusEnd != menusEnd { self.menusEnd = menusEnd }
                     if self.extrasStart != extrasStart { self.extrasStart = extrasStart }
                 }

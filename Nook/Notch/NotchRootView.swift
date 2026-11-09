@@ -18,7 +18,7 @@ struct NotchRootView: View {
         let open = metrics.openSize(searchRow: model.tab.hasToolbar)
         // Cerrado, el notch se ensancha para un aviso breve (volumen, bateria...) o,
         // si no hay ninguno, para lo que este en marcha (reunion, temporizador...).
-        let notice = model.isOpen ? nil : (hud.current ?? hud.ambient)
+        let notice = model.isOpen || model.isCollapsing ? nil : (hud.current ?? hud.ambient)
         // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
         let free = menuBar.free
         let sides = HUDSides.make(desired: notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)

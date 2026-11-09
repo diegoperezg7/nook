@@ -26,6 +26,9 @@ final class NotchViewModel {
     /// La forma crece desde el notch, en ancho y alto a la vez.
     private(set) var expandedWidth = false
     private(set) var expandedHeight = false
+    /// Recogiendose: hasta que termina, el aviso de lo que esta en marcha no vuelve
+    /// (si no, la forma se desplaza a un lado mientras encoge).
+    private(set) var isCollapsing = false
     var tab: Tab = .shelf
     private(set) var openReason: OpenReason = .hover
     var isDropTargeted = false
@@ -64,6 +67,7 @@ final class NotchViewModel {
         guard !isOpen else { return }
         closeToken += 1
         isPeeking = false
+        isCollapsing = false
         withAnimation(AppMotion.open) {
             isOpen = true
             expandedWidth = true
@@ -84,11 +88,13 @@ final class NotchViewModel {
         closeToken += 1
         let token = closeToken
         isOpen = false
+        isCollapsing = true
         withAnimation(AppMotion.close) {
             expandedWidth = false
             expandedHeight = false
         } completion: { [weak self] in
             guard let self, !self.isOpen, token == self.closeToken else { return }
+            self.isCollapsing = false
             self.searchText = ""
             self.onDidClose?()
         }
