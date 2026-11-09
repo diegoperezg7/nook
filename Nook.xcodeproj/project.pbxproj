@@ -12,6 +12,7 @@
 		057A11D2B97C4D3DD5925376 /* ShakeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E3C14231B92AD684A7FA07 /* ShakeDetectorTests.swift */; };
 		057E94EBFC1DCDF8E7C53CF5 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2988C736CCAF8A9213C411B /* AppSettings.swift */; };
 		0C664A5C897DC87CE1B511FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA003E269F1E0F3206F33F2 /* AppDelegate.swift */; };
+		0EA325C87707FB4A287E606C /* MailHTMLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6EBA6A75CDE045B4E09FED9 /* MailHTMLTests.swift */; };
 		106437B5997310888FB20DCB /* AgentMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4725EA490231FF190BDBC64E /* AgentMonitorTests.swift */; };
 		107508E840EEEDAB19E78331 /* HistoryFeaturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F7823DCD380341A906632A /* HistoryFeaturesTests.swift */; };
 		11E1B35AEAC096AA7D4775EA /* NotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27E7D4490EDDBE1D8BE9BE /* NotchShape.swift */; };
@@ -182,6 +183,7 @@
 		C390526C59AFC77B9997665E /* TransformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformTests.swift; sourceTree = "<group>"; };
 		C3A0D568259038C34AAC8ABF /* PermissionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionRow.swift; sourceTree = "<group>"; };
 		C4300B10367B674EA3D788B1 /* DataHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHome.swift; sourceTree = "<group>"; };
+		C6EBA6A75CDE045B4E09FED9 /* MailHTMLTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailHTMLTests.swift; sourceTree = "<group>"; };
 		C9D52E5AFBCF5050933B2E85 /* HotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKey.swift; sourceTree = "<group>"; };
 		CC933037DE125D3D6007357C /* WindowSnap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSnap.swift; sourceTree = "<group>"; };
 		CD921CC11A139E1721BD0361 /* NookTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -423,6 +425,7 @@
 				10F7823DCD380341A906632A /* HistoryFeaturesTests.swift */,
 				F1252601EBED9CBF4375C7F2 /* HUDSidesTests.swift */,
 				4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */,
+				C6EBA6A75CDE045B4E09FED9 /* MailHTMLTests.swift */,
 				FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */,
 				C16CEFF310C97BABADCF9DE3 /* MIMETests.swift */,
 				478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */,
@@ -666,6 +669,7 @@
 				107508E840EEEDAB19E78331 /* HistoryFeaturesTests.swift in Sources */,
 				1F76E53B63D53B3331E218C7 /* ItemStoreTests.swift in Sources */,
 				A07E7BEDFC925DFDE4D951B4 /* MIMETests.swift in Sources */,
+				0EA325C87707FB4A287E606C /* MailHTMLTests.swift in Sources */,
 				DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */,
 				91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */,
 				7CB28036B514752A4B5C5CBF /* NotificationFeedTests.swift in Sources */,
@@ -873,7 +877,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
@@ -890,7 +894,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.17.0;
+				MARKETING_VERSION = 0.18.0;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook;
 				PRODUCT_NAME = Nook;
@@ -905,7 +909,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
@@ -922,7 +926,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.17.0;
+				MARKETING_VERSION = 0.18.0;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook.debug;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.debug;
 				PRODUCT_NAME = Nook;

@@ -38,18 +38,30 @@ struct MailHTMLView: NSViewRepresentable {
         }
     }
 
-    /// Fondo blanco como en Mail (los correos estan pensados para el), margenes y
-    /// imagenes que no se salen.
+    /// Como Mail: un correo sin fondos propios (el tipico escrito a mano) se ve en
+    /// oscuro, a juego con el notch; uno diseñado (newsletter, factura) va sobre
+    /// blanco, porque esta pensado para eso y oscurecerlo lo rompe.
     static func wrap(_ html: String) -> String {
-        """
+        let dark = isPlain(html)
+        let page = dark
+            ? "html,body{background:#1c1c1e!important;color:#ececf0!important}*{color:inherit!important;background:transparent!important}a{color:#7da2ff!important}"
+            : "html,body{background:#ffffff;color:#111}"
+        return """
         <!doctype html><html><head><meta charset="utf-8">
-        <meta name="color-scheme" content="light">
+        <meta name="color-scheme" content="\(dark ? "dark" : "light")">
         <style>
-        html,body{background:#ffffff;color:#111;margin:0;padding:10px 12px;font:13px -apple-system,system-ui,sans-serif;word-wrap:break-word}
+        \(page)
+        html,body{margin:0;padding:10px 12px;font:13px -apple-system,system-ui,sans-serif;word-wrap:break-word}
         img{max-width:100%;height:auto}
         table{max-width:100%}
         </style></head><body>\(html)</body></html>
         """
+    }
+
+    /// Sin colores de fondo en ningun sitio (ni bgcolor ni background en el CSS).
+    static func isPlain(_ html: String) -> Bool {
+        let pattern = #"bgcolor\s*=|background(-color|-image)?\s*:\s*(?!\s*(transparent|none|inherit|initial)\b)"#
+        return html.range(of: pattern, options: [.regularExpression, .caseInsensitive]) == nil
     }
 
     /// Todo bloqueado salvo las imagenes incrustadas (data:).
