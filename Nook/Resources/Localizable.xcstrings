@@ -1061,6 +1061,16 @@
         }
       }
     },
+    "El historial no guarda lo que copias": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History isn't saving what you copy"
+          }
+        }
+      }
+    },
     "El tiempo sale en el centro del anillo. Se pide a Open-Meteo solo con las coordenadas de la ciudad elegida.": {
       "localizations": {
         "en": {
@@ -1147,6 +1157,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "On the shelf"
+          }
+        }
+      }
+    },
+    "En pausa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
           }
         }
       }
@@ -1641,6 +1661,16 @@
         }
       }
     },
+    "Nook no tiene acceso al portapapeles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nook can't access the clipboard"
+          }
+        }
+      }
+    },
     "Notch": {
       "localizations": {
         "en": {
@@ -2027,6 +2057,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mute or unmute the mic in %@"
+          }
+        }
+      }
+    },
+    "Sin acceso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No access"
           }
         }
       }

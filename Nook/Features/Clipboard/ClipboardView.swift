@@ -107,13 +107,13 @@ struct ClipboardView: View {
     /// Aviso cuando el historial no se esta guardando y por que.
     private var notice: AnyView? {
         if !captureEnabled {
-            return AnyView(NoticePill(text: "Captura desactivada", action: "Ajustes") { model.onOpenSettings?() })
+            return AnyView(NoticePill(text: "En pausa", detail: "El historial no guarda lo que copias", action: "Ajustes") { model.onOpenSettings?() })
         }
         switch model.clipboardAccess {
         case .allowed:
             return nil
         case .needsPermission, .denied:
-            return AnyView(NoticePill(text: "Sin acceso al portapapeles", action: "Permitir…") {
+            return AnyView(NoticePill(text: "Sin acceso", detail: "Nook no tiene acceso al portapapeles", action: "Permitir…") {
                 NSWorkspace.shared.open(ClipboardAccess.settingsURL)
             })
         }
@@ -165,7 +165,9 @@ struct ClipboardView: View {
 }
 
 private struct NoticePill: View {
+    /// Corto, para que quepa entero junto al buscador; el detalle va en la ayuda.
     let text: LocalizedStringKey
+    let detail: LocalizedStringKey
     let action: LocalizedStringKey
     let perform: () -> Void
 
@@ -181,5 +183,8 @@ private struct NoticePill: View {
         .font(AppTypography.body)
         .foregroundStyle(AppColors.textSecondary)
         .lineLimit(1)
+        // Entero siempre: si falta sitio, encoge el buscador.
+        .fixedSize()
+        .help(Text(detail))
     }
 }

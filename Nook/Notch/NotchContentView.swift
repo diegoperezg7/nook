@@ -54,15 +54,8 @@ struct NotchContentView: View {
             // Hueco del notch fisico: ahi no se ve nada.
             Color.clear.frame(width: model.metrics.hasNotch ? model.metrics.notchWidth : 0)
             HStack(spacing: 8) {
-                if model.tab == .shelf {
-                    Button { chooseFiles() } label: {
-                        CircleIconLabel(icon: "plus")
-                    }
-                    .buttonStyle(.plain)
-                    .help(Text("Añadir archivos…"))
-                    .accessibilityLabel(Text("Añadir archivos…"))
-                    .transition(.scale.combined(with: .opacity))
-                }
+                // Como mucho cuatro botones por lado: un quinto entraria bajo la
+                // camara en los portatiles. "Añadir archivos…" esta en el menu ⋯.
                 if let call = MeetingControls.current(micInUse: hud.micInUse) {
                     callControls(call)
                 } else {
