@@ -64,3 +64,9 @@ private extension NSColor {
         )
     }
 }
+
+/// Icono de la app leido del propio paquete. `NSApp.applicationIconImage` pasa por la
+/// cache de iconos del sistema y puede devolver uno antiguo tras cambiarlo.
+enum AppIcon {
+    @MainActor static var image: NSImage { Bundle.main.image(forResource: "AppIcon") ?? NSApp.applicationIconImage }
+}

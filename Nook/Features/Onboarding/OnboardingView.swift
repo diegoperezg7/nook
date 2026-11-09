@@ -504,7 +504,7 @@ private struct DonePage: View {
 
     var body: some View {
         VStack(spacing: 22) {
-            Image(nsImage: NSApp.applicationIconImage)
+            Image(nsImage: AppIcon.image)
                 .resizable()
                 .frame(width: 96, height: 96)
             PageHeader(

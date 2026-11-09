@@ -56,10 +56,12 @@ mkdir "$STAGING/.background"
 cp "$(dirname "$0")/dmg/background.tiff" "$STAGING/.background/background.tiff"
 RW="$OUT/Nook-rw.dmg"
 rm -f "$RW"
-hdiutil create -volname Nook -srcfolder "$STAGING" -ov -format UDRW "$RW" -quiet
+hdiutil create -volname Nook -fs HFS+ -srcfolder "$STAGING" -ov -format UDRW "$RW" -quiet
 rm -rf "$STAGING"
 MOUNT=$(hdiutil attach "$RW" -readwrite -noverify -noautoopen | awk -F'\t' '/\/Volumes\//{print $NF}')
 VOLUME=$(basename "$MOUNT")
+# El disco montado con el icono de Nook (no el generico).
+cp "$APP/Contents/Resources/AppIcon.icns" "$MOUNT/.VolumeIcon.icns"
 osascript <<APPLESCRIPT
 tell application "Finder"
   tell disk "$VOLUME"
@@ -81,6 +83,8 @@ tell application "Finder"
   end tell
 end tell
 APPLESCRIPT
+# Despues de Finder: al guardar la vista borra la marca de icono propio.
+xcrun SetFile -a C "$MOUNT"
 sync
 hdiutil detach "$MOUNT" -quiet
 hdiutil convert "$RW" -format UDZO -ov -o "$DMG" -quiet

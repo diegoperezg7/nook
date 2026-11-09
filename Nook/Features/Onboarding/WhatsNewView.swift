@@ -40,7 +40,7 @@ struct WhatsNewView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 6) {
-                Image(nsImage: NSApp.applicationIconImage)
+                Image(nsImage: AppIcon.image)
                     .resizable()
                     .frame(width: 72, height: 72)
                 Text("Novedades de Nook \(WhatsNew.version)")
