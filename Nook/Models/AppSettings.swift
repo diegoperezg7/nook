@@ -63,11 +63,11 @@ enum SettingsKey {
             hudDevices: true,
             hudBattery: true,
             hudDownloads: true,
-            // macOS ya muestra Bloq Mayus junto al cursor y el punto naranja del
-            // micro o la camara: los dos avisos propios van apagados de serie.
+            // macOS ya muestra Bloq Mayus junto al cursor: el aviso propio va apagado.
+            // El de micro y camara solo sale en llamadas.
             hudCapsLock: false,
             hudNetwork: true,
-            hudMediaInUse: false,
+            hudMediaInUse: true,
             hudMeetings: true,
             hudMail: true,
             mailEnabled: true,

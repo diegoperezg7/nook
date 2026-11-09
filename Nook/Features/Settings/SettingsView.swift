@@ -208,6 +208,7 @@ struct SettingsView: View {
                     HStack(spacing: 8) {
                         TextField("Ciudad", text: $cityQuery, prompt: Text(weatherCity.isEmpty ? String(localized: "Ciudad") : weatherCity))
                             .labelsHidden()
+                            .textFieldStyle(.roundedBorder)
                             .frame(width: 150)
                             .onSubmit(searchCity)
                         Button(citySearch == .searching ? "Buscando…" : "Buscar", action: searchCity)

@@ -1,3 +1,4 @@
+import CoreAudio
 import AppKit
 
 /// Controles de reunion: con el microfono en uso y una llamada abierta, el notch
@@ -33,18 +34,24 @@ enum MeetingControls {
         "com.brave.Browser", "org.mozilla.firefox",
     ]
 
-    /// La llamada en curso, si el microfono esta en uso.
+    /// La llamada en curso, si el microfono esta en uso. Cuenta solo la app que de
+    /// verdad esta grabando (CoreAudio): tener Teams abierto mientras dictas no es
+    /// una llamada.
     @MainActor
     static func current(micInUse: Bool) -> Target? {
         guard micInUse else { return nil }
+        let users = micUsers()
+        let recording: (String) -> Bool = { id in users.map { $0.contains { $0.hasPrefix(id) } } ?? true }
         let running = NSWorkspace.shared.runningApplications
-        if let app = apps.first(where: { target in running.contains { $0.bundleIdentifier == target.bundleID } }) {
+        if let app = apps.first(where: { target in
+            running.contains { $0.bundleIdentifier == target.bundleID } && recording(target.bundleID)
+        }) {
             return app
         }
-        // Meet: el navegador que este delante o, si no, el primero abierto.
+        // Meet: el navegador que esta delante y graba (Safari lo hace desde WebKit).
         let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-        let browser = browsers.first { $0 == front } ?? browsers.first { id in running.contains { $0.bundleIdentifier == id } }
-        guard let browser else { return nil }
+        guard let browser = browsers.first(where: { $0 == front }),
+              recording(browser) || (browser == "com.apple.Safari" && recording("com.apple.WebKit")) else { return nil }
         return Target(bundleID: browser, name: "Meet", mic: (2, command), camera: (14, command), leave: nil)
     }
 
@@ -73,3 +80,40 @@ enum MeetingControls {
         return true
     }
 }
+
+extension MeetingControls {
+    /// Apps que estan grabando del microfono ahora (macOS 14.2+). Nil si no se puede
+    /// saber: entonces vale cualquier app de la lista.
+    nonisolated static func micUsers() -> Set<String>? {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyProcessObjectList,
+            mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain
+        )
+        var size: UInt32 = 0
+        guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size) == noErr else { return nil }
+        var processes = [AudioObjectID](repeating: 0, count: Int(size) / MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &processes) == noErr else { return nil }
+        var users = Set<String>()
+        for process in processes {
+            var running: UInt32 = 0
+            var runningSize = UInt32(MemoryLayout<UInt32>.size)
+            var inputAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioProcessPropertyIsRunningInput,
+                mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain
+            )
+            guard AudioObjectGetPropertyData(process, &inputAddress, 0, nil, &runningSize, &running) == noErr, running != 0 else { continue }
+            var bundle: Unmanaged<CFString>?
+            var bundleSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+            var bundleAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioProcessPropertyBundleID,
+                mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain
+            )
+            if AudioObjectGetPropertyData(process, &bundleAddress, 0, nil, &bundleSize, &bundle) == noErr,
+               let id = bundle?.takeRetainedValue() as String? {
+                users.insert(id)
+            }
+        }
+        return users
+    }
+}
+

@@ -61,7 +61,9 @@ final class SystemHUD {
             return .meeting(title: meeting.title, start: meeting.start)
         }
         if let focus, let end = focus.end { return .timer(end: end, total: focus.total) }
-        if defaults.bool(forKey: SettingsKey.hudMediaInUse), micInUse || cameraInUse {
+        // Solo en una llamada: fuera de ellas ya avisa el punto naranja de macOS.
+        if defaults.bool(forKey: SettingsKey.hudMediaInUse), micInUse || cameraInUse,
+           MeetingControls.current(micInUse: true) != nil {
             return .mediaInUse(mic: micInUse, camera: cameraInUse)
         }
         if let focus, focus.isAwake { return .stayAwake(until: focus.awakeUntil) }

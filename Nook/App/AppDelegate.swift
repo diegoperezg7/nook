@@ -25,17 +25,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dictation: Dictation?
     private var ring: ActionRingController?
     private var ringHotKey: HotKey?
-    private var appVolume: AppVolume?
+    private var battery: BatteryCenter?
     private let windowSnap = WindowSnap()
     private var selection: SelectionActions?
     private let notificationFeed = NotificationFeed()
     private let launcher = LauncherController()
     private var launcherHotKey: HotKey?
-
-    func applicationWillTerminate(_ notification: Notification) {
-        // Quita los taps: cada app vuelve a sonar a su volumen normal.
-        appVolume?.resetAll()
-    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -69,14 +64,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let calendar = CalendarService()
         let focus = FocusTimer()
         let mail = MailService()
-        let appVolume = AppVolume()
+        let battery = BatteryCenter()
         mail.onNew = { [weak hud] message in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail) else { return }
             hud?.show(.mail(sender: message.sender), for: 3)
         }
         hud.focus = focus
         hud.calendar = calendar
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail, appVolume: appVolume)
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail, battery: battery)
         let monitor = ClipboardMonitor(store: store)
         let basket = BasketController(store: store, container: container)
         let dictation = Dictation()
@@ -114,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowSnap.onNeedsPermission = { [weak hud] in
             hud?.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
         }
-        self.appVolume = appVolume
+        self.battery = battery
         ring.actions = makeRingActions()
 
         notch.start()
@@ -122,6 +117,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hud.start()
         calendar.start()
         mail.start()
+        battery.start()
         basket.start()
         store.trimHistory()
         store.recognizeMissingText()

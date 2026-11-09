@@ -11,9 +11,9 @@ struct NotchContentView: View {
     @Environment(CalendarService.self) private var calendarService
     @Environment(FocusTimer.self) private var focus
     @Environment(MailService.self) private var mail
-    @Environment(AppVolume.self) private var appVolume
+    @Environment(BatteryCenter.self) private var battery
     @Environment(SystemHUD.self) private var hud
-    @State private var showVolume = false
+    @State private var showBattery = false
     @State private var showAlarm = false
     @State private var alarmTime = Date.now.addingTimeInterval(3600)
     @Namespace private var tabNamespace
@@ -43,6 +43,8 @@ struct NotchContentView: View {
             .padding(.top, NotchMetrics.topSpacing)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        // Al abrir: por si acabas de conectar los AirPods.
+        .onAppear { battery.refresh() }
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
         // estrecho que la ventana. Sin esto los margenes se quedaban en 2 pt.
         .padding(.horizontal, NotchMetrics.openEar)
@@ -59,10 +61,10 @@ struct NotchContentView: View {
                 if let call = MeetingControls.current(micInUse: hud.micInUse) {
                     callControls(call)
                 } else {
-                    volumeButton
                     if mail.isEnabled { mailButton }
                     timerMenu
                 }
+                batteryButton
                 menu
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -128,23 +130,29 @@ struct NotchContentView: View {
         }
     }
 
-    /// Volumen de cada app que esta sonando, como el sonido del Centro de control.
-    private var volumeButton: some View {
-        Button {
-            appVolume.refresh()
-            model.isPreviewing = true
-            showVolume = true
-        } label: {
-            CircleIconLabel(icon: "speaker.wave.2.fill", active: !appVolume.volumes.isEmpty)
-        }
-        .buttonStyle(.plain)
-        .help(Text("Volumen por app"))
-        .accessibilityLabel(Text("Volumen por app"))
-        .popover(isPresented: $showVolume, arrowEdge: .bottom) {
-            AppVolumePanel(volume: appVolume)
-        }
-        .onChange(of: showVolume) { _, shown in
-            if !shown { model.isPreviewing = false }
+    /// AirPods conectados: su modelo en un aro de bateria; al pulsar, cada pieza con su %.
+    @ViewBuilder
+    private var batteryButton: some View {
+        if let headline = battery.headline {
+            Button {
+                battery.refresh()
+                model.isPreviewing = true
+                showBattery = true
+            } label: {
+                BatteryRing(symbol: headline.symbol, level: headline.level, size: 30, lineWidth: 2.5)
+                    .liquidGlass(in: Circle(), interactive: true)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .help(Text(verbatim: "\(headline.level) %"))
+            .accessibilityLabel(Text("Batería de los auriculares"))
+            .popover(isPresented: $showBattery, arrowEdge: .bottom) {
+                BatteryPanel(battery: battery)
+            }
+            .onChange(of: showBattery) { _, shown in
+                if !shown { model.isPreviewing = false }
+            }
+            .transition(.scale.combined(with: .opacity))
         }
     }
 

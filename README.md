@@ -30,7 +30,8 @@ mide exactamente lo mismo que el recorte de la pantalla (MacBook Air y MacBook P
 pasa algo, se ensancha lo justo para avisarte a los lados y vuelve a su sitio.
 
 Arriba están las pestañas (bandeja, portapapeles, capturas, calendario, agentes) y, a la
-derecha, el volumen por app, el reloj con temporizadores y alarmas, y el menú.
+derecha, el reloj con temporizadores y alarmas, la batería de tus AirPods (cuando están
+conectados) y el menú.
 
 ## Bandeja
 
@@ -78,9 +79,13 @@ terminado), el proyecto y el consumo que queda en la ventana de 5 horas y en la 
 
 ## Avisos en el notch
 
-Volumen, batería y cargador, auriculares y altavoces Bluetooth (con su batería), Bloq Mayús,
-conexión y VPN, descargas terminadas, micrófono o cámara en uso, notificaciones del sistema,
-temporizadores y alarmas. Cada aviso se puede desactivar en Ajustes.
+Volumen, batería y cargador, auriculares y altavoces Bluetooth (con su batería), conexión y
+VPN, descargas terminadas, micrófono o cámara durante una llamada, notificaciones del sistema,
+temporizadores y alarmas. Cada aviso crece solo hasta los menús y los iconos de la barra, sin
+taparlos, y se puede desactivar en Ajustes.
+
+**AirPods:** con ellos conectados, la cabecera muestra su modelo en un aro de batería; al
+pulsarlo ves el izquierdo, el derecho y el estuche.
 
 ## Atajos y herramientas
 
@@ -92,12 +97,13 @@ temporizadores y alarmas. Cada aviso se puede desactivar en Ajustes.
 | <kbd>⌃</kbd> <kbd>⌥</kbd> + flechas | Ajustar ventanas: mitades, cuartos, tercios, maximizar y centrar. |
 
 Además: acciones al seleccionar texto (copiar, buscar, traducir, a la bandeja), dictado,
-captura de una zona con OCR y volumen por app.
+captura de una zona con OCR.
 
-## Permisos
+## Primer arranque y permisos
 
-Nook funciona sin permisos especiales; cada uno desbloquea algo concreto y se pide solo
-cuando lo activas:
+Al abrir Nook por primera vez, una introducción te guía: calendario y recordatorios, correo
+(Mail de Apple u Outlook), permisos avanzados y qué atajos y avisos quieres. Nook funciona sin
+permisos especiales; cada uno desbloquea algo concreto:
 
 | Permiso | Para qué |
 |---|---|
@@ -105,7 +111,6 @@ cuando lo activas:
 | Accesibilidad | Pegar desde el historial, ajustar ventanas, texto seleccionado, controles de reunión. |
 | Acceso total al disco | Leer las notificaciones del sistema (solo las nuevas; no se guardan). |
 | Automatización (Mail / Outlook) | Ver los correos sin leer. |
-| Grabación de audio del sistema | Volumen por app. |
 
 Nada sale de tu Mac: no hay servidores ni analítica.
 

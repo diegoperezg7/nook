@@ -25,7 +25,7 @@ final class NotchController {
     /// opcion con el cursor fuera no debe cerrarlo antes de que la accion termine.
     private var isMenuOpen = false
 
-    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, agents: AgentMonitor, hud: SystemHUD, calendar: CalendarService, focus: FocusTimer, mail: MailService, appVolume: AppVolume) {
+    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, agents: AgentMonitor, hud: SystemHUD, calendar: CalendarService, focus: FocusTimer, mail: MailService, battery: BatteryCenter) {
         self.hud = hud
         self.store = store
         let screen = Self.targetScreen() ?? NSScreen.main ?? NSScreen.screens[0]
@@ -39,7 +39,7 @@ final class NotchController {
             .environment(calendar)
             .environment(focus)
             .environment(mail)
-            .environment(appVolume)
+            .environment(battery)
             .environment(menuBar)
         // La vista SwiftUI va dentro de un contenedor con autoresizing: como
         // contentView directo, redimensionar la ventana provocaba un bucle de

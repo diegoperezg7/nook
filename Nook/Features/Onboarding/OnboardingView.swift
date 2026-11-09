@@ -448,7 +448,7 @@ struct NoticeGrid: View {
     @AppStorage(SettingsKey.hudDownloads) private var downloads = true
     @AppStorage(SettingsKey.hudCapsLock) private var capsLock = false
     @AppStorage(SettingsKey.hudNetwork) private var network = true
-    @AppStorage(SettingsKey.hudMediaInUse) private var media = false
+    @AppStorage(SettingsKey.hudMediaInUse) private var media = true
     @AppStorage(SettingsKey.hudMeetings) private var meetings = true
     @AppStorage(SettingsKey.hudMail) private var mailNotice = true
     @AppStorage(SettingsKey.notifications) private var notifications = true
@@ -461,7 +461,7 @@ struct NoticeGrid: View {
             Chip(symbol: "arrow.down.circle.fill", title: "Descargas", isOn: $downloads)
             Chip(symbol: "capslock.fill", title: "Bloq Mayús", isOn: $capsLock)
             Chip(symbol: "wifi", title: "Conexión", isOn: $network)
-            Chip(symbol: "mic.fill", title: "Micro y cámara", isOn: $media)
+            Chip(symbol: "mic.fill", title: "Micro en llamadas", isOn: $media)
             Chip(symbol: "video.fill", title: "Reuniones", isOn: $meetings)
             Chip(symbol: "envelope.fill", title: "Correo", isOn: $mailNotice)
             Chip(symbol: "bell.fill", title: "Notificaciones", isOn: $notifications)

@@ -1,0 +1,92 @@
+import SwiftUI
+
+/// Aro de bateria con un simbolo dentro (AirPods, portatil...).
+struct BatteryRing: View {
+    let symbol: String
+    let level: Int
+    var charging = false
+    var size: CGFloat = 30
+    var lineWidth: CGFloat = 2.5
+
+    var body: some View {
+        ZStack {
+            Circle().stroke(AppColors.textPrimary.opacity(0.15), lineWidth: lineWidth)
+            Circle()
+                .trim(from: 0, to: CGFloat(max(2, min(level, 100))) / 100)
+                .stroke(Self.color(level, charging), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(AppMotion.snappy, value: level)
+            Image(systemName: symbol)
+                .font(.system(size: size * 0.36, weight: .semibold))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.9))
+        }
+        .padding(lineWidth / 2)
+        .frame(width: size, height: size)
+    }
+
+    static func color(_ level: Int, _ charging: Bool) -> Color {
+        if charging { return AppColors.success }
+        return level <= 10 ? AppColors.danger : level <= 20 ? AppColors.warning : AppColors.success
+    }
+}
+
+/// Detalle al pulsar: cada auricular y el estuche con su porcentaje.
+struct BatteryPanel: View {
+    let battery: BatteryCenter
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(battery.headphones) { device in
+                row(symbol: device.icon, name: device.name, parts: device.levels.map { ($0.part, $0.level) })
+            }
+        }
+        .padding(14)
+        .frame(minWidth: 220, alignment: .leading)
+        .onAppear { battery.refresh() }
+    }
+
+    private func row(symbol: String, name: String, parts: [(String, Int)]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(verbatim: name)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(AppColors.textPrimary)
+                .lineLimit(1)
+            HStack(spacing: 14) {
+                ForEach(parts, id: \.0) { part, level in
+                    HStack(spacing: 7) {
+                        BatteryRing(symbol: Self.partSymbol(part, base: symbol), level: level, size: 30)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(verbatim: "\(level) %")
+                                .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                                .foregroundStyle(AppColors.textPrimary)
+                            if !part.isEmpty {
+                                Text(Self.partName(part)).font(.system(size: 10))
+                                    .foregroundStyle(AppColors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// AirPods: auricular izquierdo, derecho y estuche con su propio simbolo.
+    private static func partSymbol(_ part: String, base: String) -> String {
+        guard base.hasPrefix("airpods"), base != "airpodsmax" else { return base }
+        let pro = base == "airpodspro"
+        switch part {
+        case "L": return pro ? "airpodpro.left" : "airpod.left"
+        case "R": return pro ? "airpodpro.right" : "airpod.right"
+        case AccessoryBattery.casePart: return pro ? "airpodspro.chargingcase.wireless.fill" : "airpods.chargingcase.fill"
+        default: return base
+        }
+    }
+
+    private static func partName(_ part: String) -> LocalizedStringKey {
+        switch part {
+        case "L": return "Izquierdo"
+        case "R": return "Derecho"
+        default: return "Estuche"
+        }
+    }
+}

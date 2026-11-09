@@ -731,6 +731,16 @@
         }
       }
     },
+    "Batería de los auriculares": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headphone battery"
+          }
+        }
+      }
+    },
     "Batería y cargador": {
       "localizations": {
         "en": {
@@ -1321,6 +1331,16 @@
         }
       }
     },
+    "Derecho": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right"
+          }
+        }
+      }
+    },
     "Desactivado": {
       "localizations": {
         "en": {
@@ -1621,6 +1641,16 @@
         }
       }
     },
+    "Estuche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Case"
+          }
+        }
+      }
+    },
     "Evento": {
       "localizations": {
         "en": {
@@ -1831,6 +1861,16 @@
         }
       }
     },
+    "Izquierdo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left"
+          }
+        }
+      }
+    },
     "La versión clásica, por AppleScript": {
       "localizations": {
         "en": {
@@ -1977,6 +2017,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tomorrow"
+          }
+        }
+      }
+    },
+    "Micro en llamadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mic in calls"
           }
         }
       }
