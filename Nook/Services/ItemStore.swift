@@ -109,14 +109,32 @@ final class ItemStore {
         trimHistory()
     }
 
+    /// Archivo copiado en Finder. Se guarda una copia propia en ese momento (el unico en
+    /// que el sandbox da acceso): solo con la ruta, Nook no podria leerlo despues y al
+    /// copiarlo desde el historial las demas apps recibirian un archivo que no pueden abrir.
+    /// En APFS la copia es un clon y no ocupa espacio mientras el original no cambie.
     func captureFile(_ url: URL, source: String? = nil) {
         let hash = Self.hash(url.path)
         guard !bumpExisting(hash: hash) else { return }
-        insert(NotchItem(
-            kind: .file, origin: .clipboard, fileName: url.lastPathComponent,
-            externalPath: url.path, contentHash: hash, sourceBundleID: source
-        ))
+        if Self.canKeepCopy(of: url), let staged = try? Self.stageFile(url, in: itemsDirectory) {
+            insert(NotchItem(
+                id: staged.id, kind: .file, origin: .clipboard, fileName: staged.name,
+                storedPath: staged.relativePath, externalPath: url.path, contentHash: hash, sourceBundleID: source
+            ))
+        } else {
+            insert(NotchItem(
+                kind: .file, origin: .clipboard, fileName: url.lastPathComponent,
+                externalPath: url.path, contentHash: hash, sourceBundleID: source
+            ))
+        }
         trimHistory()
+    }
+
+    /// Archivos normales de hasta 50 MB (carpetas y archivos enormes se quedan como ruta).
+    nonisolated static func canKeepCopy(of url: URL) -> Bool {
+        guard let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+              values.isRegularFile == true, let size = values.fileSize else { return false }
+        return size <= 50_000_000
     }
 
     /// Si el contenido ya esta en el historial, lo sube arriba en vez de duplicarlo.

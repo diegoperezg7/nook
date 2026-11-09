@@ -70,6 +70,28 @@ final class HistoryFeaturesTests: XCTestCase {
         XCTAssertTrue(titles(.images).isEmpty)
     }
 
+    /// Un archivo copiado en Finder se guarda como copia propia: al copiarlo desde el
+    /// historial se pega esa copia (que Nook si puede leer), aunque el original cambie.
+    func testCopiedFileKeepsOwnCopyThatPastesBack() throws {
+        let source = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString)-notas.txt")
+        try "hola".write(to: source, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: source) }
+
+        store.captureFile(source)
+        let item = try XCTUnwrap(try history().first)
+        XCTAssertNotNil(item.storedPath)
+        let kept = try XCTUnwrap(store.fileURL(for: item))
+        XCTAssertTrue(kept.path.hasPrefix(directory.path))
+        XCTAssertEqual(try String(contentsOf: kept, encoding: .utf8), "hola")
+
+        try FileManager.default.removeItem(at: source)
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("NookTest-\(UUID().uuidString)"))
+        store.copyToPasteboard(item, pasteboard: pasteboard)
+        let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL]
+        XCTAssertEqual(urls?.first?.standardizedFileURL, kept.standardizedFileURL)
+        pasteboard.releaseGlobally()
+    }
+
     func testTextWithALinkInsideIsNotALink() throws {
         store.captureText("mira https://example.com")
         XCTAssertFalse(try XCTUnwrap(try history().first).isLink)
