@@ -183,6 +183,8 @@ private struct MailReader: View {
     let message: MailService.Message
     let back: () -> Void
     @State private var detail: MailService.Detail?
+    @State private var html: String?
+    @State private var allowRemote = false
     @State private var failed = false
 
     var body: some View {
@@ -222,7 +224,17 @@ private struct MailReader: View {
                 .lineLimit(2)
 
             Group {
-                if let detail {
+                if let html {
+                    MailHTMLView(html: html, allowRemote: allowRemote)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(alignment: .bottomTrailing) {
+                            if !allowRemote, html.range(of: "src=[\"']?https?:", options: .regularExpression) != nil {
+                                Button("Cargar imágenes") { allowRemote = true }
+                                    .controlSize(.small)
+                                    .padding(8)
+                            }
+                        }
+                } else if let detail {
                     ScrollView(.vertical) {
                         Text(verbatim: detail.body.isEmpty ? String(localized: "(Sin texto)") : detail.body)
                             .font(AppTypography.body)
@@ -248,9 +260,13 @@ private struct MailReader: View {
         }
         .task(id: message.id) {
             detail = nil
+            html = nil
+            allowRemote = false
             failed = false
+            // Primero el texto (rapido); luego, si lo tiene, el HTML.
             detail = await mail.detail(of: message)
             failed = detail == nil
+            html = await mail.html(of: message)
         }
     }
 

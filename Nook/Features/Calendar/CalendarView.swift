@@ -223,39 +223,43 @@ private struct MonthGrid: View {
 }
 
 /// Eventos del dia elegido.
+/// Agenda del dia elegido y los tres siguientes; los recordatorios, bajo el primero.
 private struct DayList: View {
     let calendar: CalendarService
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(verbatim: title)
-                .font(AppTypography.bodyStrong)
-                .foregroundStyle(AppColors.textSecondary)
-                .frame(height: 16)
-            if calendar.dayEvents.isEmpty && calendar.dayReminders.isEmpty {
-                Text("Nada este día")
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .liquidGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            } else {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 5) {
-                        ForEach(calendar.dayEvents) { event in
-                            EventRow(event: event, open: { calendar.openInCalendar(event) }, join: { calendar.join(event) })
-                        }
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 5) {
+                ForEach(Array(calendar.agenda.enumerated()), id: \.element.id) { index, day in
+                    Text(verbatim: Self.title(day.day))
+                        .font(AppTypography.bodyStrong)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(height: 16)
+                        .padding(.top, index == 0 ? 0 : 6)
+                    ForEach(day.events) { event in
+                        EventRow(event: event, open: { calendar.openInCalendar(event) }, join: { calendar.join(event) })
+                    }
+                    if index == 0 {
                         ForEach(calendar.dayReminders) { reminder in
                             ReminderRow(reminder: reminder) {
                                 withAnimation(AppMotion.snappy) { calendar.complete(reminder) }
                             } open: { calendar.openInReminders() }
                             .transition(.move(edge: .leading).combined(with: .opacity))
                         }
+                        if day.events.isEmpty && calendar.dayReminders.isEmpty {
+                            Text("Nada este día")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 34)
+                                .liquidGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
                     }
                 }
             }
+            .padding(.bottom, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.bottom, 8)
         .overlay(alignment: .topTrailing) {
             // Recordatorios sin permiso: un enlace discreto junto al titulo del dia.
             if calendar.remindersAccess != .granted {
@@ -268,14 +272,13 @@ private struct DayList: View {
         }
     }
 
-    private var title: String {
-        if Calendar.current.isDateInToday(calendar.selectedDay) { return String(localized: "Hoy") }
-        if Calendar.current.isDateInTomorrow(calendar.selectedDay) { return String(localized: "Mañana") }
-        return calendar.selectedDay.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized
+    static func title(_ day: Date) -> String {
+        if Calendar.current.isDateInToday(day) { return String(localized: "Hoy") }
+        if Calendar.current.isDateInTomorrow(day) { return String(localized: "Mañana") }
+        return day.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized
     }
 }
 
-/// Recordatorio pendiente: el circulo lo marca como hecho (como en Recordatorios).
 private struct ReminderRow: View {
     let reminder: CalendarService.Reminder
     let complete: () -> Void

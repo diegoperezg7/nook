@@ -971,6 +971,16 @@
         }
       }
     },
+    "Cargar imágenes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load images"
+          }
+        }
+      }
+    },
     "Cerrar al salir": {
       "localizations": {
         "en": {
@@ -1877,6 +1887,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Introduction"
+          }
+        }
+      }
+    },
+    "Ir a su terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to its terminal"
           }
         }
       }
@@ -3011,6 +3031,16 @@
         }
       }
     },
+    "Te espera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for you"
+          }
+        }
+      }
+    },
     "Temporizador": {
       "localizations": {
         "en": {
@@ -3057,6 +3087,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Terminal"
+          }
+        }
+      }
+    },
+    "Terminó": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finished"
           }
         }
       }

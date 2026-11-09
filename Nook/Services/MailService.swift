@@ -243,6 +243,22 @@ final class MailService {
         }
     }
 
+    /// El HTML del correo (Mail: de su fuente MIME; Outlook: su contenido), o nil si
+    /// solo tiene texto.
+    func html(of message: Message) async -> String? {
+        let source = source
+        let script = Self.actionScript(for: source, id: message.id, action: source == .mail ? "return source of m" : "return content of m")
+        return await withCheckedContinuation { continuation in
+            queue.async {
+                guard case let .ok(text) = Self.run(script), !text.isEmpty else { return continuation.resume(returning: nil) }
+                switch source {
+                case .mail: continuation.resume(returning: MIME.html(fromSource: text))
+                case .outlook: continuation.resume(returning: text.contains("<") ? text : nil)
+                }
+            }
+        }
+    }
+
     /// Marca el correo como leido en su app y lo quita de la lista.
     func markRead(_ message: Message) {
         let script = Self.actionScript(for: source, id: message.id, action: source == .mail ? "set read status of m to true" : "set is read of m to true")

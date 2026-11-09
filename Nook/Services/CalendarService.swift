@@ -30,6 +30,17 @@ final class CalendarService {
         didSet { reloadMonth() }
     }
     private(set) var dayEvents: [Event] = []
+    /// Agenda: el dia elegido y los tres siguientes, solo los que tienen algo (el
+    /// primero siempre, aunque este vacio).
+    private(set) var agenda: [AgendaDay] = []
+
+    struct AgendaDay: Identifiable, Equatable {
+        var id: Date { day }
+        let day: Date
+        let events: [Event]
+    }
+
+    static let agendaDays = 4
     private(set) var todayEvents: [Event] = []
     /// Dias del mes visible que tienen algun evento.
     private(set) var busyDays: Set<Date> = []
@@ -289,6 +300,20 @@ final class CalendarService {
     private func reloadDay() {
         guard access == .granted else { return }
         dayEvents = events(from: selectedDay, to: Calendar.current.date(byAdding: .day, value: 1, to: selectedDay)!)
+        let end = Calendar.current.date(byAdding: .day, value: Self.agendaDays, to: selectedDay)!
+        agenda = Self.groupByDay(events(from: selectedDay, to: end), from: selectedDay, days: Self.agendaDays)
+    }
+
+    /// Agrupa por dia de inicio (los de varios dias salen en cada dia que tocan).
+    nonisolated static func groupByDay(_ events: [Event], from start: Date, days: Int) -> [AgendaDay] {
+        let cal = Calendar.current
+        return (0..<days).compactMap { offset in
+            let day = cal.date(byAdding: .day, value: offset, to: cal.startOfDay(for: start))!
+            let next = cal.date(byAdding: .day, value: 1, to: day)!
+            let list = events.filter { $0.start < next && $0.end > day }
+                .sorted { ($0.isAllDay ? 0 : 1, $0.start) < ($1.isAllDay ? 0 : 1, $1.start) }
+            return offset == 0 || !list.isEmpty ? AgendaDay(day: day, events: list) : nil
+        }
     }
 
     private func reloadMonth() {
