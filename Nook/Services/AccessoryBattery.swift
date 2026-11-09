@@ -60,14 +60,24 @@ struct AccessoryBattery: Equatable, Identifiable {
                         return (part, level)
                     }
                     guard !levels.isEmpty else { continue }
-                    result.append(AccessoryBattery(name: name, icon: icon(for: name, type: info["device_minorType"] as? String), levels: levels))
+                    result.append(AccessoryBattery(name: name, icon: icon(for: name, type: info["device_minorType"] as? String, productID: info["device_productID"] as? String), levels: levels))
                 }
             }
         }
         return result
     }
 
-    static func icon(for name: String, type: String?) -> String {
+    /// Modelo de AirPods por su product ID (el nombre se puede cambiar).
+    static let airPodsModels: [String: String] = [
+        "0x2002": "airpods", "0x200F": "airpods",
+        "0x2013": "airpods.gen3",
+        "0x2019": "airpods.gen4", "0x201B": "airpods.gen4",
+        "0x200E": "airpodspro", "0x2014": "airpodspro", "0x2024": "airpodspro",
+        "0x200A": "airpodsmax", "0x201F": "airpodsmax",
+    ]
+
+    static func icon(for name: String, type: String?, productID: String? = nil) -> String {
+        if let productID, let model = airPodsModels[productID.uppercased().replacingOccurrences(of: "0X", with: "0x")] { return model }
         let lower = name.lowercased(), kind = (type ?? "").lowercased()
         if lower.contains("airpods max") { return "airpodsmax" }
         if lower.contains("airpods pro") { return "airpodspro" }
@@ -78,6 +88,24 @@ struct AccessoryBattery: Equatable, Identifiable {
         if lower.contains("trackpad") { return "rectangle.and.hand.point.up.left.fill" }
         if kind.contains("mouse") || lower.contains("mouse") || lower.contains("ratón") { return "magicmouse.fill" }
         return "dot.radiowaves.left.and.right"
+    }
+
+    /// Simbolo de cada pieza: auricular izquierdo, derecho y estuche del modelo.
+    static func partSymbol(_ part: String, model: String) -> String {
+        let pieces: (left: String, right: String, case: String)
+        switch model {
+        case "airpodspro": pieces = ("airpodpro.left", "airpodpro.right", "airpodspro.chargingcase.wireless.fill")
+        case "airpods.gen3": pieces = ("airpod.gen3.left", "airpod.gen3.right", "airpods.gen3.chargingcase.wireless.fill")
+        case "airpods.gen4": pieces = ("airpod.gen3.left", "airpod.gen3.right", "airpods.gen4.chargingcase.wireless.fill")
+        case "airpods": pieces = ("airpod.left", "airpod.right", "airpods.chargingcase.fill")
+        default: return model
+        }
+        switch part {
+        case "L": return pieces.left
+        case "R": return pieces.right
+        case casePart: return pieces.case
+        default: return model
+        }
     }
 
     /// Accesorios HID de Apple (Magic Keyboard, Mouse, Trackpad) con su bateria.

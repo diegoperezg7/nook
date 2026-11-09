@@ -54,7 +54,7 @@ struct BatteryPanel: View {
             HStack(spacing: 14) {
                 ForEach(parts, id: \.0) { part, level in
                     HStack(spacing: 7) {
-                        BatteryRing(symbol: Self.partSymbol(part, base: symbol), level: level, size: 30)
+                        BatteryRing(symbol: AccessoryBattery.partSymbol(part, model: symbol), level: level, size: 30)
                         VStack(alignment: .leading, spacing: 0) {
                             Text(verbatim: "\(level) %")
                                 .font(.system(size: 12, weight: .semibold).monospacedDigit())
@@ -67,18 +67,6 @@ struct BatteryPanel: View {
                     }
                 }
             }
-        }
-    }
-
-    /// AirPods: auricular izquierdo, derecho y estuche con su propio simbolo.
-    private static func partSymbol(_ part: String, base: String) -> String {
-        guard base.hasPrefix("airpods"), base != "airpodsmax" else { return base }
-        let pro = base == "airpodspro"
-        switch part {
-        case "L": return pro ? "airpodpro.left" : "airpod.left"
-        case "R": return pro ? "airpodpro.right" : "airpod.right"
-        case AccessoryBattery.casePart: return pro ? "airpodspro.chargingcase.wireless.fill" : "airpods.chargingcase.fill"
-        default: return base
         }
     }
 

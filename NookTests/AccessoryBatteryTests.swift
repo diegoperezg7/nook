@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import Nook
 
@@ -23,6 +24,32 @@ final class AccessoryBatteryTests: XCTestCase {
         XCTAssertEqual(airpods.lowest, 15, "el estuche no cuenta para el aviso")
         XCTAssertEqual(devices[1].icon, "magicmouse.fill")
         XCTAssertEqual(devices[1].lowest, 62)
+    }
+
+    /// El modelo sale del product ID aunque el nombre no lo diga.
+    func testModelFromProductID() {
+        XCTAssertEqual(AccessoryBattery.icon(for: "AirPods de Ana", type: "Headphones", productID: "0x2014"), "airpodspro")
+        XCTAssertEqual(AccessoryBattery.icon(for: "Cascos", type: "Headphones", productID: "0x2013"), "airpods.gen3")
+        XCTAssertEqual(AccessoryBattery.icon(for: "AirPods Max", type: nil, productID: "0x9999"), "airpodsmax")
+    }
+
+    /// Cada pieza tiene su simbolo y todos existen en SF Symbols.
+    func testPartSymbolsExist() {
+        for model in Set(AccessoryBattery.airPodsModels.values) {
+            for part in ["L", "R", AccessoryBattery.casePart, ""] {
+                let name = AccessoryBattery.partSymbol(part, model: model)
+                XCTAssertNotNil(NSImage(systemSymbolName: name, accessibilityDescription: nil), "\(model) \(part): \(name)")
+            }
+        }
+    }
+
+    /// En la cabecera solo cuentan los auriculares (el raton no).
+    func testOnlyHeadphonesCount() {
+        XCTAssertTrue(BatteryCenter.isAudio("airpodspro"))
+        XCTAssertTrue(BatteryCenter.isAudio("airpods.gen3"))
+        XCTAssertTrue(BatteryCenter.isAudio("beats.headphones"))
+        XCTAssertFalse(BatteryCenter.isAudio("magicmouse.fill"))
+        XCTAssertFalse(BatteryCenter.isAudio("keyboard"))
     }
 
     func testBrokenOutputIsEmpty() {

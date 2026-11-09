@@ -38,7 +38,7 @@ final class BatteryCenter {
         return (buds.icon, level)
     }
 
-    static func isAudio(_ icon: String) -> Bool {
+    nonisolated static func isAudio(_ icon: String) -> Bool {
         icon.hasPrefix("airpods") || icon.contains("headphones")
     }
 }
