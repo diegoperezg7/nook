@@ -24,7 +24,7 @@ targets:
     scheme:
       testTargets:
         - NookTests
-    # Sandbox desde el primer dia: no hace falta ningun permiso que lo impida
+    # Sin sandbox desde la 0.12 (ver entitlements); los datos viven en el App Group.
     # (sin Accesibilidad ni Grabacion de pantalla) y deja abierta la Mac App Store.
     # Servicio de Finder: clic derecho > Servicios > Añadir a Nook.
     info:
@@ -44,42 +44,18 @@ targets:
     entitlements:
       path: Nook/Nook.entitlements
       properties:
-        com.apple.security.app-sandbox: true
-        # Datos en el App Group: el unico sitio que podra leer una version sin sandbox.
+        # Sin sandbox desde la 0.12: pegar en otras apps, notificaciones, ventanas y
+        # texto seleccionado necesitan Accesibilidad o leer fuera del contenedor.
+        # Los datos siguen en el App Group (la 0.11 los copio ahi).
         com.apple.security.application-groups:
           - $(NOOK_APP_GROUP)
-        # Archivos elegidos en el panel de abrir (boton "+") y la carpeta de
-        # capturas, que se recuerda con un marcador y se puede borrar (a la Papelera).
-        com.apple.security.files.user-selected.read-write: true
-        com.apple.security.files.bookmarks.app-scope: true
-        # Aviso de descargas: solo mira que archivos aparecen en Descargas.
-        com.apple.security.files.downloads.read-only: true
+        # Con Hardened Runtime estos permisos se siguen declarando.
         # Calendario: eventos del Mac y alta rapida (EventKit).
         com.apple.security.personal-information.calendars: true
-        # Bandeja de entrada: remitente, asunto y hora de los no leidos de Mail o
-        # de Outlook (AppleScript, solo a esas dos apps).
-        # Dictado (microfono) y tiempo (Open-Meteo).
+        # Dictado y volumen por app (captar audio).
         com.apple.security.device.audio-input: true
-        com.apple.security.network.client: true
+        # Bandeja de entrada (Mail/Outlook) y controles de reunion.
         com.apple.security.automation.apple-events: true
-        com.apple.security.temporary-exception.apple-events:
-          - com.apple.mail
-          - com.microsoft.Outlook
-        # Solo lectura de los datos de los nombres anteriores de la app (Perch,
-        # Notchbin): se importan una vez al arrancar para no perder nada.
-        com.apple.security.temporary-exception.files.home-relative-path.read-only:
-          - /Library/Containers/com.diegoperez.perch/Data/Library/Application Support/Perch/
-          - /Library/Containers/com.diegoperez.notchbin/Data/Library/Application Support/Notchbin/
-          # Pestaña de agentes de IA: solo metadatos de sesion. Ni transcripts
-          # (~/.claude/projects) ni credenciales (~/.codex/auth.json, Llavero).
-          - /.claude/sessions/
-          - /.claude/nook-usage.json
-          - /.codex/state_5.sqlite
-          - /.codex/state_5.sqlite-wal
-          - /.codex/state_5.sqlite-shm
-          - /.codex/thread_history_1.sqlite
-          - /.codex/thread_history_1.sqlite-wal
-          - /.codex/thread_history_1.sqlite-shm
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.diegoperez.nook

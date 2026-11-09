@@ -21,6 +21,26 @@ enum DataHome {
         return base.appendingPathComponent("Library/Application Support/Nook", isDirectory: true)
     }
 
+    static var isSandboxed: Bool { ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil }
+
+    /// Contenedor del sandbox visto desde fuera (lo que usaba la app hasta la 0.11).
+    static var containerDirectory: URL? {
+        guard let bundleID = Bundle.main.bundleIdentifier,
+              let home = getpwuid(getuid())?.pointee.pw_dir.map({ String(cString: $0) }) else { return nil }
+        return URL(fileURLWithPath: home)
+            .appendingPathComponent("Library/Containers/\(bundleID)/Data/Library/Application Support/Nook", isDirectory: true)
+    }
+
+    /// Sin sandbox y sin datos en el App Group, pero con datos en el contenedor: la
+    /// 0.11 no llego a copiarlos. No se empieza en blanco (el almacen nuevo impediria
+    /// copiarlos despues): hay que abrir antes la 0.11.
+    static var dataLeftInContainer: Bool {
+        guard !isSandboxed, let group = groupDirectory,
+              !FileManager.default.fileExists(atPath: group.appendingPathComponent("Nook.store").path),
+              let container = containerDirectory else { return false }
+        return FileManager.default.fileExists(atPath: container.path)
+    }
+
     /// Se decide una vez por arranque, antes de abrir el almacen.
     private(set) static var directory: URL = legacyDirectory
 
@@ -82,6 +102,20 @@ enum DataHome {
                   (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else { return count }
             return count + 1
         }
+    }
+
+    private static let importedKey = "ajustesImportadosDelSandbox"
+
+    /// Sin sandbox, una vez: recupera los ajustes que exporto la version con sandbox.
+    static func importDefaultsIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !isSandboxed, !defaults.bool(forKey: importedKey), let group = groupDirectory,
+              let data = try? Data(contentsOf: group.appendingPathComponent("ajustes.plist")),
+              let values = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return }
+        for (key, value) in values where defaults.object(forKey: key) == nil {
+            defaults.set(value, forKey: key)
+        }
+        defaults.set(true, forKey: importedKey)
     }
 
     /// Copia de los ajustes en el App Group, para que la version sin sandbox los

@@ -64,7 +64,10 @@ final class ScreenshotLibrary {
     private func restore() {
         guard let data = defaults.data(forKey: Self.bookmarkKey) else { return }
         var stale = false
-        guard let url = try? URL(resolvingBookmarkData: data, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &stale) else { return }
+        // Un marcador creado dentro del sandbox puede no abrirse con permisos fuera de
+        // el: entonces se resuelve como uno normal (sin sandbox no hacen falta).
+        guard let url = (try? URL(resolvingBookmarkData: data, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &stale))
+            ?? (try? URL(resolvingBookmarkData: data, options: [], relativeTo: nil, bookmarkDataIsStale: &stale)) else { return }
         if stale, let fresh = try? url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil) {
             defaults.set(fresh, forKey: Self.bookmarkKey)
         }

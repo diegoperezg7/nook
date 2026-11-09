@@ -35,6 +35,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Los tests usan la app como host: sin panel ni monitores.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
 
+        if DataHome.dataLeftInContainer {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Tus datos siguen en la versión anterior")
+            alert.informativeText = String(localized: "Instala y abre una vez Nook 0.11 para que copie tu bandeja y tu historial; después vuelve a esta versión. No se ha borrado nada.")
+            alert.runModal()
+            NSApp.terminate(nil)
+            return
+        }
+        DataHome.importDefaultsIfNeeded()
         // Antes de abrir el almacen: decide (y si hace falta copia) donde estan los datos.
         let migration = DataHome.prepare()
         NSLog("Nook datos: %@", migration)
