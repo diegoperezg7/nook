@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 final class NotchViewModel {
     enum Tab: Hashable {
-        case shelf, clipboard, screenshots, music, agents
+        case shelf, clipboard, screenshots, agents
 
         /// El historial, las capturas y los agentes tienen una fila de herramientas sobre las tarjetas.
         var hasToolbar: Bool { self == .clipboard || self == .screenshots || self == .agents }
@@ -50,8 +50,6 @@ final class NotchViewModel {
     @ObservationIgnored var onDragOutStarted: (() -> Void)?
     @ObservationIgnored var onOpenSettings: (() -> Void)?
     @ObservationIgnored private var closeToken = 0
-    /// Mientras suena musica el notch cerrado es mas ancho (caratula y barras).
-    @ObservationIgnored var nowPlaying: NowPlaying?
 
     init(metrics: NotchMetrics) {
         self.metrics = metrics
@@ -78,12 +76,8 @@ final class NotchViewModel {
         metrics.openHotRect(searchRow: tab.hasToolbar)
     }
 
-    /// Zona del notch cerrado que lo abre, incluida la actividad de musica.
-    var closedHotRect: CGRect {
-        let rect = metrics.closedHotRect
-        guard nowPlaying?.isPlaying == true else { return rect }
-        return rect.insetBy(dx: -NotchMetrics.activitySide, dy: 0)
-    }
+    /// Zona del notch cerrado que lo abre.
+    var closedHotRect: CGRect { metrics.closedHotRect }
 
     func close() {
         guard isOpen else { return }

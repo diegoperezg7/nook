@@ -18,8 +18,6 @@ struct NotchMetrics: Equatable {
     static let topSpacing: CGFloat = 10
     static let bottomMargin: CGFloat = 18
     static let pillWidth: CGFloat = 180
-    /// Lo que crece el notch cerrado a cada lado mientras suena musica.
-    static let activitySide: CGFloat = 38
 
     var hasNotch: Bool
     var screenFrame: CGRect

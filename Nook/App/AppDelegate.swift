@@ -13,7 +13,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var defaultsObserver: NSObjectProtocol?
     private var services: ServiceProvider?
     private var screenshots: ScreenshotLibrary?
-    private var nowPlaying: NowPlaying?
     private var agents: AgentMonitor?
     private var hud: SystemHUD?
 
@@ -31,10 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LegacyImport.run(into: store)
         #endif
         let screenshots = ScreenshotLibrary()
-        let nowPlaying = NowPlaying()
         let agents = AgentMonitor()
         let hud = SystemHUD()
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, nowPlaying: nowPlaying, agents: agents, hud: hud)
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -45,13 +43,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.notch = notch
         self.monitor = monitor
         self.screenshots = screenshots
-        self.nowPlaying = nowPlaying
         self.agents = agents
         self.hud = hud
 
         notch.start()
         monitor.start()
-        nowPlaying.start()
         hud.start()
         store.trimHistory()
         store.recognizeMissingText()

@@ -7,7 +7,6 @@ struct NotchContentView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
     @Environment(ScreenshotLibrary.self) private var screenshots
-    @Environment(NowPlaying.self) private var nowPlaying
     @Environment(AgentMonitor.self) private var agents
     @Namespace private var tabNamespace
 
@@ -25,8 +24,6 @@ struct NotchContentView: View {
                     ClipboardView(model: model, store: store)
                 case .screenshots:
                     ScreenshotsView(model: model, store: store, library: screenshots)
-                case .music:
-                    MusicView(nowPlaying: nowPlaying)
                 case .agents:
                     AgentsView(monitor: agents)
                 }
@@ -34,11 +31,6 @@ struct NotchContentView: View {
             .padding(.top, NotchMetrics.topSpacing)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        // Si se cierra la app de musica, se vuelve a la bandeja.
-        .onChange(of: nowPlaying.track == nil) { _, gone in
-            if gone, model.tab == .music { model.tab = .shelf }
-        }
-        .animation(AppMotion.snappy, value: nowPlaying.track == nil)
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
         // estrecho que la ventana. Sin esto los margenes se quedaban en 2 pt.
         .padding(.horizontal, NotchMetrics.openEar)
@@ -78,12 +70,6 @@ struct NotchContentView: View {
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
             tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder")
             tabButton(.agents, title: "Agentes de IA", icon: "brain", logo: AgentIcons.claude)
-            // Solo mientras hay algo en Musica o Spotify.
-            if nowPlaying.track != nil {
-                // El logo de la app que suena (Spotify o Musica).
-                tabButton(.music, title: "Música", icon: "music.note", logo: nowPlaying.player?.icon)
-                    .transition(.scale.combined(with: .opacity))
-            }
         }
         .padding(3)
         .liquidGlass(in: Capsule())
@@ -107,8 +93,6 @@ struct NotchContentView: View {
                 Button("Borrar historial…", systemImage: "trash", role: .destructive) { confirmClearHistory() }
             case .agents:
                 EmptyView()
-            case .music:
-                Button("Abrir la app", systemImage: "arrow.up.forward.app") { nowPlaying.openPlayer() }
             case .screenshots:
                 Button("Cambiar carpeta de capturas…", systemImage: "folder.badge.gearshape") {
                     model.close()

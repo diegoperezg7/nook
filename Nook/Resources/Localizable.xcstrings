@@ -141,16 +141,6 @@
         }
       }
     },
-    "Abrir la app": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open App"
-          }
-        }
-      }
-    },
     "Acceso al portapapeles": {
       "localizations": {
         "en": {
@@ -207,16 +197,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Instantly"
-          }
-        }
-      }
-    },
-    "Anterior": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Previous"
           }
         }
       }
@@ -801,16 +781,6 @@
         }
       }
     },
-    "Música": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Music"
-          }
-        }
-      }
-    },
     "No hay archivos que añadir": {
       "localizations": {
         "en": {
@@ -857,16 +827,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hide in screenshots"
-          }
-        }
-      }
-    },
-    "Pausa": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pause"
           }
         }
       }
@@ -961,16 +921,6 @@
         }
       }
     },
-    "Reproducir": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play"
-          }
-        }
-      }
-    },
     "Salir de Nook": {
       "localizations": {
         "en": {
@@ -1037,16 +987,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Week"
-          }
-        }
-      }
-    },
-    "Siguiente": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Next"
           }
         }
       }

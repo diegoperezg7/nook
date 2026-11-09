@@ -48,14 +48,6 @@ targets:
         com.apple.security.files.bookmarks.app-scope: true
         # Aviso de descargas: solo mira que archivos aparecen en Descargas.
         com.apple.security.files.downloads.read-only: true
-        # Musica y Spotify: lo que suena y sus controles, por AppleScript. Sin abrir
-        # nunca esas apps; macOS pide permiso la primera vez.
-        com.apple.security.automation.apple-events: true
-        com.apple.security.temporary-exception.apple-events:
-          - com.apple.Music
-          - com.spotify.client
-        # Caratulas de Spotify (llegan como URL).
-        com.apple.security.network.client: true
         # Solo lectura de los datos de los nombres anteriores de la app (Perch,
         # Notchbin): se importan una vez al arrancar para no perder nada.
         com.apple.security.temporary-exception.files.home-relative-path.read-only:
@@ -82,7 +74,6 @@ targets:
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_CFBundleDisplayName: Nook
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
-        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Nook muestra en el notch lo que suena en Música o Spotify y te deja controlarlo."
         INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 Diego Pérez García"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor

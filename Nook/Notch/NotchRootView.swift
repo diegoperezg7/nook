@@ -9,17 +9,14 @@ import SwiftUI
 struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
-    @Environment(NowPlaying.self) private var nowPlaying
     @Environment(SystemHUD.self) private var hud
 
     var body: some View {
         let metrics = model.metrics
         let open = metrics.openSize(searchRow: model.tab.hasToolbar)
-        // Cerrado, el notch se ensancha para un aviso (volumen, bateria...) o, si no
-        // hay ninguno, para la musica que suena.
+        // Cerrado, el notch se ensancha para un aviso (volumen, bateria...).
         let notice = model.isOpen ? nil : hud.current
-        let activity = notice == nil && nowPlaying.isPlaying && !model.isOpen
-        let side = notice.map(HUDActivity.side(for:)) ?? (activity ? NotchMetrics.activitySide : 0)
+        let side = notice.map(HUDActivity.side(for:)) ?? 0
         let closedWidth = metrics.closedSize.width + side * 2
         let width = model.expandedWidth ? open.width : closedWidth
         let height = model.expandedHeight ? open.height : metrics.closedSize.height
@@ -38,12 +35,6 @@ struct NotchRootView: View {
                         .transition(.opacity.animation(.easeOut(duration: 0.15)))
                 }
 
-                if activity {
-                    MusicActivity(nowPlaying: nowPlaying, metrics: metrics)
-                        .frame(width: closedWidth)
-                        .transition(.opacity.animation(.easeOut(duration: 0.2)))
-                }
-
                 if model.isOpen {
                     NotchContentView(model: model, store: store)
                         .frame(width: open.width, height: open.height)
@@ -58,7 +49,6 @@ struct NotchRootView: View {
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
-            .animation(AppMotion.open, value: activity)
             .animation(AppMotion.open, value: notice == nil)
             // Cerrado y con el raton encima, se asoma un poco desde arriba.
             .scaleEffect(model.isPeeking && !model.isOpen && !AppMotion.reduceMotion ? 1.02 : 1, anchor: .top)
