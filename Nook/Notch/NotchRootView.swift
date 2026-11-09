@@ -12,7 +12,7 @@ struct NotchRootView: View {
 
     var body: some View {
         let metrics = model.metrics
-        let open = metrics.openSize(searchRow: model.tab == .clipboard)
+        let open = metrics.openSize(searchRow: model.tab.hasToolbar)
         let width = model.expandedWidth ? open.width : metrics.closedSize.width
         let height = model.expandedHeight ? open.height : metrics.closedSize.height
         let shape = NotchShape(

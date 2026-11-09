@@ -4,7 +4,12 @@ import SwiftUI
 @Observable
 @MainActor
 final class NotchViewModel {
-    enum Tab: Hashable { case shelf, clipboard }
+    enum Tab: Hashable {
+        case shelf, clipboard, screenshots
+
+        /// El historial y las capturas tienen una fila de herramientas sobre las tarjetas.
+        var hasToolbar: Bool { self != .shelf }
+    }
 
     enum OpenReason {
         /// Se cierra al sacar el raton.
@@ -65,7 +70,7 @@ final class NotchViewModel {
 
     /// Zona del panel visible, segun la pestaña (la bandeja es mas baja).
     var openHotRect: CGRect {
-        metrics.openHotRect(searchRow: tab == .clipboard)
+        metrics.openHotRect(searchRow: tab.hasToolbar)
     }
 
     func close() {

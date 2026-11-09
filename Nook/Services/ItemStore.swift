@@ -197,6 +197,24 @@ final class ItemStore {
         }
     }
 
+    /// Copia varios archivos de una vez (las capturas seleccionadas). Cada uno va
+    /// como archivo y, si es PNG, tambien como imagen, sin recodificarlo.
+    func copyFiles(_ urls: [URL], pasteboard: NSPasteboard = .general) {
+        guard !urls.isEmpty else { return }
+        pasteboard.clearContents()
+        let items = urls.map { url -> NSPasteboardItem in
+            if urls.count == 1 { return Self.pasteboardItem(for: url) }
+            let item = NSPasteboardItem()
+            item.setString(url.absoluteString, forType: .fileURL)
+            if url.pathExtension.lowercased() == "png", let data = try? Data(contentsOf: url) {
+                item.setData(data, forType: .png)
+            }
+            return item
+        }
+        pasteboard.writeObjects(items)
+        ownChangeCount = pasteboard.changeCount
+    }
+
     /// Un archivo en el portapapeles con varias representaciones: Finder y Mail usan
     /// la URL (pegan el archivo); un chat o un documento usan la imagen o el PDF.
     nonisolated static func pasteboardItem(for url: URL) -> NSPasteboardItem {

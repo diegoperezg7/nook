@@ -6,6 +6,7 @@ import SwiftUI
 struct NotchContentView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
+    @Environment(ScreenshotLibrary.self) private var screenshots
 
     /// Margen interior entre el borde visible del panel y su contenido.
     static let margin = NotchMetrics.sideMargin
@@ -19,6 +20,8 @@ struct NotchContentView: View {
                     ShelfView(model: model, store: store)
                 case .clipboard:
                     ClipboardView(model: model, store: store)
+                case .screenshots:
+                    ScreenshotsView(model: model, store: store, library: screenshots)
                 }
             }
             .padding(.top, NotchMetrics.topSpacing)
@@ -59,6 +62,7 @@ struct NotchContentView: View {
         HStack(spacing: 6) {
             tabButton(.shelf, title: "Bandeja", icon: "tray.full.fill")
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
+            tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder")
         }
     }
 
@@ -72,11 +76,20 @@ struct NotchContentView: View {
         Menu {
             Button("Ajustes…", systemImage: "gearshape") { model.onOpenSettings?() }
             Divider()
-            if model.tab == .shelf {
+            switch model.tab {
+            case .shelf:
                 Button("Añadir archivos…", systemImage: "plus") { chooseFiles() }
                 Button("Vaciar bandeja…", systemImage: "trash", role: .destructive) { confirmClearShelf() }
-            } else {
+            case .clipboard:
                 Button("Borrar historial…", systemImage: "trash", role: .destructive) { confirmClearHistory() }
+            case .screenshots:
+                Button("Cambiar carpeta de capturas…", systemImage: "folder.badge.gearshape") {
+                    model.close()
+                    screenshots.chooseFolder()
+                }
+                if screenshots.folder != nil {
+                    Button("Mostrar la carpeta en Finder", systemImage: "folder") { screenshots.showFolderInFinder() }
+                }
             }
             Divider()
             Button("Salir de Nook", systemImage: "power") { NSApp.terminate(nil) }

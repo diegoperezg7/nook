@@ -42,8 +42,10 @@ targets:
       path: Nook/Nook.entitlements
       properties:
         com.apple.security.app-sandbox: true
-        # Archivos elegidos en el panel de abrir (boton "+").
-        com.apple.security.files.user-selected.read-only: true
+        # Archivos elegidos en el panel de abrir (boton "+") y la carpeta de
+        # capturas, que se recuerda con un marcador y se puede borrar (a la Papelera).
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.files.bookmarks.app-scope: true
         # Solo lectura de los datos de los nombres anteriores de la app (Perch,
         # Notchbin): se importan una vez al arrancar para no perder nada.
         com.apple.security.temporary-exception.files.home-relative-path.read-only:

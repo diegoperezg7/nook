@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var defaultsObserver: NSObjectProtocol?
     private var services: ServiceProvider?
+    private var screenshots: ScreenshotLibrary?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -26,7 +27,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #if !DEBUG
         LegacyImport.run(into: store)
         #endif
-        let notch = NotchController(store: store, container: container)
+        let screenshots = ScreenshotLibrary()
+        let notch = NotchController(store: store, container: container, screenshots: screenshots)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -36,6 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.store = store
         self.notch = notch
         self.monitor = monitor
+        self.screenshots = screenshots
 
         notch.start()
         monitor.start()

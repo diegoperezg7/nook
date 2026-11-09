@@ -1,12 +1,82 @@
 {
   "sourceLanguage": "es",
   "strings": {
+    "%lld capturas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld screenshots"
+          }
+        }
+      }
+    },
     "%lld caracteres": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld characters"
+          }
+        }
+      }
+    },
+    "%lld copiadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld copied"
+          }
+        }
+      }
+    },
+    "%lld seleccionadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld selected"
+          }
+        }
+      }
+    },
+    "1 captura": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 screenshot"
+          }
+        }
+      }
+    },
+    "1 copiada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 copied"
+          }
+        }
+      }
+    },
+    "1 seleccionada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 selected"
+          }
+        }
+      }
+    },
+    "A la Papelera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash"
           }
         }
       }
@@ -151,6 +221,16 @@
         }
       }
     },
+    "Aún no hay capturas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No screenshots yet"
+          }
+        }
+      }
+    },
     "Bandeja": {
       "localizations": {
         "en": {
@@ -191,6 +271,16 @@
         }
       }
     },
+    "Cambiar carpeta de capturas…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Screenshots Folder…"
+          }
+        }
+      }
+    },
     "Cancelar": {
       "localizations": {
         "en": {
@@ -207,6 +297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Capture is off"
+          }
+        }
+      }
+    },
+    "Capturas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots"
           }
         }
       }
@@ -301,12 +401,42 @@
         }
       }
     },
+    "Elegir carpeta…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Folder…"
+          }
+        }
+      }
+    },
     "Elementos en el historial": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Items in history"
+          }
+        }
+      }
+    },
+    "Elige la carpeta donde se guardan (normalmente el Escritorio)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder where they're saved (usually the Desktop)"
+          }
+        }
+      }
+    },
+    "Elige la carpeta donde se guardan tus capturas de pantalla (normalmente el Escritorio).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the folder where your screenshots are saved (usually the Desktop)."
           }
         }
       }
@@ -411,6 +541,16 @@
         }
       }
     },
+    "Haz una con ⇧⌘4 y aparecerá aquí": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take one with ⇧⌘4 and it will show up here"
+          }
+        }
+      }
+    },
     "Imagen": {
       "localizations": {
         "en": {
@@ -457,6 +597,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show on screens without a notch"
+          }
+        }
+      }
+    },
+    "Mostrar la carpeta en Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Folder in Finder"
           }
         }
       }
@@ -541,6 +691,16 @@
         }
       }
     },
+    "Quitar selección": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect All"
+          }
+        }
+      }
+    },
     "Salir de Nook": {
       "localizations": {
         "en": {
@@ -577,6 +737,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "They stay at hand until you drag them out"
+          }
+        }
+      }
+    },
+    "Seleccionar todo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select All"
           }
         }
       }
@@ -657,6 +827,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "All"
+          }
+        }
+      }
+    },
+    "Tus capturas de pantalla, a mano": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your screenshots, close at hand"
+          }
+        }
+      }
+    },
+    "Usar esta carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use This Folder"
           }
         }
       }

@@ -23,12 +23,14 @@ final class NotchController {
     /// opcion con el cursor fuera no debe cerrarlo antes de que la accion termine.
     private var isMenuOpen = false
 
-    init(store: ItemStore, container: ModelContainer) {
+    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary) {
         self.store = store
         let screen = Self.targetScreen() ?? NSScreen.main ?? NSScreen.screens[0]
         model = NotchViewModel(metrics: NotchMetrics.make(for: screen))
 
-        let root = NotchRootView(model: model, store: store).modelContainer(container)
+        let root = NotchRootView(model: model, store: store)
+            .modelContainer(container)
+            .environment(screenshots)
         // La vista SwiftUI va dentro de un contenedor con autoresizing: como
         // contentView directo, redimensionar la ventana provocaba un bucle de
         // "Update Constraints in Window" y AppKit abortaba la app.
@@ -235,10 +237,15 @@ final class NotchController {
     }
 
     #if DEBUG
-    /// Abre el panel para capturas: `-NookOpen shelf|clipboard`.
+    /// Abre el panel para capturas: `-NookOpen shelf|clipboard|screenshots`.
     func applyDebugLaunchArguments() {
         guard let value = UserDefaults.standard.string(forKey: "NookOpen") else { return }
-        model.open(reason: .pinned, tab: value == "clipboard" ? .clipboard : .shelf)
+        let tab: NotchViewModel.Tab = switch value {
+        case "clipboard": .clipboard
+        case "screenshots": .screenshots
+        default: .shelf
+        }
+        model.open(reason: .pinned, tab: tab)
     }
     #endif
 }
