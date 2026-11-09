@@ -16,7 +16,11 @@ import SQLite3
 @Observable
 @MainActor
 final class AgentMonitor {
-    private(set) var sessions: [AgentSession] = []
+    /// Solo las sesiones activas: en curso o esperando al usuario. Las paradas
+    /// (terminadas, interrumpidas, con error) no se muestran.
+    var sessions: [AgentSession] { allSessions.filter(\.status.isActive) }
+    /// Todas, para saber que herramienta se uso por ultima vez (consumo).
+    private(set) var allSessions: [AgentSession] = []
     private(set) var claudeUsage: SubscriptionUsage?
     /// Codex expone el consumo solo por su app-server: pendiente de decidir (fase 2).
     let codexUsage: SubscriptionUsage? = nil
@@ -24,7 +28,7 @@ final class AgentMonitor {
     /// Herramientas que se estan usando: con una sesion en curso o pendiente, o con
     /// actividad en la ultima media hora. Si no hay ninguna, la ultima usada.
     var activeFamilies: [AgentSession.Family] {
-        AgentSources.activeFamilies(in: sessions)
+        AgentSources.activeFamilies(in: allSessions)
     }
 
     func usage(for family: AgentSession.Family) -> SubscriptionUsage? {
@@ -49,7 +53,7 @@ final class AgentMonitor {
             (AgentSources.claudeSessions(home: home) + AgentSources.codexThreads(home: home),
              AgentSources.claudeUsage(at: home.appendingPathComponent(AgentMonitor.claudeUsageSnapshot)))
         }.value
-        sessions = snapshot.0.sorted { $0.updatedAt > $1.updatedAt }
+        allSessions = snapshot.0.sorted { $0.updatedAt > $1.updatedAt }
         claudeUsage = snapshot.1
     }
 
@@ -83,6 +87,13 @@ struct AgentSession: Identifiable, Equatable, Sendable {
         case interrupted
         case failed
         case unknown(String)
+
+        var isActive: Bool {
+            switch self {
+            case .running, .pending: return true
+            default: return false
+            }
+        }
     }
 
     let id: String

@@ -791,12 +791,12 @@
         }
       }
     },
-    "No hay sesiones de Claude Code ni de Codex": {
+    "No hay ninguna sesión activa": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Claude Code or Codex sessions"
+            "value": "No active sessions"
           }
         }
       }

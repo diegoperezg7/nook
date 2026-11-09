@@ -56,6 +56,14 @@ final class AgentMonitorTests: XCTestCase {
         XCTAssertEqual(session?.status, .unknown("nuevo"))
     }
 
+    func testOnlyRunningOrWaitingSessionsAreActive() {
+        XCTAssertTrue(AgentSession.Status.running.isActive)
+        XCTAssertTrue(AgentSession.Status.pending("input needed").isActive)
+        for stopped: AgentSession.Status in [.finished, .interrupted, .failed, .unknown("x")] {
+            XCTAssertFalse(stopped.isActive, "\(stopped) no debe mostrarse")
+        }
+    }
+
     // MARK: Herramienta en uso
 
     private func session(_ tool: AgentSession.Tool, _ status: AgentSession.Status, minutesAgo: Double) -> AgentSession {

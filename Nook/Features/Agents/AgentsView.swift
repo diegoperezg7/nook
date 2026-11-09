@@ -26,7 +26,7 @@ struct AgentsView: View {
             .padding(.bottom, 10)
 
             if monitor.sessions.isEmpty {
-                Text("No hay sesiones de Claude Code ni de Codex")
+                Text("No hay ninguna sesión activa")
                     .font(AppTypography.title)
                     .foregroundStyle(AppColors.textSecondary)
                     .frame(maxWidth: .infinity)
