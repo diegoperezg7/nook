@@ -16,6 +16,8 @@ final class CalendarService {
         let end: Date
         let isAllDay: Bool
         let color: NSColor
+        /// Enlace de videollamada (Zoom, Meet, Teams...) si el evento lo tiene.
+        var meetingURL: URL? = nil
     }
 
     private(set) var access: Access = .unknown
@@ -56,6 +58,20 @@ final class CalendarService {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
             NSWorkspace.shared.open(url)
         }
+    }
+
+    /// Reunion con enlace que empieza en 10 min o menos (o empezo hace menos de 5).
+    func imminentMeeting(at now: Date = .now) -> Event? {
+        todayEvents.first { event in
+            guard !event.isAllDay, event.meetingURL != nil else { return false }
+            let until = event.start.timeIntervalSince(now)
+            return until <= 10 * 60 && until > -5 * 60
+        }
+    }
+
+    func join(_ event: Event) {
+        guard let url = event.meetingURL else { return }
+        NSWorkspace.shared.open(url)
     }
 
     /// Proximo evento de hoy que aun no ha terminado.
@@ -136,7 +152,8 @@ final class CalendarService {
             title: event.title ?? "",
             start: event.startDate, end: event.endDate,
             isAllDay: event.isAllDay,
-            color: event.calendar?.color ?? .controlAccentColor
+            color: event.calendar?.color ?? .controlAccentColor,
+            meetingURL: MeetingLink.find(in: [event.url?.absoluteString, event.location, event.notes])
         )
     }
 
@@ -214,5 +231,25 @@ enum QuickEventParser {
         }
         let duration = match.duration > 0 ? match.duration : 3600
         return Parsed(title: title, start: date, end: date.addingTimeInterval(duration), isAllDay: false)
+    }
+}
+
+/// Busca un enlace de videollamada en los campos de un evento.
+enum MeetingLink {
+    private static let hosts = [
+        "zoom.us", "meet.google.com", "teams.microsoft.com", "teams.live.com",
+        "webex.com", "whereby.com", "facetime.apple.com", "meet.jit.si", "around.co",
+    ]
+
+    static func find(in fields: [String?]) -> URL? {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
+        for field in fields.compactMap({ $0 }) {
+            let matches = detector.matches(in: field, range: NSRange(field.startIndex..., in: field))
+            for match in matches {
+                guard let url = match.url, let host = url.host?.lowercased() else { continue }
+                if hosts.contains(where: { host == $0 || host.hasSuffix("." + $0) }) { return url }
+            }
+        }
+        return nil
     }
 }

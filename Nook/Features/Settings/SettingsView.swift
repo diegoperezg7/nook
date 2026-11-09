@@ -14,6 +14,10 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.hudDevices) private var hudDevices = true
     @AppStorage(SettingsKey.hudBattery) private var hudBattery = true
     @AppStorage(SettingsKey.hudDownloads) private var hudDownloads = true
+    @AppStorage(SettingsKey.hudCapsLock) private var hudCapsLock = true
+    @AppStorage(SettingsKey.hudNetwork) private var hudNetwork = true
+    @AppStorage(SettingsKey.hudMediaInUse) private var hudMediaInUse = true
+    @AppStorage(SettingsKey.hudMeetings) private var hudMeetings = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
 
@@ -51,6 +55,10 @@ struct SettingsView: View {
                 Toggle("Auriculares y altavoces Bluetooth", isOn: $hudDevices)
                 Toggle("Batería y cargador", isOn: $hudBattery)
                 Toggle("Descargas", isOn: $hudDownloads)
+                Toggle("Bloq Mayús", isOn: $hudCapsLock)
+                Toggle("Conexión a internet y VPN", isOn: $hudNetwork)
+                Toggle("Micrófono o cámara en uso", isOn: $hudMediaInUse)
+                Toggle("Cuenta atrás de reuniones", isOn: $hudMeetings)
             }
 
             Section("Notch") {

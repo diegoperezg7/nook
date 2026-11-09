@@ -9,6 +9,7 @@ struct NotchContentView: View {
     @Environment(ScreenshotLibrary.self) private var screenshots
     @Environment(AgentMonitor.self) private var agents
     @Environment(CalendarService.self) private var calendarService
+    @Environment(FocusTimer.self) private var focus
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -54,6 +55,7 @@ struct NotchContentView: View {
                     .accessibilityLabel(Text("Añadir archivos…"))
                     .transition(.scale.combined(with: .opacity))
                 }
+                timerMenu
                 menu
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -83,6 +85,41 @@ struct NotchContentView: View {
         TabButton(title: title, icon: icon, logo: logo, selected: model.tab == tab, namespace: tabNamespace) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
         }
+    }
+
+    /// Temporizador (Pomodoro) y Mantener despierto. El boton se pone azul mientras
+    /// alguno de los dos esta en marcha.
+    private var timerMenu: some View {
+        Menu {
+            Section("Temporizador") {
+                if focus.isRunning {
+                    Button("Detener temporizador", systemImage: "stop.fill") { focus.stop() }
+                }
+                ForEach(FocusTimer.timerPresets, id: \.self) { minutes in
+                    Button(minutes == 25 ? String(localized: "Pomodoro · 25 min") : String(localized: "\(minutes) min")) {
+                        focus.start(minutes: minutes)
+                    }
+                }
+            }
+            Section("Mantener despierto") {
+                if focus.isAwake {
+                    Button("Dejar de mantener despierto", systemImage: "moon.zzz") { focus.stopAwake() }
+                }
+                ForEach(FocusTimer.awakePresets, id: \.self) { minutes in
+                    Button(minutes < 60 ? String(localized: "\(minutes) min") : String(localized: "\(minutes / 60) h")) {
+                        focus.stayAwake(minutes: minutes)
+                    }
+                }
+                Button("Hasta que lo pare") { focus.stayAwake(minutes: nil) }
+            }
+        } label: {
+            CircleIconLabel(icon: focus.isRunning ? "timer" : focus.isAwake ? "cup.and.saucer.fill" : "timer", active: focus.isRunning || focus.isAwake)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help(Text("Temporizador y mantener despierto"))
     }
 
     private var menu: some View {
@@ -212,12 +249,14 @@ private struct TabButton: View {
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
 private struct CircleIconLabel: View {
     let icon: String
+    /// Algo en marcha (temporizador...): icono azul fijo.
+    var active = false
     @State private var hovering = false
 
     var body: some View {
         Image(systemName: icon)
             .font(.system(size: 13, weight: .bold))
-            .foregroundStyle(hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
+            .foregroundStyle(hovering || active ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
             .frame(width: 30, height: 30)
             .liquidGlass(in: Circle(), interactive: true)
             .contentShape(Circle())

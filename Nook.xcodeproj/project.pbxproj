@@ -56,6 +56,7 @@
 		E9B9C1761C6E6994D7F32DC7 /* QuickLookPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */; };
 		EF89335914D692DD6952FAE6 /* NotchMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007AA4253F285A9F465AE5F5 /* NotchMetrics.swift */; };
 		F54D8185779B29779B5F87E3 /* ScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87031FAA3EC00613740ED01 /* ScreenshotsView.swift */; };
+		F63748B0064A8FFD854FD1EF /* FocusTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD887C2BB4E9320640105B18 /* FocusTimer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -119,6 +120,7 @@
 		D139EB8143C96D2F9DF88190 /* AppMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMotion.swift; sourceTree = "<group>"; };
 		D87031FAA3EC00613740ED01 /* ScreenshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotsView.swift; sourceTree = "<group>"; };
 		DA81A6D53766532D322DFE0B /* LegacyImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyImport.swift; sourceTree = "<group>"; };
+		DD887C2BB4E9320640105B18 /* FocusTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimer.swift; sourceTree = "<group>"; };
 		E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActionsTests.swift; sourceTree = "<group>"; };
 		EDDBB41C044D6FE7DD35C1C9 /* NotchItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchItem.swift; sourceTree = "<group>"; };
 		F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEventParserTests.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 				0BB66BEFBE67290FF72A20FC /* DropReader.swift */,
 				C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */,
 				8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */,
+				DD887C2BB4E9320640105B18 /* FocusTimer.swift */,
 				C9D52E5AFBCF5050933B2E85 /* HotKey.swift */,
 				8B838B524EC00D7BEE032A3B /* ItemStore.swift */,
 				DA81A6D53766532D322DFE0B /* LegacyImport.swift */,
@@ -430,6 +433,7 @@
 				8D0A9910A0DA0086D2B3C609 /* DropReader.swift in Sources */,
 				30A59FA6278318A44BD649ED /* FileActions.swift in Sources */,
 				3870E74001E74F2543000F87 /* FileImporter.swift in Sources */,
+				F63748B0064A8FFD854FD1EF /* FocusTimer.swift in Sources */,
 				A8791B8672B6B8D9C5FDB854 /* HUDActivity.swift in Sources */,
 				765C762424EA2E930D719744 /* HotKey.swift in Sources */,
 				DECF331C9665469D551BD770 /* ItemCard.swift in Sources */,

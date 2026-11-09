@@ -14,8 +14,9 @@ struct NotchRootView: View {
     var body: some View {
         let metrics = model.metrics
         let open = metrics.openSize(searchRow: model.tab.hasToolbar)
-        // Cerrado, el notch se ensancha para un aviso (volumen, bateria...).
-        let notice = model.isOpen ? nil : hud.current
+        // Cerrado, el notch se ensancha para un aviso breve (volumen, bateria...) o,
+        // si no hay ninguno, para lo que este en marcha (reunion, temporizador...).
+        let notice = model.isOpen ? nil : (hud.current ?? hud.ambient)
         let side = notice.map(HUDActivity.side(for:)) ?? 0
         let closedWidth = metrics.closedSize.width + side * 2
         let width = model.expandedWidth ? open.width : closedWidth
@@ -49,7 +50,7 @@ struct NotchRootView: View {
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
-            .animation(AppMotion.open, value: notice == nil)
+            .animation(AppMotion.open, value: notice.map(HUDActivity.side(for:)))
             // Cerrado y con el raton encima, se asoma un poco desde arriba.
             .scaleEffect(model.isPeeking && !model.isOpen && !AppMotion.reduceMotion ? 1.02 : 1, anchor: .top)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.

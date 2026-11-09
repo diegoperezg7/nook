@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var agents: AgentMonitor?
     private var hud: SystemHUD?
     private var calendar: CalendarService?
+    private var focus: FocusTimer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -34,7 +35,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let agents = AgentMonitor()
         let hud = SystemHUD()
         let calendar = CalendarService()
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar)
+        let focus = FocusTimer()
+        hud.focus = focus
+        hud.calendar = calendar
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -48,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.agents = agents
         self.hud = hud
         self.calendar = calendar
+        self.focus = focus
 
         notch.start()
         monitor.start()

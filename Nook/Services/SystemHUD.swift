@@ -1,11 +1,17 @@
 import AppKit
 import AudioToolbox
 import CoreAudio
+import CoreMediaIO
 import IOKit.ps
+import Network
 import Observation
 
-/// Avisos breves que salen del notch cerrado: volumen, dispositivo de audio
-/// conectado, bateria y descargas. Cada uno se va solo a los pocos segundos.
+/// Lo que sale del notch cerrado:
+/// - Avisos breves (`current`): volumen, dispositivo de audio, bateria, descargas,
+///   Bloq Mayus, red y fin del temporizador. Se van solos a los pocos segundos.
+/// - Actividades que duran (`ambient`): reunion a punto de empezar, temporizador,
+///   microfono o camara en uso y "mantener despierto". Se ven mientras duran,
+///   salvo cuando hay un aviso breve encima.
 @Observable
 @MainActor
 final class SystemHUD {
@@ -14,9 +20,42 @@ final class SystemHUD {
         case audioDevice(name: String, icon: String)
         case battery(level: Int, charging: Bool)
         case download(name: String, done: Bool)
+        case capsLock(on: Bool)
+        case network(online: Bool, vpn: Bool)
+        case timerDone
+        // Actividades que duran.
+        case meeting(title: String, start: Date)
+        case timer(end: Date, total: TimeInterval)
+        case mediaInUse(mic: Bool, camera: Bool)
+        case stayAwake(until: Date?)
     }
 
     private(set) var current: Kind?
+    private(set) var micInUse = false
+    private(set) var cameraInUse = false
+    /// Reloj para las actividades que dependen de la hora (la reunion).
+    private(set) var now = Date.now
+
+    @ObservationIgnored var focus: FocusTimer?
+    @ObservationIgnored var calendar: CalendarService?
+    @ObservationIgnored private var capsLockOn = false
+    @ObservationIgnored private var poller: Timer?
+    @ObservationIgnored private var path: NWPathMonitor?
+    @ObservationIgnored private var lastPath: (online: Bool, vpn: Bool)?
+
+    /// La actividad que dura con mas prioridad: reunion > temporizador >
+    /// microfono o camara > mantener despierto.
+    var ambient: Kind? {
+        if defaults.bool(forKey: SettingsKey.hudMeetings), let meeting = calendar?.imminentMeeting(at: now) {
+            return .meeting(title: meeting.title, start: meeting.start)
+        }
+        if let focus, let end = focus.end { return .timer(end: end, total: focus.total) }
+        if defaults.bool(forKey: SettingsKey.hudMediaInUse), micInUse || cameraInUse {
+            return .mediaInUse(mic: micInUse, camera: cameraInUse)
+        }
+        if let focus, focus.isAwake { return .stayAwake(until: focus.awakeUntil) }
+        return nil
+    }
     @ObservationIgnored private var hideWork: DispatchWorkItem?
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var volume: VolumeMonitor?
@@ -43,9 +82,66 @@ final class SystemHUD {
         }
         downloads = DownloadsMonitor { [weak self] name, done in
             guard let self, self.defaults.bool(forKey: SettingsKey.hudDownloads) else { return }
-            // Mientras descarga se queda; al terminar, el check dura un poco.
-            self.show(.download(name: name, done: done), for: done ? 2.5 : nil)
+            // Mientras descarga se queda (como mucho un minuto, por si se cancela);
+            // al terminar, el check dura un poco.
+            self.show(.download(name: name, done: done), for: done ? 2.5 : 60)
         }
+        focus?.onFinish = { [weak self] in self?.show(.timerDone, for: 4) }
+        capsLockOn = Self.capsLockState()
+        startPolling()
+        startNetwork()
+    }
+
+    // MARK: - Sondeo (Bloq Mayus, microfono, camara, reloj)
+
+    /// Un sondeo barato cada 0,3 s: el estado de Bloq Mayus se lee sin permisos
+    /// (CGEventSource) y el uso de microfono y camara, con CoreAudio y CoreMediaIO.
+    private func startPolling() {
+        var ticks = 0
+        poller = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                ticks += 1
+                let caps = Self.capsLockState()
+                if caps != self.capsLockOn {
+                    self.capsLockOn = caps
+                    if self.defaults.bool(forKey: SettingsKey.hudCapsLock) { self.show(.capsLock(on: caps), for: 1) }
+                }
+                // Microfono, camara y reloj: cada ~1,5 s basta.
+                guard ticks % 5 == 0 else { return }
+                let mic = MediaUsage.microphoneInUse()
+                let camera = MediaUsage.cameraInUse()
+                if mic != self.micInUse { self.micInUse = mic }
+                if camera != self.cameraInUse { self.cameraInUse = camera }
+                if ticks % 50 == 0 { self.now = .now }
+            }
+        }
+    }
+
+    private static func capsLockState() -> Bool {
+        CGEventSource.flagsState(.combinedSessionState).contains(.maskAlphaShift)
+    }
+
+    // MARK: - Red
+
+    private func startNetwork() {
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            let online = path.status == .satisfied
+            // Una VPN aparece como interfaz "utun"/"ipsec"/"ppp".
+            let vpn = path.availableInterfaces.contains { ["utun", "ipsec", "ppp"].contains(where: $0.name.hasPrefix) }
+            DispatchQueue.main.async { self?.networkChanged(online: online, vpn: vpn) }
+        }
+        monitor.start(queue: DispatchQueue(label: "Nook.network"))
+        path = monitor
+    }
+
+    private func networkChanged(online: Bool, vpn: Bool) {
+        defer { lastPath = (online, vpn) }
+        // El primer valor es el estado al arrancar: no se avisa.
+        guard let last = lastPath, last.online != online || last.vpn != vpn,
+              defaults.bool(forKey: SettingsKey.hudNetwork) else { return }
+        show(.network(online: online, vpn: vpn), for: 2.5)
     }
 
     /// Muestra un aviso; `duration` nil lo deja hasta el siguiente.
@@ -264,5 +360,47 @@ final class DownloadsMonitor {
     /// "informe.pdf.crdownload" -> "informe.pdf"; los de Chrome sin nombre aun se quedan igual.
     static func finalName(_ name: String) -> String {
         (name as NSString).deletingPathExtension
+    }
+}
+
+// MARK: - Microfono y camara en uso
+
+/// Si alguna app esta usando el microfono o la camara (como los puntos naranja y
+/// verde de macOS). Solo se consulta el estado del dispositivo: no se graba nada.
+enum MediaUsage {
+    static func microphoneInUse() -> Bool {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultInputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain
+        )
+        var device = AudioObjectID(kAudioObjectUnknown)
+        var size = UInt32(MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr,
+              device != kAudioObjectUnknown else { return false }
+        address.mSelector = kAudioDevicePropertyDeviceIsRunningSomewhere
+        var running: UInt32 = 0
+        size = UInt32(MemoryLayout<UInt32>.size)
+        guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, &running) == noErr else { return false }
+        return running != 0
+    }
+
+    static func cameraInUse() -> Bool {
+        var address = CMIOObjectPropertyAddress(
+            mSelector: CMIOObjectPropertySelector(kCMIOHardwarePropertyDevices),
+            mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
+            mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain)
+        )
+        var size: UInt32 = 0
+        let system = CMIOObjectID(kCMIOObjectSystemObject)
+        guard CMIOObjectGetPropertyDataSize(system, &address, 0, nil, &size) == noErr, size > 0 else { return false }
+        var devices = [CMIOObjectID](repeating: 0, count: Int(size) / MemoryLayout<CMIOObjectID>.size)
+        var used: UInt32 = 0
+        guard CMIOObjectGetPropertyData(system, &address, 0, nil, size, &used, &devices) == noErr else { return false }
+        address.mSelector = CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere)
+        return devices.contains { device in
+            var running: UInt32 = 0
+            var got: UInt32 = 0
+            return CMIOObjectGetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<UInt32>.size), &got, &running) == noErr && running != 0
+        }
     }
 }

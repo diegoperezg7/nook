@@ -14,6 +14,7 @@ final class NotchController {
     let model: NotchViewModel
     private let panel = NotchPanel()
     private let store: ItemStore
+    private let hud: SystemHUD
     private var monitors: [Any] = []
     private var pendingOpen: DispatchWorkItem?
     private var pendingClose: DispatchWorkItem?
@@ -23,7 +24,8 @@ final class NotchController {
     /// opcion con el cursor fuera no debe cerrarlo antes de que la accion termine.
     private var isMenuOpen = false
 
-    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, agents: AgentMonitor, hud: SystemHUD, calendar: CalendarService) {
+    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, agents: AgentMonitor, hud: SystemHUD, calendar: CalendarService, focus: FocusTimer) {
+        self.hud = hud
         self.store = store
         let screen = Self.targetScreen() ?? NSScreen.main ?? NSScreen.screens[0]
         model = NotchViewModel(metrics: NotchMetrics.make(for: screen))
@@ -34,6 +36,7 @@ final class NotchController {
             .environment(agents)
             .environment(hud)
             .environment(calendar)
+            .environment(focus)
         // La vista SwiftUI va dentro de un contenedor con autoresizing: como
         // contentView directo, redimensionar la ventana provocaba un bucle de
         // "Update Constraints in Window" y AppKit abortaba la app.
@@ -209,7 +212,12 @@ final class NotchController {
             guard let self else { return }
             self.pendingOpen = nil
             if self.model.closedHotRect.contains(NSEvent.mouseLocation) {
-                self.model.open(reason: .hover)
+                // Con una reunion a punto de empezar se abre en el calendario (Unirse).
+                if case .meeting = self.hud.ambient {
+                    self.model.open(reason: .hover, tab: .calendar)
+                } else {
+                    self.model.open(reason: .hover)
+                }
             }
         }
         pendingOpen = work

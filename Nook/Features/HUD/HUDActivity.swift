@@ -10,6 +10,10 @@ struct HUDActivity: View {
     static func side(for kind: SystemHUD.Kind) -> CGFloat {
         switch kind {
         case .volume, .battery: return 58
+        case .mediaInUse: return 44
+        case .timer, .stayAwake: return 70
+        case .capsLock, .timerDone: return 96
+        case .network, .meeting: return 104
         case .audioDevice, .download: return 112
         }
     }
@@ -51,6 +55,36 @@ struct HUDActivity: View {
             } else {
                 ProgressView().controlSize(.small).tint(AppColors.accent)
             }
+        case let .capsLock(on):
+            Image(systemName: on ? "capslock.fill" : "capslock")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(on ? AppColors.accent : AppColors.notchText)
+        case let .network(online, vpn):
+            Image(systemName: !online ? "wifi.slash" : vpn ? "lock.shield.fill" : "wifi")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(online ? AppColors.success : AppColors.danger)
+        case .timerDone:
+            Image(systemName: "timer").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.accent)
+                .symbolEffect(.bounce, options: .repeat(3))
+        case .meeting:
+            Image(systemName: "video.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
+        case let .timer(end, total):
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                let left = max(0, end.timeIntervalSince(context.date))
+                ZStack {
+                    Circle().stroke(AppColors.notchText.opacity(0.2), lineWidth: 2.5)
+                    Circle().trim(from: 0, to: total > 0 ? left / total : 0)
+                        .stroke(AppColors.accent, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                }
+                .frame(width: 15, height: 15)
+            }
+        case let .mediaInUse(mic, _):
+            Image(systemName: mic ? "mic.fill" : "video.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(mic ? AppColors.warning : AppColors.success)
+        case .stayAwake:
+            Image(systemName: "cup.and.saucer.fill").font(.system(size: 13, weight: .semibold))
         }
     }
 
@@ -71,7 +105,47 @@ struct HUDActivity: View {
             Text(verbatim: "\(level) %").font(.system(size: 12, weight: .semibold).monospacedDigit())
         case let .download(name, _):
             Text(verbatim: name).font(.system(size: 11, weight: .semibold)).lineLimit(1).truncationMode(.middle)
+        case let .capsLock(on):
+            Text(on ? "Mayúsculas" : "Minúsculas").font(.system(size: 11, weight: .semibold))
+        case let .network(online, vpn):
+            Text(!online ? "Sin conexión" : vpn ? "VPN" : "Conectado").font(.system(size: 11, weight: .semibold))
+        case .timerDone:
+            Text("¡Tiempo!").font(.system(size: 12, weight: .bold))
+        case let .meeting(_, start):
+            TimelineView(.periodic(from: .now, by: 15)) { context in
+                let minutes = Int((start.timeIntervalSince(context.date) / 60).rounded(.up))
+                Text(minutes <= 0 ? String(localized: "Ahora") : String(localized: "en \(minutes) min"))
+                    .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(minutes <= 1 ? AppColors.accent : AppColors.notchText)
+            }
+        case let .timer(end, _):
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                Text(verbatim: Self.clock(end.timeIntervalSince(context.date)))
+                    .font(.system(size: 12, weight: .semibold).monospacedDigit())
+            }
+        case let .mediaInUse(mic, camera):
+            if mic && camera {
+                Image(systemName: "video.fill").font(.system(size: 12, weight: .semibold)).foregroundStyle(AppColors.success)
+            } else {
+                Circle().fill(mic ? AppColors.warning : AppColors.success).frame(width: 6, height: 6)
+            }
+        case let .stayAwake(until):
+            if let until {
+                TimelineView(.periodic(from: .now, by: 30)) { context in
+                    Text(verbatim: Self.clock(until.timeIntervalSince(context.date)))
+                        .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                }
+            } else {
+                Image(systemName: "infinity").font(.system(size: 12, weight: .bold))
+            }
         }
+    }
+
+    /// 24:59, o 1:20:00 si pasa de una hora.
+    static func clock(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds.rounded(.up)))
+        let hours = total / 3600, minutes = (total % 3600) / 60, secs = total % 60
+        return hours > 0 ? String(format: "%d:%02d:%02d", hours, minutes, secs) : String(format: "%d:%02d", minutes, secs)
     }
 
     private static func batterySymbol(_ level: Int) -> String {

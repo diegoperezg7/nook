@@ -18,6 +18,10 @@ enum SettingsKey {
     static let hudDevices = "hudDevices"
     static let hudBattery = "hudBattery"
     static let hudDownloads = "hudDownloads"
+    static let hudCapsLock = "hudCapsLock"
+    static let hudNetwork = "hudNetwork"
+    static let hudMediaInUse = "hudMediaInUse"
+    static let hudMeetings = "hudMeetings"
 
     /// 0 = sin limite: el historial solo se borra cuando lo pide el usuario.
     static let unlimitedHistory = 0
@@ -36,6 +40,10 @@ enum SettingsKey {
             hudDevices: true,
             hudBattery: true,
             hudDownloads: true,
+            hudCapsLock: true,
+            hudNetwork: true,
+            hudMediaInUse: true,
+            hudMeetings: true,
         ])
     }
 }

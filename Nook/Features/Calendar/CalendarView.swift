@@ -230,7 +230,7 @@ private struct DayList: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 5) {
                         ForEach(calendar.dayEvents) { event in
-                            EventRow(event: event) { calendar.openInCalendar(event) }
+                            EventRow(event: event, open: { calendar.openInCalendar(event) }, join: { calendar.join(event) })
                         }
                     }
                 }
@@ -250,6 +250,7 @@ private struct DayList: View {
 private struct EventRow: View {
     let event: CalendarService.Event
     let open: () -> Void
+    let join: () -> Void
     @State private var hovering = false
 
     var body: some View {
@@ -266,6 +267,18 @@ private struct EventRow: View {
                 }
                 .lineLimit(1)
                 Spacer(minLength: 0)
+                // Videollamada: entrar directamente.
+                if event.meetingURL != nil {
+                    Button(action: join) {
+                        Label("Unirse", systemImage: "video.fill")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(AppColors.onAccent)
+                            .padding(.horizontal, 9)
+                            .frame(height: 22)
+                            .background(Capsule().fill(AppColors.accent))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
             .padding(.horizontal, 8)
             .frame(height: 34)

@@ -41,6 +41,26 @@
         }
       }
     },
+    "%lld h": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld h"
+          }
+        }
+      }
+    },
+    "%lld min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
     "%lld seleccionadas": {
       "localizations": {
         "en": {
@@ -167,6 +187,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI Agents"
+          }
+        }
+      }
+    },
+    "Ahora": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now"
           }
         }
       }
@@ -351,6 +381,16 @@
         }
       }
     },
+    "Bloq Mayús": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock"
+          }
+        }
+      }
+    },
     "Borrar": {
       "localizations": {
         "en": {
@@ -471,6 +511,26 @@
         }
       }
     },
+    "Conectado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        }
+      }
+    },
+    "Conexión a internet y VPN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet Connection and VPN"
+          }
+        }
+      }
+    },
     "Consumo no disponible": {
       "localizations": {
         "en": {
@@ -541,6 +601,26 @@
         }
       }
     },
+    "Cuenta atrás de reuniones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meeting Countdown"
+          }
+        }
+      }
+    },
+    "Dejar de mantener despierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Keeping Awake"
+          }
+        }
+      }
+    },
     "Denegado": {
       "localizations": {
         "en": {
@@ -567,6 +647,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unpin"
+          }
+        }
+      }
+    },
+    "Detener temporizador": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Timer"
           }
         }
       }
@@ -741,6 +831,16 @@
         }
       }
     },
+    "Hasta que lo pare": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until I Stop It"
+          }
+        }
+      }
+    },
     "Haz una con ⇧⌘4 y aparecerá aquí": {
       "localizations": {
         "en": {
@@ -801,12 +901,52 @@
         }
       }
     },
+    "Mantener despierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Awake"
+          }
+        }
+      }
+    },
+    "Mayúsculas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps on"
+          }
+        }
+      }
+    },
     "Mañana": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Tomorrow"
+          }
+        }
+      }
+    },
+    "Micrófono o cámara en uso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone or Camera in Use"
+          }
+        }
+      }
+    },
+    "Minúsculas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps off"
           }
         }
       }
@@ -1011,6 +1151,16 @@
         }
       }
     },
+    "Pomodoro · 25 min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomodoro · 25 min"
+          }
+        }
+      }
+    },
     "Portapapeles": {
       "localizations": {
         "en": {
@@ -1111,6 +1261,16 @@
         }
       }
     },
+    "Sin conexión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
+          }
+        }
+      }
+    },
     "Sin límite": {
       "localizations": {
         "en": {
@@ -1147,6 +1307,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drop to keep"
+          }
+        }
+      }
+    },
+    "Temporizador": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer"
+          }
+        }
+      }
+    },
+    "Temporizador y mantener despierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer and Keep Awake"
           }
         }
       }
@@ -1231,12 +1411,32 @@
         }
       }
     },
+    "Unirse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join"
+          }
+        }
+      }
+    },
     "Usar esta carpeta": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Use This Folder"
+          }
+        }
+      }
+    },
+    "VPN": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN"
           }
         }
       }
@@ -1291,6 +1491,16 @@
         }
       }
     },
+    "en %lld min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in %lld min"
+          }
+        }
+      }
+    },
     "o elige archivos…": {
       "localizations": {
         "en": {
@@ -1317,6 +1527,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "reset"
+          }
+        }
+      }
+    },
+    "¡Tiempo!": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time's up!"
           }
         }
       }
