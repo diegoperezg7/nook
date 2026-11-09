@@ -24,6 +24,8 @@ final class NotchViewModel {
     private(set) var expandedHeight = false
     /// El raton se acerca al notch: se asoma un poco antes de abrirse.
     private(set) var isPeeking = false
+    /// Cuenta las aperturas: cada una dispara el brote del panel desde la gota.
+    private(set) var revealTrigger = 0
     /// Cada incremento hace pasar un destello de luz por el cristal.
     private(set) var glintTrigger = 0
     var tab: Tab = .shelf
@@ -55,12 +57,16 @@ final class NotchViewModel {
         if reason == .hotKey { searchFocusRequest += 1 }
         guard !isOpen else { return }
         closeToken += 1
-        isPeeking = false
         withAnimation(AppMotion.openWidth) {
             isOpen = true
             expandedWidth = true
         }
-        withAnimation(AppMotion.openHeight) { expandedHeight = true }
+        withAnimation(AppMotion.openHeight) {
+            isPeeking = false
+            expandedHeight = true
+        }
+        // El cristal del panel nace de la gota: un circulo que crece desde ella.
+        if !AppMotion.reduceMotion { revealTrigger += 1 }
         if !AppMotion.reduceMotion {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
                 guard let self, self.isOpen else { return }

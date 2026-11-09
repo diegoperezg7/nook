@@ -39,7 +39,8 @@ enum AppMotion {
 
     /// Asomarse al acercar el raton.
     static var peek: Animation {
-        .spring(response: 0.25, dampingFraction: 0.6)
+        // Rebote marcado: la gota se forma, se estira y se asienta.
+        .spring(response: 0.42, dampingFraction: 0.5)
     }
 
     /// Microinteracciones: hover, seleccion de pestaña, insercion de elementos.

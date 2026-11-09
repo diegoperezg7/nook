@@ -1,42 +1,98 @@
-# Nook
+<p align="center">
+  <img src="docs/images/icono.png" width="128" alt="Icono de Nook">
+</p>
 
-App de macOS que vive en el notch: una **bandeja** donde dejar archivos, imágenes o texto
-para usarlos después y un **historial del portapapeles** con búsqueda. Todo se arrastra
-dentro y fuera del notch.
+<h1 align="center">Nook</h1>
 
-## Funciones
+<p align="center">
+  <strong>Una bandeja y un historial del portapapeles que viven en el notch de tu Mac.</strong><br>
+  Deja ahí lo que vas a necesitar luego y sácalo arrastrando cuando toque.
+</p>
 
-- **Bandeja**: arrastra algo al notch y queda guardado (se copia a la carpeta de la app,
-  así sobrevive aunque muevas el original). Arrástralo fuera cuando lo necesites; un clic lo copia.
-- **Historial del portapapeles**: texto, imágenes y archivos copiados. Búsqueda, fijar
-  elementos (no rotan), clic para copiar. Ignora lo que los gestores de contraseñas
-  marcan como privado (`org.nspasteboard.ConcealedType` y similares).
-- **Atajo global ⌃⌘V**: abre el historial con el buscador listo; Enter copia el primer
-  resultado y devuelve el foco a la app anterior para pegar con ⌘V.
-- **Acciones** (menú contextual): vista previa con Quick Look (o doble clic), Compartir
-  (AirDrop, Mensajes, Mail), mostrar en Finder, guardar un elemento del historial en la
-  bandeja, copiar el texto de una imagen (OCR local con Vision), comprimir en .zip y
-  convertir imágenes a PNG, JPEG o HEIC.
-- **Vistas previas reales** con Quick Look: páginas de PDF, imágenes, documentos.
-- **Copiar imágenes y documentos**: se copian como archivo (Finder, Mail) y como imagen o
-  PDF (chats, documentos), así se pegan bien en cualquier app.
-- **Modo sin notch**: en pantallas sin notch aparece una pastilla arriba en el centro.
-- **Animación "el notch se licua"**: al acercar el ratón el notch se asoma; al entrar se
-  ensancha, gotea hacia abajo y el negro se disuelve en cristal, con un destello de luz que lo
-  recorre. Arrastrar algo encima hace latir el borde y el panel se hincha. Respeta "Reducir
-  movimiento".
-- Liquid Glass (macOS 26; material translúcido en 14-15), ES/EN, claro/oscuro, acento azul eléctrico.
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-14%2B-1F5BFF" alt="macOS 14+">
+  <img src="https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-1F5BFF" alt="Swift">
+  <img src="https://img.shields.io/badge/Liquid%20Glass-macOS%2026-4C7DFF" alt="Liquid Glass">
+  <img src="https://img.shields.io/badge/idiomas-ES%20%7C%20EN-4C7DFF" alt="ES y EN">
+</p>
+
+<p align="center">
+  <img src="docs/images/animacion.gif" width="720" alt="Al acercar el ratón cuelga una gota de agua del notch y, al entrar, el panel brota de ella">
+</p>
+
+---
+
+## Una gota que se convierte en panel
+
+Acerca el ratón al notch y aparece una gota de agua de cristal colgando de él: refracta lo
+que hay detrás, tiene su reflejo y concentra la luz abajo, como una gota de verdad. Al entrar,
+el panel brota de la gota, el negro del notch se disuelve en Liquid Glass y un destello de luz
+lo recorre.
+
+<p align="center">
+  <img src="docs/images/gota.png" width="300" alt="Gota de agua de cristal colgando del notch">
+</p>
+
+## Bandeja
+
+Arrastra archivos, imágenes o texto al notch y se quedan a mano, con su vista previa real,
+hasta que los saques. Nook guarda una copia, así que siguen ahí aunque muevas o borres el
+original, cierres la app o apagues el Mac.
+
+<p align="center">
+  <img src="docs/images/bandeja.png" width="720" alt="Bandeja con un PDF, una foto, una imagen y un documento de texto">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/caja-soltar.png" alt="Bandeja vacía con la zona para soltar"></td>
+    <td width="50%">
+      <strong>Sin arrastrar, también</strong><br><br>
+      El botón <code>+</code> abre el selector de archivos, y en Finder tienes
+      <em>clic derecho &gt; Servicios &gt; Añadir a Nook</em>.
+    </td>
+  </tr>
+</table>
+
+## Historial del portapapeles
+
+Todo lo que copias queda guardado: texto, enlaces, imágenes y archivos, con el icono de la
+app de la que salió. Filtra por tipo, busca y fija lo que no quieras perder.
+
+<p align="center">
+  <img src="docs/images/historial.png" width="720" alt="Historial con texto, un enlace, un comando y una factura escaneada">
+</p>
+
+- **Busca dentro de las imágenes.** El texto de capturas y fotos se reconoce en el propio Mac
+  (Vision), así que buscar "factura" encuentra la imagen de la factura.
+- **<kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> desde cualquier app** abre el historial con el
+  buscador listo; <kbd>↩</kbd> copia el primer resultado y vuelves a donde estabas para pegar.
+- **Nunca se borra solo.** No hay límite por defecto, y vaciar la bandeja o borrar el historial
+  pide confirmación.
+- **Respeta lo privado.** Lo que los gestores de contraseñas marcan como confidencial no se guarda.
+
+## Todo lo demás
+
+| | |
+|---|---|
+| **Vista previa** | Doble clic abre Quick Look; las tarjetas muestran páginas de PDF, fotos y documentos reales. |
+| **Compartir** | AirDrop, Mensajes o Mail desde el menú de cada tarjeta, y "Mostrar en Finder". |
+| **Copiar texto de una imagen** | OCR local, nada sale del Mac. |
+| **Comprimir y convertir** | Crea un `.zip` o convierte imágenes a PNG, JPEG o HEIC. |
+| **Copiar bien en cualquier app** | Las imágenes y los PDF se copian como archivo y como contenido, así se pegan tanto en Finder como en un chat. |
+| **Fuera de las capturas** | El panel no aparece en capturas ni grabaciones de pantalla (se puede desactivar). |
+| **Sin notch** | En pantallas sin notch aparece una pastilla arriba en el centro. |
+| **Claro y oscuro, ES y EN** | Y con "Reducir movimiento" las animaciones se simplifican. |
 
 ## Permisos
 
-Ninguno especial: no pide Accesibilidad ni Grabación de pantalla, y funciona en sandbox.
-Desde macOS 15.4 el sistema puede preguntar por **"Pegar desde otras apps"** al leer el
-portapapeles; si el acceso queda en "Preguntar" o "Denegar", el historial se pausa y la
-app enseña cómo permitirlo (Ajustes del Sistema > Privacidad y seguridad).
+Ninguno especial: no pide Accesibilidad ni Grabación de pantalla y funciona en sandbox.
+Desde macOS 15.4 el sistema puede preguntar por **"Pegar desde otras apps"**; si el acceso
+queda en "Preguntar" o "Denegar", el historial se pausa y Nook explica cómo permitirlo.
 
-## Desarrollo
+## Compilar
 
-Requisitos: Xcode 26+, [XcodeGen](https://github.com/yonaskolb/XcodeGen). macOS 14+.
+Requisitos: Xcode 26 o posterior y [XcodeGen](https://github.com/yonaskolb/XcodeGen). macOS 14+.
 
 ```bash
 xcodegen generate
@@ -44,10 +100,12 @@ xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd build
 xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd test
 ```
 
-Argumentos de depuración (solo Debug):
+La build Debug usa su propio identificador (`com.diegoperez.nook.debug`), así que probarla
+no toca la bandeja ni el historial de la app instalada. Argumentos solo de Debug:
 
-- `-NookOpen shelf|clipboard` abre el panel al arrancar y no lo cierra (capturas).
-- `-NookReset YES` borra bandeja e historial.
+- `-NookOpen shelf|clipboard` abre el panel al arrancar y lo deja abierto.
+- `-NookReset YES` vacía la bandeja y el historial de la build Debug.
+- `-hideFromCaptures NO` deja ver el panel en capturas.
 
 ## Distribución
 
@@ -56,20 +114,4 @@ Argumentos de depuración (solo Debug):
 NOTARY_PROFILE=keyfold-notary ./scripts/release.sh    # además notarizado y grapado
 ```
 
-El DMG queda en `dist/`.
-
-## Arquitectura
-
-```
-Nook/
-  App/            NookApp, AppDelegate (arranque, ajustes, atajo)
-  Notch/          Panel, controlador (raton, apertura/cierre), forma animada, medidas
-  Features/       Bandeja, historial, tarjeta, ajustes
-  Services/       ItemStore (SwiftData + archivos), ClipboardMonitor, DropReader, HotKey
-  DesignSystem/   AppColors, AppTypography, AppMotion
-```
-
-Decisión clave: la ventana del panel tiene siempre el tamaño abierto y nunca se
-redimensiona. Redimensionarla en mitad de un arrastre impedía que el sistema entregara el
-soltado. Para no bloquear la barra de menús, solo acepta ratón cuando el cursor está sobre
-la forma visible (`ignoresMouseEvents`).
+El DMG queda en `dist/`. El icono se genera con `swift scripts/make-icon.swift Nook/Resources/Assets.xcassets/AppIcon.appiconset`.

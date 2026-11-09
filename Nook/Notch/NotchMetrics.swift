@@ -9,7 +9,7 @@ struct NotchMetrics: Equatable {
     static let openBottomRadius: CGFloat = 28
     /// Margen transparente alrededor del panel abierto para que quepa la sombra.
     static let shadowPadding: CGFloat = 24
-    static let contentHeight: CGFloat = 190
+    static let contentHeight: CGFloat = 204
     static let pillWidth: CGFloat = 180
 
     var hasNotch: Bool

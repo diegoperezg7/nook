@@ -4,27 +4,26 @@ import SwiftUI
 /// forma de dentro: asi no hay tirones de redimensionado de ventana.
 ///
 /// Animacion de apertura ("el notch se licua"):
-/// 1. Al acercar el raton, el notch negro se asoma unos puntos.
-/// 2. Se ensancha con un muelle rapido y despues gotea hacia abajo con otro mas lento.
+/// 1. Al acercar el raton, del notch cuelga una gota que se forma con un rebote.
+/// 2. Al entrar, la gota cae; el notch se ensancha y gotea detras de ella.
 /// 3. Mientras cae, el negro se disuelve en cristal (Liquid Glass).
 /// 4. Un destello de luz recorre el cristal; las tarjetas entran escalonadas.
 struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
 
-    private static let peekGrowth = CGSize(width: 18, height: 5)
-
     var body: some View {
         let metrics = model.metrics
-        let peek = model.isPeeking ? Self.peekGrowth : .zero
-        let width = model.expandedWidth ? metrics.openSize.width : metrics.closedSize.width + peek.width
-        let height = model.expandedHeight ? metrics.openSize.height : metrics.closedSize.height + peek.height
+        let width = model.expandedWidth ? metrics.openSize.width : metrics.closedSize.width
+        let height = model.expandedHeight ? metrics.openSize.height : metrics.closedSize.height
         let shape = NotchShape(
             topRadius: model.expandedWidth ? NotchMetrics.openEar : NotchMetrics.closedEar,
-            bottomRadius: model.expandedHeight ? NotchMetrics.openBottomRadius : metrics.closedBottomRadius + peek.height
+            bottomRadius: model.expandedHeight ? NotchMetrics.openBottomRadius : metrics.closedBottomRadius
         )
 
         ZStack(alignment: .top) {
+            droplet
+
             ZStack(alignment: .top) {
                 GlassBackground(shape: shape, isGlass: model.expandedHeight)
 
@@ -45,6 +44,14 @@ struct NotchRootView: View {
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
+            // Todo el panel (cristal, borde y sombra) brota de la gota: en cada
+            // apertura la mascara pasa de 0 (la gota) a 1 (el panel entero).
+            .keyframeAnimator(initialValue: CGFloat(1), trigger: model.revealTrigger) { content, progress in
+                content.mask(revealMask(width: width, height: height, progress: progress))
+            } keyframes: { _ in
+                MoveKeyframe(0)
+                SpringKeyframe(1, duration: 0.7, spring: Spring(response: 0.6, dampingRatio: 0.86))
+            }
             // Al arrastrar algo encima, el panel "respira" hacia abajo.
             .scaleEffect(model.isDropTargeted && model.isOpen && !AppMotion.reduceMotion ? 1.03 : 1, anchor: .top)
             .animation(AppMotion.snappy, value: model.isDropTargeted)
@@ -60,6 +67,35 @@ struct NotchRootView: View {
         .onChange(of: model.isDropTargeted) { _, targeted in
             model.dropTargetChanged(targeted)
         }
+    }
+
+    /// Gota de agua de cristal bajo el notch. Cerca del notch se forma con rebote;
+    /// al abrir se hincha y se funde con el panel, que brota de ella.
+    private var droplet: some View {
+        let metrics = model.metrics
+        let drop = dropGeometry
+        return GlassDroplet(attachY: metrics.closedSize.height, radius: drop.radius, length: drop.length)
+            .opacity(drop.opacity)
+            .frame(width: 120, height: metrics.openSize.height)
+            .allowsHitTesting(false)
+    }
+
+    private var dropGeometry: (radius: CGFloat, length: CGFloat, opacity: Double) {
+        if model.expandedHeight { return (22, 30, 0) }
+        if model.isPeeking { return (12, 22, 1) }
+        return (3, 0, 0)
+    }
+
+    /// Mascara circular que crece desde el centro de la gota hasta cubrir el panel.
+    private func revealMask(width: CGFloat, height: CGFloat, progress: CGFloat) -> some View {
+        let metrics = model.metrics
+        let center = CGPoint(x: width / 2, y: metrics.closedSize.height + 22)
+        let full = 2 * hypot(max(width, metrics.openSize.width), max(height, metrics.openSize.height))
+        let diameter = 20 + (full - 20) * min(max(progress, 0), 1.2)
+        return Circle()
+            .frame(width: diameter, height: diameter)
+            .position(center)
+            .frame(width: width, height: height)
     }
 
     /// El contenido entra cuando la gota ya cae, con un leve zoom desde arriba y

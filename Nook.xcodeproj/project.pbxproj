@@ -22,6 +22,7 @@
 		30A59FA6278318A44BD649ED /* FileActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */; };
 		3870E74001E74F2543000F87 /* FileImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */; };
 		5CBDC3EABBAF0CE1A7E34C8A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8BFAD895F6326CEBC52A3C /* SettingsView.swift */; };
+		63B783260E85DB3EFE0449AD /* DropletShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDD1918EF36C79FCE753908 /* DropletShape.swift */; };
 		67F0AA8F8676C55EC0B3F9F5 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0703CC2EA9365ACDE4E73D12 /* AppColors.swift */; };
 		6B12A977BA9AEB9604BFBF01 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0306FA026889F8FA33579 /* NotchController.swift */; };
 		75F2BA6E0CF5FFD6A978F1ED /* AppTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8AFA3334D93034DA95A1EB /* AppTypography.swift */; };
@@ -79,6 +80,7 @@
 		85211BF4348740C571E070F0 /* NotchPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchPanel.swift; sourceTree = "<group>"; };
 		8B838B524EC00D7BEE032A3B /* ItemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStore.swift; sourceTree = "<group>"; };
 		8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporter.swift; sourceTree = "<group>"; };
+		9DDD1918EF36C79FCE753908 /* DropletShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropletShape.swift; sourceTree = "<group>"; };
 		9ED0324EB54CC305C7C511CA /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A2988C736CCAF8A9213C411B /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 		F06618D31FC8C95AD4A12C33 /* Notch */ = {
 			isa = PBXGroup;
 			children = (
+				9DDD1918EF36C79FCE753908 /* DropletShape.swift */,
 				1FC91D5134A42734B16E0B8B /* NotchContentView.swift */,
 				1AA0306FA026889F8FA33579 /* NotchController.swift */,
 				007AA4253F285A9F465AE5F5 /* NotchMetrics.swift */,
@@ -350,6 +353,7 @@
 				7B375C3E484C6F18E7D0D436 /* ClipboardMonitor.swift in Sources */,
 				199FB57244FC9D268241BE7C /* ClipboardView.swift in Sources */,
 				8D0A9910A0DA0086D2B3C609 /* DropReader.swift in Sources */,
+				63B783260E85DB3EFE0449AD /* DropletShape.swift in Sources */,
 				30A59FA6278318A44BD649ED /* FileActions.swift in Sources */,
 				3870E74001E74F2543000F87 /* FileImporter.swift in Sources */,
 				765C762424EA2E930D719744 /* HotKey.swift in Sources */,
