@@ -29,6 +29,7 @@
 		51DCDD940F3D0FA7FC7462C7 /* ItemPeek.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FAAB215054FB0084B81FFA /* ItemPeek.swift */; };
 		5CBDC3EABBAF0CE1A7E34C8A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8BFAD895F6326CEBC52A3C /* SettingsView.swift */; };
 		5DD31974213CCADFEBF22A86 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B56727FF7D5505D8067EC82 /* LiquidGlass.swift */; };
+		65F819A7610CA962208B7F0F /* ScreenText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8776D480AD1CB6DE858DB46 /* ScreenText.swift */; };
 		67F0AA8F8676C55EC0B3F9F5 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0703CC2EA9365ACDE4E73D12 /* AppColors.swift */; };
 		6B12A977BA9AEB9604BFBF01 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0306FA026889F8FA33579 /* NotchController.swift */; };
 		75F2BA6E0CF5FFD6A978F1ED /* AppTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8AFA3334D93034DA95A1EB /* AppTypography.swift */; };
@@ -36,12 +37,14 @@
 		7B375C3E484C6F18E7D0D436 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2C32D5C8F67C14ECA26D51 /* ClipboardMonitor.swift */; };
 		7B3F5692C0E7BF8004FE0F84 /* AgentMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FF8528E1C5508B42E2CB2E /* AgentMonitor.swift */; };
 		7C74AA8E97B1F173D1124B08 /* AgentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098BD7AEE1760FBDD3598D29 /* AgentsView.swift */; };
+		7E4B487FD044F8BD106F127F /* ActionRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1975631397C825FAB3F33A /* ActionRing.swift */; };
 		83AFA2FCDF479BBBC9F4A079 /* ServicesMenu.strings in Resources */ = {isa = PBXBuildFile; fileRef = 12F6B7D27BFA5649CA0C4184 /* ServicesMenu.strings */; };
 		8660AB314716BF15488962FC /* NotchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C7DC31F493BA6708B8D891 /* NotchViewModel.swift */; };
 		8AE73F923E1AFC8463F48E8B /* BasketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0DE84989BF12536F06CD4 /* BasketController.swift */; };
 		8D0A9910A0DA0086D2B3C609 /* DropReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB66BEFBE67290FF72A20FC /* DropReader.swift */; };
 		8D4CD8A37EA0EE8386DEA8EB /* FileActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */; };
 		91D2688A2C36DBC6FBE75065 /* SystemHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = F56E04FF0D99585993F1B914 /* SystemHUD.swift */; };
+		91DEA2A2928F949F4DF19562 /* ToolsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43526CBCF95F7B2241B1D0CC /* ToolsTests.swift */; };
 		91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */; };
 		91E968B46AACE3CA62BFCAB3 /* AgeTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0796269F03450FB486C23A5 /* AgeTextTests.swift */; };
 		927648C76E5BB24104758F28 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E4DF97F3F17284304D808B2 /* MailView.swift */; };
@@ -53,6 +56,8 @@
 		B9C5A68A5CF767B18C643FD0 /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB7CFDCAFA11ABC8F25E3A /* ShakeDetector.swift */; };
 		B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */; };
 		BB61B646BAA1DD1EB3CFBDE1 /* NotchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 602FD69B4C2C9E727EBC2063 /* NotchRootView.swift */; };
+		BC142D612DE98CF0C7352F83 /* Weather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3544C315A0904C9209943F94 /* Weather.swift */; };
+		C0233DB7A27BA6155A7C9C3E /* Dictation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB24003DA478A71487D51AB0 /* Dictation.swift */; };
 		C49B334F0072110059AEEC30 /* QuickEventParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */; };
 		C9DFFEA1F255B973B1956C1F /* ItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B838B524EC00D7BEE032A3B /* ItemStore.swift */; };
 		D151E68959A619D9824D9012 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E25FE7833ADE7338D7590F /* CalendarService.swift */; };
@@ -64,6 +69,7 @@
 		E9B9C1761C6E6994D7F32DC7 /* QuickLookPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */; };
 		EB41B7D20BD79DA4E0AC74E1 /* MailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3669070BD1F9FFE76275B9 /* MailService.swift */; };
 		EF89335914D692DD6952FAE6 /* NotchMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007AA4253F285A9F465AE5F5 /* NotchMetrics.swift */; };
+		F379C46688C1D44E36A429CE /* SystemStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23055D40A8B72A840805201E /* SystemStats.swift */; };
 		F54D8185779B29779B5F87E3 /* ScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87031FAA3EC00613740ED01 /* ScreenshotsView.swift */; };
 		F63748B0064A8FFD854FD1EF /* FocusTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD887C2BB4E9320640105B18 /* FocusTimer.swift */; };
 /* End PBXBuildFile section */
@@ -92,12 +98,15 @@
 		1E3669070BD1F9FFE76275B9 /* MailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailService.swift; sourceTree = "<group>"; };
 		1FC91D5134A42734B16E0B8B /* NotchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchContentView.swift; sourceTree = "<group>"; };
 		22E3C14231B92AD684A7FA07 /* ShakeDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetectorTests.swift; sourceTree = "<group>"; };
+		23055D40A8B72A840805201E /* SystemStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemStats.swift; sourceTree = "<group>"; };
 		2D8AFA3334D93034DA95A1EB /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
+		3544C315A0904C9209943F94 /* Weather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
 		3962A19399805A00EC692FF6 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		3AA003E269F1E0F3206F33F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3B56727FF7D5505D8067EC82 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
 		3F8BFAD895F6326CEBC52A3C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		3FC775FBE2FA5D57184584DC /* Nook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Nook.entitlements; sourceTree = "<group>"; };
+		43526CBCF95F7B2241B1D0CC /* ToolsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsTests.swift; sourceTree = "<group>"; };
 		436339EB11D1F557D33BF2D4 /* ItemCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCard.swift; sourceTree = "<group>"; };
 		45E25FE7833ADE7338D7590F /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		46C7DC31F493BA6708B8D891 /* NotchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchViewModel.swift; sourceTree = "<group>"; };
@@ -128,6 +137,7 @@
 		B6FAAB215054FB0084B81FFA /* ItemPeek.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemPeek.swift; sourceTree = "<group>"; };
 		B92CD6123F423D3A887A1A1C /* ClipboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardView.swift; sourceTree = "<group>"; };
 		BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPresenter.swift; sourceTree = "<group>"; };
+		BF1975631397C825FAB3F33A /* ActionRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionRing.swift; sourceTree = "<group>"; };
 		C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActions.swift; sourceTree = "<group>"; };
 		C390526C59AFC77B9997665E /* TransformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformTests.swift; sourceTree = "<group>"; };
 		C9D52E5AFBCF5050933B2E85 /* HotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKey.swift; sourceTree = "<group>"; };
@@ -139,9 +149,11 @@
 		DA81A6D53766532D322DFE0B /* LegacyImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyImport.swift; sourceTree = "<group>"; };
 		DD887C2BB4E9320640105B18 /* FocusTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimer.swift; sourceTree = "<group>"; };
 		E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActionsTests.swift; sourceTree = "<group>"; };
+		EB24003DA478A71487D51AB0 /* Dictation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictation.swift; sourceTree = "<group>"; };
 		EDDBB41C044D6FE7DD35C1C9 /* NotchItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchItem.swift; sourceTree = "<group>"; };
 		F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEventParserTests.swift; sourceTree = "<group>"; };
 		F56E04FF0D99585993F1B914 /* SystemHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemHUD.swift; sourceTree = "<group>"; };
+		F8776D480AD1CB6DE858DB46 /* ScreenText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenText.swift; sourceTree = "<group>"; };
 		FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -168,6 +180,7 @@
 				68FF8528E1C5508B42E2CB2E /* AgentMonitor.swift */,
 				45E25FE7833ADE7338D7590F /* CalendarService.swift */,
 				AB2C32D5C8F67C14ECA26D51 /* ClipboardMonitor.swift */,
+				EB24003DA478A71487D51AB0 /* Dictation.swift */,
 				0BB66BEFBE67290FF72A20FC /* DropReader.swift */,
 				C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */,
 				8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */,
@@ -179,8 +192,11 @@
 				BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */,
 				D8DB70FBFA418B03D230543E /* QuickShare.swift */,
 				070732A66A26FFFB232AFD32 /* ScreenshotLibrary.swift */,
+				F8776D480AD1CB6DE858DB46 /* ScreenText.swift */,
 				F56E04FF0D99585993F1B914 /* SystemHUD.swift */,
+				23055D40A8B72A840805201E /* SystemStats.swift */,
 				AFACE65651CBEBEB9C289B09 /* Thumbnails.swift */,
+				3544C315A0904C9209943F94 /* Weather.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -237,6 +253,14 @@
 			path = Nook;
 			sourceTree = "<group>";
 		};
+		82515223511AD94FEBEF1808 /* Ring */ = {
+			isa = PBXGroup;
+			children = (
+				BF1975631397C825FAB3F33A /* ActionRing.swift */,
+			);
+			path = Ring;
+			sourceTree = "<group>";
+		};
 		9642854C155678205169B886 /* Agents */ = {
 			isa = PBXGroup;
 			children = (
@@ -262,6 +286,7 @@
 				03EE0CE637975FDC7ACAA969 /* Clipboard */,
 				00343CACFF65480AF42AECBA /* HUD */,
 				F78E707515BFE4BBCC1420F1 /* Mail */,
+				82515223511AD94FEBEF1808 /* Ring */,
 				B07629C533A3F4105FC8937A /* Screenshots */,
 				0E2F2ABBAF0AF8A80B59A534 /* Settings */,
 				E05F41E1B5435D182FC30520 /* Shelf */,
@@ -313,6 +338,7 @@
 				F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */,
 				9526444630A27DAF2E64ACBC /* ScreenshotLibraryTests.swift */,
 				22E3C14231B92AD684A7FA07 /* ShakeDetectorTests.swift */,
+				43526CBCF95F7B2241B1D0CC /* ToolsTests.swift */,
 				C390526C59AFC77B9997665E /* TransformTests.swift */,
 			);
 			path = NookTests;
@@ -462,6 +488,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E4B487FD044F8BD106F127F /* ActionRing.swift in Sources */,
 				7B3F5692C0E7BF8004FE0F84 /* AgentMonitor.swift in Sources */,
 				7C74AA8E97B1F173D1124B08 /* AgentsView.swift in Sources */,
 				67F0AA8F8676C55EC0B3F9F5 /* AppColors.swift in Sources */,
@@ -475,6 +502,7 @@
 				97EA39A14083218528CFB83B /* Carousel.swift in Sources */,
 				7B375C3E484C6F18E7D0D436 /* ClipboardMonitor.swift in Sources */,
 				199FB57244FC9D268241BE7C /* ClipboardView.swift in Sources */,
+				C0233DB7A27BA6155A7C9C3E /* Dictation.swift in Sources */,
 				8D0A9910A0DA0086D2B3C609 /* DropReader.swift in Sources */,
 				30A59FA6278318A44BD649ED /* FileActions.swift in Sources */,
 				3870E74001E74F2543000F87 /* FileImporter.swift in Sources */,
@@ -499,13 +527,16 @@
 				8660AB314716BF15488962FC /* NotchViewModel.swift in Sources */,
 				E9B9C1761C6E6994D7F32DC7 /* QuickLookPresenter.swift in Sources */,
 				D6013745710651EB09D297A5 /* QuickShare.swift in Sources */,
+				65F819A7610CA962208B7F0F /* ScreenText.swift in Sources */,
 				A2421D45EB5CF2A50C00129D /* ScreenshotLibrary.swift in Sources */,
 				F54D8185779B29779B5F87E3 /* ScreenshotsView.swift in Sources */,
 				5CBDC3EABBAF0CE1A7E34C8A /* SettingsView.swift in Sources */,
 				B9C5A68A5CF767B18C643FD0 /* ShakeDetector.swift in Sources */,
 				1EA45C25154A858B376F3204 /* ShelfView.swift in Sources */,
 				91D2688A2C36DBC6FBE75065 /* SystemHUD.swift in Sources */,
+				F379C46688C1D44E36A429CE /* SystemStats.swift in Sources */,
 				238B9B387E64B45154BD88C2 /* Thumbnails.swift in Sources */,
+				BC142D612DE98CF0C7352F83 /* Weather.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -524,6 +555,7 @@
 				C49B334F0072110059AEEC30 /* QuickEventParserTests.swift in Sources */,
 				04EAAD5D4D361333BF65FB34 /* ScreenshotLibraryTests.swift in Sources */,
 				057A11D2B97C4D3DD5925376 /* ShakeDetectorTests.swift in Sources */,
+				91DEA2A2928F949F4DF19562 /* ToolsTests.swift in Sources */,
 				26DE8BA106AFAE71258F243D /* TransformTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -721,7 +753,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
@@ -731,11 +763,13 @@
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Diego Pérez García";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Nook usa el micrófono solo mientras dictas, para pasar tu voz a texto.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Nook convierte lo que dictas en texto y lo copia al portapapeles.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook;
 				PRODUCT_NAME = Nook;
 				SDKROOT = macosx;
@@ -749,7 +783,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
@@ -759,11 +793,13 @@
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Diego Pérez García";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Nook usa el micrófono solo mientras dictas, para pasar tu voz a texto.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Nook convierte lo que dictas en texto y lo copia al portapapeles.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.debug;
 				PRODUCT_NAME = Nook;
 				SDKROOT = macosx;

@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import SwiftData
 import SwiftUI
 
@@ -19,6 +20,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var focus: FocusTimer?
     private var mail: MailService?
     private var basket: BasketController?
+    private var dictation: Dictation?
+    private var ring: ActionRingController?
+    private var ringHotKey: HotKey?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -48,6 +52,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail)
         let monitor = ClipboardMonitor(store: store)
         let basket = BasketController(store: store, container: container)
+        let dictation = Dictation()
+        hud.dictation = dictation
+        dictation.onFinish = { [weak hud] text in
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+            hud?.show(.notice(icon: "doc.on.clipboard.fill", text: String(localized: "Dictado copiado")), for: 2)
+        }
+        dictation.onDenied = { [weak hud] in
+            hud?.show(.notice(icon: "mic.slash.fill", text: String(localized: "Sin permiso de micrófono")), for: 2.5)
+        }
+        let ring = ActionRingController(weather: Weather())
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
         monitor.onAccessChange = { [weak notch] access in notch?.model.clipboardAccess = access }
@@ -63,6 +78,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.focus = focus
         self.mail = mail
         self.basket = basket
+        self.dictation = dictation
+        self.ring = ring
+        ring.actions = makeRingActions()
 
         notch.start()
         monitor.start()
@@ -108,6 +126,67 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch?.setHiddenFromCaptures(UserDefaults.standard.bool(forKey: SettingsKey.hideFromCaptures))
         store?.trimHistory()
         basket?.apply()
+        let wantsRing = UserDefaults.standard.bool(forKey: SettingsKey.actionRing)
+        if wantsRing, ringHotKey == nil {
+            // ⌃⌥Espacio.
+            ringHotKey = HotKey(keyCode: UInt32(kVK_Space), modifiers: UInt32(controlKey | optionKey), id: 2) { [weak self] in
+                MainActor.assumeIsolated { self?.ring?.toggle() }
+            }
+        } else if !wantsRing {
+            ringHotKey = nil
+            ring?.hide()
+        }
+    }
+
+    /// Herramientas del anillo, en el sentido de las agujas del reloj desde arriba.
+    private func makeRingActions() -> [ActionRingController.Action] {
+        [
+            .init(id: "text", title: String(localized: "Copiar texto de la pantalla"), icon: "text.viewfinder") { [weak self] in
+                self?.copyScreenText()
+            },
+            .init(id: "dictate", title: String(localized: "Dictar"), icon: "mic.fill") { [weak self] in
+                self?.dictation?.toggle()
+            },
+            .init(id: "grab", title: String(localized: "Captura a la bandeja"), icon: "camera.viewfinder") { [weak self] in
+                self?.grabToShelf()
+            },
+            .init(id: "timer", title: String(localized: "Pomodoro · 25 min"), icon: "timer") { [weak self] in
+                self?.focus?.start(minutes: 25)
+            },
+            .init(id: "basket", title: String(localized: "Cesta"), icon: "basket.fill") { [weak self] in
+                self?.basket?.show(at: NSEvent.mouseLocation)
+            },
+            .init(id: "clipboard", title: String(localized: "Historial del portapapeles"), icon: "list.clipboard.fill") { [weak self] in
+                self?.notch?.toggleFromHotKey()
+            },
+        ]
+    }
+
+    private func copyScreenText() {
+        Task {
+            guard let url = await ScreenGrab.region() else { return }
+            defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+            let text = (try? await Task.detached { try FileActions.recognizeText(in: url) }.value) ?? ""
+            if text.isEmpty {
+                hud?.show(.notice(icon: "text.viewfinder", text: String(localized: "No hay texto")), for: 2)
+            } else {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(text, forType: .string)
+                hud?.show(.notice(icon: "doc.on.clipboard.fill", text: String(localized: "Texto copiado")), for: 2)
+            }
+        }
+    }
+
+    private func grabToShelf() {
+        Task {
+            guard let url = await ScreenGrab.region() else { return }
+            do {
+                try store?.addGeneratedFile(url)
+                hud?.show(.notice(icon: "tray.and.arrow.down.fill", text: String(localized: "En la bandeja")), for: 2)
+            } catch {
+                hud?.show(.notice(icon: "exclamationmark.triangle.fill", text: String(localized: "No se pudo guardar")), for: 2)
+            }
+        }
     }
 
     private func showSettings() {

@@ -301,6 +301,16 @@
         }
       }
     },
+    "Anillo de acciones con ⌃⌥Espacio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action ring with ⌃⌥Space"
+          }
+        }
+      }
+    },
     "Anteriores": {
       "localizations": {
         "en": {
@@ -491,6 +501,26 @@
         }
       }
     },
+    "Buscando…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching…"
+          }
+        }
+      }
+    },
+    "Buscar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
     "Buscar en el historial": {
       "localizations": {
         "en": {
@@ -537,6 +567,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Captura": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capture"
+          }
+        }
+      }
+    },
+    "Captura a la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capture to Shelf"
           }
         }
       }
@@ -607,6 +657,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Basket · %lld"
+          }
+        }
+      }
+    },
+    "Ciudad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "City"
           }
         }
       }
@@ -761,6 +821,16 @@
         }
       }
     },
+    "Copiar texto de la pantalla": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Text from Screen"
+          }
+        }
+      }
+    },
     "Correo nuevo": {
       "localizations": {
         "en": {
@@ -841,12 +911,42 @@
         }
       }
     },
+    "Dictado copiado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictation copied"
+          }
+        }
+      }
+    },
+    "Dictar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictate"
+          }
+        }
+      }
+    },
     "Documentos unidos": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Merged Documents"
+          }
+        }
+      }
+    },
+    "El tiempo sale en el centro del anillo. Se pide a Open-Meteo solo con las coordenadas de la ciudad elegida.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weather appears in the center of the ring. Only the chosen city's coordinates are sent to Open-Meteo."
           }
         }
       }
@@ -921,6 +1021,16 @@
         }
       }
     },
+    "En la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the shelf"
+          }
+        }
+      }
+    },
     "Enlaces": {
       "localizations": {
         "en": {
@@ -977,6 +1087,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Error"
+          }
+        }
+      }
+    },
+    "Escuchando…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening…"
           }
         }
       }
@@ -1087,6 +1207,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Take one with ⇧⌘4 and it will show up here"
+          }
+        }
+      }
+    },
+    "Herramientas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tools"
+          }
+        }
+      }
+    },
+    "Historial del portapapeles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard History"
           }
         }
       }
@@ -1281,6 +1421,16 @@
         }
       }
     },
+    "No encuentro esa ciudad.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "City not found."
+          }
+        }
+      }
+    },
     "No encuentro la fecha. Prueba «mañana a las 10» o «el viernes»": {
       "localizations": {
         "en": {
@@ -1311,12 +1461,32 @@
         }
       }
     },
+    "No hay texto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No text found"
+          }
+        }
+      }
+    },
     "No se guarda lo que los gestores de contraseñas marcan como privado. El historial se queda en este Mac.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Anything password managers mark as private is never saved. History stays on this Mac."
+          }
+        }
+      }
+    },
+    "No se pudo guardar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't save"
           }
         }
       }
@@ -1541,6 +1711,16 @@
         }
       }
     },
+    "Quitar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
     "Quitar alarma de las %@": {
       "localizations": {
         "en": {
@@ -1681,6 +1861,16 @@
         }
       }
     },
+    "Sin permiso de micrófono": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No microphone access"
+          }
+        }
+      }
+    },
     "Sin resultados": {
       "localizations": {
         "en": {
@@ -1817,6 +2007,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Text copied"
+          }
+        }
+      }
+    },
+    "Tiempo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weather"
           }
         }
       }

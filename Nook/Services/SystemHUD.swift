@@ -24,6 +24,9 @@ final class SystemHUD {
         case network(online: Bool, vpn: Bool)
         case timerDone
         case mail(sender: String)
+        /// Resultado de una herramienta: "Texto copiado", "En la bandeja"...
+        case notice(icon: String, text: String)
+        case dictation(text: String)
         // Actividades que duran.
         case meeting(title: String, start: Date)
         case timer(end: Date, total: TimeInterval)
@@ -40,6 +43,7 @@ final class SystemHUD {
 
     @ObservationIgnored var focus: FocusTimer?
     @ObservationIgnored var calendar: CalendarService?
+    @ObservationIgnored var dictation: Dictation?
     @ObservationIgnored private var capsLockOn = false
     @ObservationIgnored private var poller: Timer?
     @ObservationIgnored private var path: NWPathMonitor?
@@ -48,6 +52,7 @@ final class SystemHUD {
     /// La actividad que dura con mas prioridad: reunion > temporizador >
     /// microfono o camara > mantener despierto.
     var ambient: Kind? {
+        if let dictation, dictation.isListening { return .dictation(text: dictation.transcript) }
         if let ringing = focus?.ringing { return .alarm(time: ringing) }
         if defaults.bool(forKey: SettingsKey.hudMeetings), let meeting = calendar?.imminentMeeting(at: now) {
             return .meeting(title: meeting.title, start: meeting.start)

@@ -7,6 +7,9 @@ import SwiftUI
 enum AppColors {
     /// El notch cerrado siempre es negro: tiene que fundirse con el hardware.
     static let notch = Color.black
+    /// Fondo de las ventanas flotantes (cesta, anillo). Casi negro: en un panel con
+    /// fondo transparente el negro puro se veia transparente sobre otras ventanas.
+    static let floating = Color(white: 0.07)
 
     /// Fondo de respaldo sin Liquid Glass (macOS 14-15) y del boton de borrar.
     static let panel = dynamic(light: 0xFFFFFF, dark: 0x000000)

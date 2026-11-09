@@ -22,6 +22,11 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.mailEnabled) private var mailEnabled = true
     @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
     @AppStorage(SettingsKey.basketOnShake) private var basketOnShake = true
+    @AppStorage(SettingsKey.actionRing) private var actionRing = true
+    @AppStorage(SettingsKey.weatherCity) private var weatherCity = ""
+    @State private var cityQuery = ""
+    @State private var citySearch: CitySearch = .idle
+    private enum CitySearch: Equatable { case idle, searching, notFound }
     let calendar: CalendarService
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
@@ -107,6 +112,27 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Section("Herramientas") {
+                Toggle("Anillo de acciones con ⌃⌥Espacio", isOn: $actionRing)
+                LabeledContent("Tiempo") {
+                    HStack(spacing: 8) {
+                        TextField("Ciudad", text: $cityQuery, prompt: Text(weatherCity.isEmpty ? String(localized: "Ciudad") : weatherCity))
+                            .frame(width: 160)
+                            .onSubmit(searchCity)
+                        Button(citySearch == .searching ? "Buscando…" : "Buscar", action: searchCity)
+                            .disabled(cityQuery.trimmingCharacters(in: .whitespaces).isEmpty || citySearch == .searching)
+                        if !weatherCity.isEmpty {
+                            Button("Quitar") { saveCity(nil) }
+                        }
+                    }
+                }
+                Text(citySearch == .notFound
+                     ? String(localized: "No encuentro esa ciudad.")
+                     : String(localized: "El tiempo sale en el centro del anillo. Se pide a Open-Meteo solo con las coordenadas de la ciudad elegida."))
+                    .font(.footnote)
+                    .foregroundStyle(citySearch == .notFound ? AppColors.danger : .secondary)
+            }
+
             Section("Notch") {
                 Picker("Abrir al pasar el ratón", selection: $openDelay) {
                     ForEach(SettingsKey.openDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
@@ -132,6 +158,28 @@ struct SettingsView: View {
             access = ClipboardAccess.current
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
+    }
+
+    private func searchCity() {
+        let query = cityQuery.trimmingCharacters(in: .whitespaces)
+        guard !query.isEmpty else { return }
+        citySearch = .searching
+        Task {
+            if let place = await Weather.search(query) {
+                saveCity(place)
+                cityQuery = ""
+                citySearch = .idle
+            } else {
+                citySearch = .notFound
+            }
+        }
+    }
+
+    private func saveCity(_ place: Weather.Place?) {
+        let defaults = UserDefaults.standard
+        defaults.set(place?.name ?? "", forKey: SettingsKey.weatherCity)
+        defaults.set(place?.latitude ?? 0, forKey: SettingsKey.weatherLatitude)
+        defaults.set(place?.longitude ?? 0, forKey: SettingsKey.weatherLongitude)
     }
 
     private static func delayLabel(_ seconds: Double) -> String {

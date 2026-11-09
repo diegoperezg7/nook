@@ -30,6 +30,12 @@ enum SettingsKey {
     static let hiddenCalendars = "hiddenCalendars"
     /// Cesta flotante al agitar el raton arrastrando archivos.
     static let basketOnShake = "basketOnShake"
+    /// Anillo de acciones con ⌃⌥Espacio.
+    static let actionRing = "actionRing"
+    /// Ciudad del tiempo (vacia = sin tiempo) y sus coordenadas.
+    static let weatherCity = "weatherCity"
+    static let weatherLatitude = "weatherLatitude"
+    static let weatherLongitude = "weatherLongitude"
 
     /// 0 = sin limite: el historial solo se borra cuando lo pide el usuario.
     static let unlimitedHistory = 0
@@ -56,6 +62,7 @@ enum SettingsKey {
             mailEnabled: true,
             mailSource: "mail",
             basketOnShake: true,
+            actionRing: true,
         ])
     }
 }

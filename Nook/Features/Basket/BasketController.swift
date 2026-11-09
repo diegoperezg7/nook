@@ -170,7 +170,7 @@ private struct BasketView: View {
             }
         }
         .padding(12)
-        .background(shape.fill(AppColors.notch))
+        .background(shape.fill(AppColors.floating))
         .overlay(shape.strokeBorder(AppColors.notchText.opacity(0.14), lineWidth: 1))
         .scaleEffect(targeted && !AppMotion.reduceMotion ? 1.03 : 1)
         .animation(AppMotion.snappy, value: targeted)

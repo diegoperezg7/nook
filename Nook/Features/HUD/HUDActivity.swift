@@ -14,7 +14,8 @@ struct HUDActivity: View {
         case .timer, .stayAwake: return 70
         case .capsLock, .timerDone, .alarm: return 96
         case .network, .meeting: return 104
-        case .audioDevice, .download, .mail: return 112
+        case .audioDevice, .download, .mail, .notice: return 112
+        case .dictation: return 140
         }
     }
 
@@ -66,6 +67,11 @@ struct HUDActivity: View {
         case .timerDone:
             Self.logo(AgentIcons.clock, fallback: "timer")
                 .symbolEffect(.bounce, options: .repeat(3))
+        case let .notice(icon, _):
+            Image(systemName: icon).font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
+        case .dictation:
+            Image(systemName: "mic.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.danger)
+                .symbolEffect(.pulse)
         case .mail:
             Self.logo(AgentIcons.mail(MailService.Source(rawValue: UserDefaults.standard.string(forKey: SettingsKey.mailSource) ?? "") ?? .mail), fallback: "envelope.fill")
         case .alarm:
@@ -116,6 +122,14 @@ struct HUDActivity: View {
             Text(!online ? "Sin conexión" : vpn ? "VPN" : "Conectado").font(.system(size: 11, weight: .semibold))
         case .timerDone:
             Text("¡Tiempo!").font(.system(size: 12, weight: .bold))
+        case let .notice(_, text):
+            Text(verbatim: text).font(.system(size: 11, weight: .semibold)).lineLimit(1)
+        case let .dictation(text):
+            // Las ultimas palabras: el principio se corta.
+            Text(text.isEmpty ? String(localized: "Escuchando…") : text)
+                .font(.system(size: 11, weight: .semibold))
+                .lineLimit(1)
+                .truncationMode(.head)
         case let .mail(sender):
             Text(verbatim: sender).font(.system(size: 11, weight: .semibold)).lineLimit(1).truncationMode(.tail)
         case let .alarm(time):
