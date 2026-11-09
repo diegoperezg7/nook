@@ -26,9 +26,25 @@ xcodebuild -project Nook.xcodeproj -scheme Nook -configuration Release \
 ditto "$DERIVED/Build/Products/Release/Nook.app" "$APP"
 
 # Firma explicita con Developer ID: la de Xcode es la de desarrollo.
+# Los entitlements se toman de la build ya firmada por Xcode, con las variables
+# ($(NOOK_APP_GROUP)...) sustituidas; el archivo del repo las lleva sin sustituir.
+ENTITLEMENTS="$OUT/Nook.entitlements"
+codesign -d --entitlements "$ENTITLEMENTS" --xml "$APP" 2>/dev/null
+# La firma de desarrollo de Xcode añade get-task-allow (depuracion): la notarizacion lo rechaza.
+/usr/libexec/PlistBuddy -c "Delete :com.apple.security.get-task-allow" "$ENTITLEMENTS" 2>/dev/null || true
+if grep -q '\$(' "$ENTITLEMENTS"; then
+  echo "Entitlements con variables sin sustituir" >&2
+  exit 1
+fi
 codesign --force --options runtime --timestamp \
-  --entitlements Nook/Nook.entitlements \
+  --entitlements "$ENTITLEMENTS" \
   --sign "$IDENTITY" "$APP"
+# Comprobacion final: el App Group firmado coincide con el del Info.plist.
+GROUP=$(/usr/libexec/PlistBuddy -c "Print :NookAppGroup" "$APP/Contents/Info.plist")
+codesign -d --entitlements - --xml "$APP" 2>/dev/null | grep -q "<string>$GROUP</string>" || {
+  echo "El App Group firmado no es $GROUP" >&2
+  exit 1
+}
 codesign --verify --strict --verbose=2 "$APP"
 
 # DMG con acceso directo a Aplicaciones.
