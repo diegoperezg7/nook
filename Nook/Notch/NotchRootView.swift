@@ -15,7 +15,7 @@ struct NotchRootView: View {
 
     var body: some View {
         let metrics = model.metrics
-        let open = metrics.openSize(searchRow: model.tab.hasToolbar)
+        let open = metrics.openSize(searchRow: model.tab.hasToolbar, extra: model.tab.extraHeight)
         // Cerrado, el notch se ensancha para un aviso breve (volumen, bateria...) o,
         // si no hay ninguno, para lo que este en marcha (reunion, temporizador...).
         let notice = model.isOpen || model.isCollapsing ? nil : (hud.current ?? hud.ambient)

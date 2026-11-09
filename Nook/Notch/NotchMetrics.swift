@@ -18,6 +18,8 @@ struct NotchMetrics: Equatable {
     static let topSpacing: CGFloat = 10
     static let bottomMargin: CGFloat = 18
     static let pillWidth: CGFloat = 180
+    /// Alto extra de la pestaña de correo, para leer un mensaje sin salir del notch.
+    static let readerExtra: CGFloat = 200
 
     var hasNotch: Bool
     var screenFrame: CGRect
@@ -39,16 +41,16 @@ struct NotchMetrics: Equatable {
 
     /// Tamaño del panel abierto. La bandeja no tiene buscador y es mas baja: el panel
     /// se ajusta al contenido en vez de dejar un hueco abajo.
-    func openSize(searchRow: Bool) -> CGSize {
+    func openSize(searchRow: Bool, extra: CGFloat = 0) -> CGSize {
         // ~210 pt a cada lado del notch: pestañas (control compacto) a un lado,
         // botones al otro. Compacto: no se ensancha al añadir pestañas.
         let width = min(max(notchWidth + 420, 600), screenFrame.width - 40)
         let content = Self.topSpacing + (searchRow ? Self.searchRowHeight : 0) + Self.cardRowHeight + Self.bottomMargin
-        return CGSize(width: width, height: headerHeight + content)
+        return CGSize(width: width, height: headerHeight + content + extra)
     }
 
     /// El mayor de los tamaños: el de la ventana.
-    var openSize: CGSize { openSize(searchRow: true) }
+    var openSize: CGSize { openSize(searchRow: true, extra: Self.readerExtra) }
 
     var closedWindowFrame: CGRect {
         CGRect(
@@ -68,8 +70,8 @@ struct NotchMetrics: Equatable {
     var closedHotRect: CGRect { closedWindowFrame }
 
     /// Zona que mantiene el panel abierto: la forma visible mas un pequeño margen.
-    func openHotRect(searchRow: Bool) -> CGRect {
-        let size = openSize(searchRow: searchRow)
+    func openHotRect(searchRow: Bool, extra: CGFloat = 0) -> CGRect {
+        let size = openSize(searchRow: searchRow, extra: extra)
         return CGRect(
             x: screenFrame.midX - size.width / 2,
             y: screenFrame.maxY - size.height,

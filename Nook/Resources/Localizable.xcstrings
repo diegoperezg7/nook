@@ -91,6 +91,16 @@
         }
       }
     },
+    "(Sin texto)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(No text)"
+          }
+        }
+      }
+    },
     "1 captura": {
       "localizations": {
         "en": {
@@ -247,6 +257,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open in Reminders"
+          }
+        }
+      }
+    },
+    "Abrir en la app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in the app"
           }
         }
       }
@@ -1911,6 +1931,16 @@
         }
       }
     },
+    "Leer el correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read the email"
+          }
+        }
+      }
+    },
     "Listo": {
       "localizations": {
         "en": {
@@ -1997,6 +2027,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mark as done"
+          }
+        }
+      }
+    },
+    "Marcar como leído": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as read"
           }
         }
       }
@@ -2177,6 +2217,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't save it"
+          }
+        }
+      }
+    },
+    "No he podido leer este correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read this email"
           }
         }
       }
@@ -2647,6 +2697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reminders"
+          }
+        }
+      }
+    },
+    "Responder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reply"
           }
         }
       }
@@ -3257,6 +3317,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Per-App Volume"
+          }
+        }
+      }
+    },
+    "Volver": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
           }
         }
       }

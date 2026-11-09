@@ -24,4 +24,21 @@ final class MailServiceTests: XCTestCase {
     func testEmptyInbox() {
         XCTAssertTrue(MailService.parse("").isEmpty)
     }
+
+    /// La vista previa llega en una sola linea, sin saltos.
+    func testPreviewIsOneLine() {
+        let text = ["d4", "Ana", "Hola", "2026-11-09T10:00:00", "Hola Diego,\r\n\r\n  te paso   el informe"].joined(separator: us) + rs
+        XCTAssertEqual(MailService.parse(text).first?.preview, "Hola Diego, te paso el informe")
+    }
+
+    /// El cuerpo puede llevar el separador de campos: no se corta.
+    func testDetailKeepsBodyAndCollapsesBlankLines() throws {
+        let body = "Hola,\n\n\n\nAdjunto va el contrato.\u{1F}Fin\n"
+        let text = ["Ana López", "ana@ejemplo.com", "missing value", "2026-11-09T09:15:00", body].joined(separator: us)
+        let detail = try XCTUnwrap(MailService.parseDetail(text))
+        XCTAssertEqual(detail.address, "ana@ejemplo.com")
+        XCTAssertEqual(detail.subject, "")
+        XCTAssertEqual(detail.body, "Hola,\n\nAdjunto va el contrato.\u{1F}Fin")
+        XCTAssertNil(MailService.parseDetail("roto"))
+    }
 }

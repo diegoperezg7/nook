@@ -9,6 +9,8 @@ final class NotchViewModel {
 
         /// El historial, las capturas y los agentes tienen una fila de herramientas sobre las tarjetas.
         var hasToolbar: Bool { self != .shelf }
+        /// La pestaña de correo es mas alta: ahi se lee el mensaje.
+        var extraHeight: CGFloat { self == .mail ? NotchMetrics.readerExtra : 0 }
     }
 
     enum OpenReason {
@@ -77,7 +79,7 @@ final class NotchViewModel {
 
     /// Zona del panel visible, segun la pestaña (la bandeja es mas baja).
     var openHotRect: CGRect {
-        metrics.openHotRect(searchRow: tab.hasToolbar)
+        metrics.openHotRect(searchRow: tab.hasToolbar, extra: tab.extraHeight)
     }
 
     /// Zona del notch cerrado que lo abre.

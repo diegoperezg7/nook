@@ -1,19 +1,33 @@
 import SwiftUI
 
-/// Bandeja de entrada: correos sin leer, el mas reciente arriba. Al pulsar uno se
-/// abre en su app.
+/// Bandeja de entrada: correos sin leer, el mas reciente arriba, con el principio
+/// del texto. Al pulsar uno se lee aqui mismo; desde ahi se responde, se marca como
+/// leido o se abre en su app.
 struct MailView: View {
     let mail: MailService
+    @State private var reading: MailService.Message?
 
     var body: some View {
         VStack(spacing: 0) {
-            header
+            if let reading {
+                MailReader(mail: mail, message: reading) {
+                    withAnimation(AppMotion.snappy) { self.reading = nil }
+                }
                 .padding(.horizontal, NotchContentView.margin)
-                .frame(height: NotchMetrics.searchRowHeight - 10)
-                .padding(.bottom, 10)
-            content
-                .padding(.horizontal, NotchContentView.margin)
-                .frame(height: NotchMetrics.cardRowHeight, alignment: .top)
+                .frame(height: NotchMetrics.searchRowHeight + NotchMetrics.cardRowHeight + NotchMetrics.readerExtra, alignment: .top)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+            } else {
+                Group {
+                    header
+                        .padding(.horizontal, NotchContentView.margin)
+                        .frame(height: NotchMetrics.searchRowHeight - 10)
+                        .padding(.bottom, 10)
+                    content
+                        .padding(.horizontal, NotchContentView.margin)
+                        .frame(height: NotchMetrics.cardRowHeight + NotchMetrics.readerExtra, alignment: .top)
+                }
+                .transition(.move(edge: .leading).combined(with: .opacity))
+            }
         }
         .onAppear { mail.refresh() }
     }
@@ -56,7 +70,9 @@ struct MailView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 5) {
                     ForEach(mail.messages) { message in
-                        MailRow(message: message) { mail.open(message) }
+                        MailRow(message: message) {
+                            withAnimation(AppMotion.snappy) { reading = message }
+                        }
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
@@ -115,28 +131,35 @@ private struct MailRow: View {
                     .frame(width: 26, height: 26)
                     .background(Circle().fill(AppColors.accent))
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(verbatim: message.sender)
-                        .font(AppTypography.cardTitle.weight(.semibold))
-                        .foregroundStyle(AppColors.textPrimary)
+                    HStack(spacing: 8) {
+                        Text(verbatim: message.sender)
+                            .font(AppTypography.cardTitle.weight(.semibold))
+                            .foregroundStyle(AppColors.textPrimary)
+                        Spacer(minLength: 8)
+                        Text(verbatim: time)
+                            .font(AppTypography.cardCaption.monospacedDigit())
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
                     Text(verbatim: message.subject.isEmpty ? String(localized: "(Sin asunto)") : message.subject)
-                        .font(AppTypography.cardCaption)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .font(AppTypography.cardCaption.weight(.medium))
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.9))
+                    if !message.preview.isEmpty {
+                        Text(verbatim: message.preview)
+                            .font(AppTypography.cardCaption)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
                 }
                 .lineLimit(1)
-                Spacer(minLength: 8)
-                Text(verbatim: time)
-                    .font(AppTypography.cardCaption.monospacedDigit())
-                    .foregroundStyle(AppColors.textSecondary)
             }
             .padding(.horizontal, 8)
-            .frame(height: 38)
+            .padding(.vertical, 7)
             .liquidGlass(in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(hovering ? AppColors.accent : .clear, lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help(Text("Abrir el correo"))
+        .help(Text("Leer el correo"))
     }
 
     private var initials: String {
@@ -150,5 +173,117 @@ private struct MailRow: View {
         Calendar.current.isDateInToday(message.date)
             ? message.date.formatted(date: .omitted, time: .shortened)
             : message.date.formatted(.dateTime.day().month(.abbreviated))
+    }
+}
+
+
+/// Un correo abierto dentro del notch.
+private struct MailReader: View {
+    let mail: MailService
+    let message: MailService.Message
+    let back: () -> Void
+    @State private var detail: MailService.Detail?
+    @State private var failed = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Button(action: back) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .frame(width: 28, height: 28)
+                        .liquidGlass(in: Circle(), interactive: true)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .help(Text("Volver"))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: detail?.sender.isEmpty == false ? detail!.sender : message.sender)
+                        .font(AppTypography.bodyStrong)
+                        .foregroundStyle(AppColors.textPrimary)
+                    if let address = detail?.address, !address.isEmpty {
+                        Text(verbatim: address)
+                            .font(AppTypography.cardCaption)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                }
+                .lineLimit(1)
+                Spacer(minLength: 8)
+                Text(verbatim: message.date.formatted(date: .abbreviated, time: .shortened))
+                    .font(AppTypography.cardCaption)
+                    .foregroundStyle(AppColors.textSecondary)
+                actions
+            }
+
+            Text(verbatim: message.subject.isEmpty ? String(localized: "(Sin asunto)") : message.subject)
+                .font(AppTypography.title)
+                .foregroundStyle(AppColors.textPrimary)
+                .lineLimit(2)
+
+            Group {
+                if let detail {
+                    ScrollView(.vertical) {
+                        Text(verbatim: detail.body.isEmpty ? String(localized: "(Sin texto)") : detail.body)
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.textPrimary.opacity(0.92))
+                            .lineSpacing(3)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                    }
+                } else if failed {
+                    Text("No he podido leer este correo")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ProgressView().controlSize(.small)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .liquidGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .padding(.bottom, 8)
+        }
+        .task(id: message.id) {
+            detail = nil
+            failed = false
+            detail = await mail.detail(of: message)
+            failed = detail == nil
+        }
+    }
+
+    private var actions: some View {
+        HStack(spacing: 6) {
+            ReaderButton(icon: "arrowshape.turn.up.left.fill", help: "Responder") { mail.reply(to: message) }
+            ReaderButton(icon: "envelope.open.fill", help: "Marcar como leído") {
+                mail.markRead(message)
+                back()
+            }
+            ReaderButton(icon: "arrow.up.forward.app.fill", help: "Abrir en la app") { mail.open(message) }
+        }
+    }
+}
+
+private struct ReaderButton: View {
+    let icon: String
+    let help: LocalizedStringKey
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
+                .frame(width: 28, height: 28)
+                .liquidGlass(in: Circle(), interactive: true)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .help(Text(help))
+        .accessibilityLabel(Text(help))
     }
 }
