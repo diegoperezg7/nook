@@ -54,4 +54,10 @@ final class QuickEventParserTests: XCTestCase {
         let end = Calendar.current.date(from: DateComponents(year: 2026, month: 11, day: 11, hour: 0))!
         XCTAssertEqual(CalendarService.days(from: start, to: end).count, 2, "el final es exclusivo")
     }
+
+    func testReminderIntent() {
+        XCTAssertTrue(QuickEventParser.reminderIntent("Recuérdame llamar a Ana mañana") == (true, "llamar a Ana mañana"))
+        XCTAssertTrue(QuickEventParser.reminderIntent("remind me to buy milk") == (true, "buy milk"))
+        XCTAssertTrue(QuickEventParser.reminderIntent("Cena el viernes") == (false, "Cena el viernes"))
+    }
 }

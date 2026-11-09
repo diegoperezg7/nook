@@ -72,20 +72,28 @@ struct CalendarView: View {
     private func feedbackText(_ feedback: Feedback) -> String {
         switch feedback {
         case let .added(summary): return String(localized: "Añadido: \(summary)")
-        case .notUnderstood: return String(localized: "No encuentro la fecha. Prueba «mañana a las 10» o «el viernes»")
+        case .notUnderstood:
+            return calendar.remindersAccess == .granted
+                ? String(localized: "No he podido guardarlo")
+                : String(localized: "No encuentro la fecha. Prueba «mañana a las 10» o «el viernes»")
         }
     }
 
     private func add() {
         let text = draft
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        if let event = calendar.add(text) {
+        switch calendar.addAnything(text) {
+        case let .event(event):
             let when = event.isAllDay
                 ? event.start.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
                 : event.start.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).hour().minute())
             feedback = .added("\(event.title), \(when)")
             draft = ""
-        } else {
+        case let .reminder(title, due):
+            let when = due.map { ", " + $0.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)) } ?? ""
+            feedback = .added(String(localized: "Recordatorio: \(title)") + when)
+            draft = ""
+        case nil:
             feedback = .notUnderstood
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -224,7 +232,7 @@ private struct DayList: View {
                 .font(AppTypography.bodyStrong)
                 .foregroundStyle(AppColors.textSecondary)
                 .frame(height: 16)
-            if calendar.dayEvents.isEmpty {
+            if calendar.dayEvents.isEmpty && calendar.dayReminders.isEmpty {
                 Text("Nada este día")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
@@ -236,18 +244,91 @@ private struct DayList: View {
                         ForEach(calendar.dayEvents) { event in
                             EventRow(event: event, open: { calendar.openInCalendar(event) }, join: { calendar.join(event) })
                         }
+                        ForEach(calendar.dayReminders) { reminder in
+                            ReminderRow(reminder: reminder) {
+                                withAnimation(AppMotion.snappy) { calendar.complete(reminder) }
+                            } open: { calendar.openInReminders() }
+                            .transition(.move(edge: .leading).combined(with: .opacity))
+                        }
                     }
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.bottom, 8)
+        .overlay(alignment: .topTrailing) {
+            // Recordatorios sin permiso: un enlace discreto junto al titulo del dia.
+            if calendar.remindersAccess != .granted {
+                Button("Ver recordatorios") { calendar.requestRemindersAccess() }
+                    .buttonStyle(.plain)
+                    .font(AppTypography.cardCaption.weight(.semibold))
+                    .foregroundStyle(AppColors.accent)
+                    .frame(height: 16)
+            }
+        }
     }
 
     private var title: String {
         if Calendar.current.isDateInToday(calendar.selectedDay) { return String(localized: "Hoy") }
         if Calendar.current.isDateInTomorrow(calendar.selectedDay) { return String(localized: "Mañana") }
         return calendar.selectedDay.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized
+    }
+}
+
+/// Recordatorio pendiente: el circulo lo marca como hecho (como en Recordatorios).
+private struct ReminderRow: View {
+    let reminder: CalendarService.Reminder
+    let complete: () -> Void
+    let open: () -> Void
+    @State private var done = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Button {
+                done = true
+                // Se ve el check un instante antes de irse.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: complete)
+            } label: {
+                ZStack {
+                    Circle().strokeBorder(Color(nsColor: reminder.color), lineWidth: 1.5)
+                    if done { Circle().fill(Color(nsColor: reminder.color)).padding(3) }
+                }
+                .frame(width: 16, height: 16)
+                .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .help(Text("Marcar como hecho"))
+            Button(action: open) {
+                HStack {
+                    Text(verbatim: reminder.title)
+                        .font(AppTypography.cardTitle.weight(.semibold))
+                        .foregroundStyle(done ? AppColors.textSecondary : AppColors.textPrimary)
+                        .strikethrough(done)
+                        .lineLimit(1)
+                    Spacer(minLength: 4)
+                    if let due = reminder.due {
+                        Text(verbatim: Self.label(for: due))
+                            .font(AppTypography.cardCaption.monospacedDigit())
+                            .foregroundStyle(reminder.isOverdue ? AppColors.danger : AppColors.textSecondary)
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(Text("Abrir en Recordatorios"))
+        }
+        .padding(.horizontal, 8)
+        .frame(height: 30)
+        .liquidGlass(in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .animation(AppMotion.snappy, value: done)
+    }
+
+    /// Hora si es de hoy; si no, el dia.
+    private static func label(for date: Date) -> String {
+        let calendar = Calendar.current
+        let hasTime = calendar.component(.hour, from: date) != 0 || calendar.component(.minute, from: date) != 0
+        if calendar.isDateInToday(date) { return hasTime ? date.formatted(date: .omitted, time: .shortened) : String(localized: "Hoy") }
+        return date.formatted(.dateTime.day().month(.abbreviated))
     }
 }
 

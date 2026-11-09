@@ -27,6 +27,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let windowSnap = WindowSnap()
     private var selection: SelectionActions?
     private let notificationFeed = NotificationFeed()
+    private let launcher = LauncherController()
+    private var launcherHotKey: HotKey?
 
     func applicationWillTerminate(_ notification: Notification) {
         // Quita los taps: cada app vuelve a sonar a su volumen normal.
@@ -160,6 +162,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowSnap.apply()
         selection?.apply()
         notificationFeed.apply()
+        let wantsLauncher = UserDefaults.standard.bool(forKey: SettingsKey.launcher)
+        if wantsLauncher, launcherHotKey == nil {
+            // ⌥Espacio.
+            launcherHotKey = HotKey(keyCode: UInt32(kVK_Space), modifiers: UInt32(optionKey), id: 3) { [weak self] in
+                MainActor.assumeIsolated { self?.launcher.toggle() }
+            }
+        } else if !wantsLauncher {
+            launcherHotKey = nil
+            launcher.hide()
+        }
         let wantsRing = UserDefaults.standard.bool(forKey: SettingsKey.actionRing)
         if wantsRing, ringHotKey == nil {
             // ⌃⌥Espacio.

@@ -74,6 +74,7 @@ targets:
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Nook usa el micrófono solo mientras dictas, para pasar tu voz a texto."
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Nook convierte lo que dictas en texto y lo copia al portapapeles."
         INFOPLIST_KEY_NSAppleEventsUsageDescription: "Nook muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo."
+        INFOPLIST_KEY_NSRemindersFullAccessUsageDescription: "Nook muestra tus recordatorios pendientes junto al calendario y te deja marcarlos como hechos o crear uno escribiendo."
         INFOPLIST_KEY_NSCalendarsUsageDescription: "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo."
         INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 Diego Pérez García"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

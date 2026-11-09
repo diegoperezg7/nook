@@ -88,7 +88,12 @@ struct NotchMetrics: Equatable {
     ) -> NotchMetrics {
         if safeAreaTop > 0, !auxiliaryTopLeft.isEmpty, !auxiliaryTopRight.isEmpty {
             let width = screenFrame.width - auxiliaryTopLeft.width - auxiliaryTopRight.width
-            return NotchMetrics(hasNotch: true, screenFrame: screenFrame, notchWidth: width, notchHeight: safeAreaTop)
+            // La zona segura se queda un punto por debajo del recorte fisico (Air 13":
+            // 32 frente a la barra de 33). La barra de menus llega justo al borde del
+            // notch; si esta oculta (visibleFrame sin barra) se usa la zona segura.
+            let menuBar = screenFrame.maxY - visibleFrameMaxY
+            let height = menuBar > safeAreaTop && menuBar <= safeAreaTop + 4 ? menuBar : safeAreaTop
+            return NotchMetrics(hasNotch: true, screenFrame: screenFrame, notchWidth: width, notchHeight: height)
         }
         let menuBar = screenFrame.maxY - visibleFrameMaxY
         return NotchMetrics(

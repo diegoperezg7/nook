@@ -221,6 +221,16 @@
         }
       }
     },
+    "Abrir en Recordatorios": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in Reminders"
+          }
+        }
+      }
+    },
     "Abrir en segundo plano": {
       "localizations": {
         "en": {
@@ -621,12 +631,32 @@
         }
       }
     },
+    "Buscar apps, archivos o calcular…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search apps, files or calculate…"
+          }
+        }
+      }
+    },
     "Buscar en el historial": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Search history"
+          }
+        }
+      }
+    },
+    "Buscar «%@» en la web": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the web for “%@”"
           }
         }
       }
@@ -1421,6 +1451,26 @@
         }
       }
     },
+    "Intro para copiar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return to copy"
+          }
+        }
+      }
+    },
+    "Lanzador con ⌥Espacio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launcher with ⌥Space"
+          }
+        }
+      }
+    },
     "Leer de": {
       "localizations": {
         "en": {
@@ -1477,6 +1527,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep Awake"
+          }
+        }
+      }
+    },
+    "Marcar como hecho": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as done"
           }
         }
       }
@@ -1617,6 +1677,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No text found"
+          }
+        }
+      }
+    },
+    "No he podido guardarlo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't save it"
           }
         }
       }
@@ -1957,6 +2027,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Deselect All"
+          }
+        }
+      }
+    },
+    "Recordatorio: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder: %@"
           }
         }
       }
@@ -2407,6 +2487,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show unread mail in the notch"
+          }
+        }
+      }
+    },
+    "Ver recordatorios": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show reminders"
           }
         }
       }

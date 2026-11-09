@@ -24,6 +24,23 @@ final class NotchMetricsTests: XCTestCase {
         XCTAssertTrue(metrics.openHotRect.contains(CGPoint(x: frame.midX, y: frame.maxY - 1)))
     }
 
+    /// El Air da 32 pt de zona segura con una barra de 33: manda la barra, que llega
+    /// al borde del recorte. Con la barra oculta se queda la zona segura.
+    func testNotchHeightFollowsMenuBar() {
+        let frame = CGRect(x: 0, y: 0, width: 1470, height: 956)
+        func height(_ visibleMaxY: CGFloat) -> CGFloat {
+            NotchMetrics.make(
+                screenFrame: frame, safeAreaTop: 32,
+                auxiliaryTopLeft: CGRect(x: 0, y: 924, width: 645.5, height: 32),
+                auxiliaryTopRight: CGRect(x: 824.5, y: 924, width: 645.5, height: 32),
+                visibleFrameMaxY: visibleMaxY
+            ).notchHeight
+        }
+        XCTAssertEqual(height(923), 33)
+        XCTAssertEqual(height(956), 32)
+        XCTAssertEqual(height(900), 32)
+    }
+
     func testScreenWithoutNotchUsesMenuBarPill() {
         let frame = CGRect(x: 0, y: 0, width: 2560, height: 1440)
         let metrics = NotchMetrics.make(

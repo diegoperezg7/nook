@@ -37,6 +37,8 @@ enum SettingsKey {
     static let windowSnap = "windowSnap"
     static let selectionActions = "selectionActions"
     static let notifications = "notifications"
+    /// Lanzador con ⌥Espacio.
+    static let launcher = "launcher"
     /// Ciudad del tiempo (vacia = sin tiempo) y sus coordenadas.
     static let weatherCity = "weatherCity"
     static let weatherLatitude = "weatherLatitude"
@@ -72,6 +74,7 @@ enum SettingsKey {
             windowSnap: true,
             selectionActions: true,
             notifications: true,
+            launcher: true,
         ])
     }
 }

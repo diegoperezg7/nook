@@ -23,7 +23,7 @@ final class CalendarService {
     private(set) var access: Access = .unknown
     /// Dia elegido en la vista de mes (por defecto, hoy).
     var selectedDay = Calendar.current.startOfDay(for: .now) {
-        didSet { reloadDay() }
+        didSet { reloadDay(); filterReminders() }
     }
     /// Mes que se ve (primer dia del mes).
     var visibleMonth = CalendarService.monthStart(of: .now) {
@@ -55,6 +55,74 @@ final class CalendarService {
         if visible { hidden.remove(id) } else { hidden.insert(id) }
         UserDefaults.standard.set(Array(hidden), forKey: SettingsKey.hiddenCalendars)
         reloadAll()
+    }
+
+    // MARK: Recordatorios
+
+    struct Reminder: Identifiable, Equatable {
+        let id: String
+        let title: String
+        let due: Date?
+        let color: NSColor
+        var isOverdue: Bool { due.map { $0 < .now } ?? false }
+    }
+
+    private(set) var remindersAccess: Access = .unknown
+    /// Pendientes del dia elegido (hoy: tambien los atrasados y los que no tienen fecha).
+    private(set) var dayReminders: [Reminder] = []
+    @ObservationIgnored private var allReminders: [Reminder] = []
+
+    func requestRemindersAccess() {
+        Task {
+            _ = try? await store.requestFullAccessToReminders()
+            updateAccess()
+            reloadReminders()
+        }
+    }
+
+    func complete(_ reminder: Reminder) {
+        guard let item = store.calendarItem(withIdentifier: reminder.id) as? EKReminder else { return }
+        item.isCompleted = true
+        try? store.save(item, commit: true)
+        allReminders.removeAll { $0.id == reminder.id }
+        filterReminders()
+    }
+
+    func openInReminders() {
+        if let url = URL(string: "x-apple-reminderkit://") { NSWorkspace.shared.open(url) }
+    }
+
+    private func reloadReminders() {
+        guard remindersAccess == .granted else { allReminders = []; dayReminders = []; return }
+        let predicate = store.predicateForIncompleteReminders(withDueDateStarting: nil, ending: nil, calendars: nil)
+        store.fetchReminders(matching: predicate) { [weak self] reminders in
+            let mapped = (reminders ?? []).map { reminder in
+                Reminder(
+                    id: reminder.calendarItemIdentifier, title: reminder.title ?? "",
+                    due: reminder.dueDateComponents.flatMap { Calendar.current.date(from: $0) },
+                    color: reminder.calendar?.color ?? .systemOrange
+                )
+            }
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    self?.allReminders = mapped
+                    self?.filterReminders()
+                }
+            }
+        }
+    }
+
+    private func filterReminders() {
+        let calendar = Calendar.current
+        let isToday = calendar.isDateInToday(selectedDay)
+        let end = calendar.date(byAdding: .day, value: 1, to: selectedDay) ?? selectedDay
+        dayReminders = allReminders.filter { reminder in
+            guard let due = reminder.due else { return isToday }
+            return isToday ? due < end : calendar.isDate(due, inSameDayAs: selectedDay)
+        }
+        .sorted { ($0.due ?? .distantFuture) < ($1.due ?? .distantFuture) }
+        .prefix(30)
+        .map { $0 }
     }
 
     @ObservationIgnored private let store = EKEventStore()
@@ -104,6 +172,45 @@ final class CalendarService {
 
     // MARK: - Alta rapida
 
+    enum Added: Equatable {
+        case event(Event)
+        case reminder(title: String, due: Date?)
+    }
+
+    /// Una frase se convierte en evento si tiene fecha; sin fecha, o si empieza por
+    /// "recuérdame" / "recordatorio", en recordatorio.
+    @discardableResult
+    func addAnything(_ sentence: String) -> Added? {
+        let (isReminder, rest) = QuickEventParser.reminderIntent(sentence)
+        let parsed = QuickEventParser.parse(rest)
+        if isReminder || parsed == nil {
+            // Sin permiso de recordatorios: si hay fecha, al menos se crea el evento.
+            guard remindersAccess == .granted else { return parsed == nil ? nil : add(rest).map(Added.event) }
+            let title = parsed?.title ?? rest.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !title.isEmpty else { return nil }
+            let due = parsed?.start
+            guard addReminder(title: title, due: due, allDay: parsed?.isAllDay ?? true) else { return nil }
+            return .reminder(title: title, due: due)
+        }
+        return add(rest).map(Added.event)
+    }
+
+    private func addReminder(title: String, due: Date?, allDay: Bool) -> Bool {
+        guard let list = store.defaultCalendarForNewReminders() else { return false }
+        let reminder = EKReminder(eventStore: store)
+        reminder.title = title
+        reminder.calendar = list
+        if let due {
+            var components: Set<Calendar.Component> = [.year, .month, .day]
+            if !allDay { components.formUnion([.hour, .minute]) }
+            reminder.dueDateComponents = Calendar.current.dateComponents(components, from: due)
+            if !allDay { reminder.addAlarm(EKAlarm(absoluteDate: due)) }
+        }
+        guard (try? store.save(reminder, commit: true)) != nil else { return false }
+        reloadReminders()
+        return true
+    }
+
     /// Crea un evento a partir de una frase. Devuelve el evento o nil si no se
     /// encontro una fecha en el texto.
     @discardableResult
@@ -134,10 +241,15 @@ final class CalendarService {
     // MARK: - Carga
 
     private func updateAccess() {
-        switch EKEventStore.authorizationStatus(for: .event) {
-        case .fullAccess, .authorized: access = .granted
-        case .notDetermined: access = .unknown
-        default: access = .denied
+        access = Self.access(for: .event)
+        remindersAccess = Self.access(for: .reminder)
+    }
+
+    private static func access(for type: EKEntityType) -> Access {
+        switch EKEventStore.authorizationStatus(for: type) {
+        case .fullAccess, .authorized: return .granted
+        case .notDetermined: return .unknown
+        default: return .denied
         }
     }
 
@@ -165,6 +277,7 @@ final class CalendarService {
     }
 
     private func reloadAll() {
+        reloadReminders()
         guard access == .granted else { return }
         reloadAccounts()
         let today = Calendar.current.startOfDay(for: .now)
@@ -236,6 +349,16 @@ enum QuickEventParser {
         let start: Date
         let end: Date
         let isAllDay: Bool
+    }
+
+    /// "Recuérdame llamar a Ana mañana" -> (true, "llamar a Ana mañana").
+    static func reminderIntent(_ sentence: String) -> (Bool, String) {
+        let text = sentence.trimmingCharacters(in: .whitespacesAndNewlines)
+        for prefix in ["recuérdame que ", "recuérdame ", "recuerdame que ", "recuerdame ", "recordatorio: ", "recordatorio ", "remind me to ", "remind me "]
+        where text.lowercased().hasPrefix(prefix) {
+            return (true, String(text.dropFirst(prefix.count)))
+        }
+        return (false, text)
     }
 
     static func parse(_ sentence: String, now: Date = .now) -> Parsed? {

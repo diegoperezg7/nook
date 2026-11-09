@@ -26,6 +26,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.pasteOnSelect) private var pasteOnSelect = true
     @AppStorage(SettingsKey.windowSnap) private var windowSnap = true
     @AppStorage(SettingsKey.selectionActions) private var selectionActions = true
+    @AppStorage(SettingsKey.launcher) private var launcherOn = true
     @State private var axTrusted = AXAccess.isTrusted
     @AppStorage(SettingsKey.weatherCity) private var weatherCity = ""
     @State private var cityQuery = ""
@@ -155,6 +156,7 @@ struct SettingsView: View {
             }
 
             Section("Herramientas") {
+                Toggle("Lanzador con ⌥Espacio", isOn: $launcherOn)
                 Toggle("Anillo de acciones con ⌃⌥Espacio", isOn: $actionRing)
                 Toggle("Acciones al seleccionar texto", isOn: $selectionActions)
                 Toggle("Ajustar ventanas con ⌃⌥", isOn: $windowSnap)
