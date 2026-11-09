@@ -4,8 +4,8 @@ import SwiftUI
 /// forma de dentro: asi no hay tirones de redimensionado de ventana.
 ///
 /// Animacion: al entrar, el panel sale del centro del notch y se agranda (ancho y alto
-/// a la vez, con un rebote suave) mientras el negro se disuelve en Liquid Glass. El
-/// contenido aparece despues, creciendo desde el centro.
+/// a la vez, con un rebote suave). Es negro como el notch, asi parece el notch
+/// creciendo; el contenido aparece despues, creciendo desde el centro.
 struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
@@ -26,7 +26,7 @@ struct NotchRootView: View {
 
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
-                GlassBackground(shape: shape, isGlass: model.expandedHeight)
+                NotchBackground(shape: shape)
 
                 if activity {
                     MusicActivity(nowPlaying: nowPlaying, metrics: metrics)
@@ -42,7 +42,6 @@ struct NotchRootView: View {
             }
             .frame(width: width, height: height, alignment: .top)
             .clipShape(shape)
-            .overlay(shape.stroke(AppColors.panelBorder.opacity(model.expandedHeight ? 1 : 0), lineWidth: 0.75))
             .overlay {
                 if model.isDropTargeted, model.isOpen {
                     DropGlow(shape: shape)
@@ -80,26 +79,13 @@ struct NotchRootView: View {
     }
 }
 
-/// Cerrado: negro opaco, para fundirse con el notch fisico. Abierto: cristal.
-/// La capa negra se disuelve encima del cristal, asi el notch parece "licuarse".
-private struct GlassBackground: View {
+/// Fondo del panel: negro solido, el mismo del notch fisico, para que parezca el
+/// propio notch creciendo. El Liquid Glass queda para lo de dentro.
+private struct NotchBackground: View {
     let shape: NotchShape
-    let isGlass: Bool
 
     var body: some View {
-        ZStack {
-            glass
-            shape.fill(AppColors.notch).opacity(isGlass ? 0 : 1)
-        }
-    }
-
-    @ViewBuilder
-    private var glass: some View {
-        if #available(macOS 26.0, *) {
-            Color.clear.glassEffect(.regular, in: shape)
-        } else {
-            shape.fill(.ultraThinMaterial)
-        }
+        shape.fill(AppColors.notch)
     }
 }
 

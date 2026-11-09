@@ -33,6 +33,8 @@ enum AppColors {
 
     static let danger = dynamic(light: 0xD93036, dark: 0xF2555A)
     static let success = dynamic(light: 0x1E9E5A, dark: 0x3CCB7F)
+    /// Ambar del semaforo: algo espera al usuario.
+    static let warning = dynamic(light: 0xB86E00, dark: 0xF2A93B)
 
     static let shadow = Color.black.opacity(0.28)
 

@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "es",
   "strings": {
+    "%@ tokens": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ tokens"
+          }
+        }
+      }
+    },
     "%lld capturas": {
       "localizations": {
         "en": {
@@ -141,6 +151,16 @@
         }
       }
     },
+    "Agentes de IA": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Agents"
+          }
+        }
+      }
+    },
     "Ajustes": {
       "localizations": {
         "en": {
@@ -177,6 +197,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Previous"
+          }
+        }
+      }
+    },
+    "App": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
           }
         }
       }
@@ -351,6 +381,36 @@
         }
       }
     },
+    "Con error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed"
+          }
+        }
+      }
+    },
+    "Consumo no disponible": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage not available"
+          }
+        }
+      }
+    },
+    "Consumo: no lo expone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage: not exposed"
+          }
+        }
+      }
+    },
     "Convertir a": {
       "localizations": {
         "en": {
@@ -481,6 +541,16 @@
         }
       }
     },
+    "En curso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running"
+          }
+        }
+      }
+    },
     "Enlaces": {
       "localizations": {
         "en": {
@@ -497,6 +567,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Error"
+          }
+        }
+      }
+    },
+    "Estado desconocido (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown status (%@)"
           }
         }
       }
@@ -591,6 +671,16 @@
         }
       }
     },
+    "Interrumpida": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrupted"
+          }
+        }
+      }
+    },
     "Listo": {
       "localizations": {
         "en": {
@@ -661,6 +751,16 @@
         }
       }
     },
+    "No hay sesiones de Claude Code ni de Codex": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Claude Code or Codex sessions"
+          }
+        }
+      }
+    },
     "No se guarda lo que los gestores de contraseñas marcan como privado. El historial se queda en este Mac.": {
       "localizations": {
         "en": {
@@ -691,12 +791,52 @@
         }
       }
     },
+    "Pendiente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting"
+          }
+        }
+      }
+    },
+    "Pendiente: diálogo abierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting: dialog open"
+          }
+        }
+      }
+    },
     "Pendiente: elige «Permitir siempre»": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Pending: choose “Always Allow”"
+          }
+        }
+      }
+    },
+    "Pendiente: pide permiso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting: needs permission"
+          }
+        }
+      }
+    },
+    "Pendiente: te pregunta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting: asks you"
           }
         }
       }
@@ -791,12 +931,32 @@
         }
       }
     },
+    "Se reinicia %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resets %@"
+          }
+        }
+      }
+    },
     "Seleccionar todo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Select All"
+          }
+        }
+      }
+    },
+    "Semana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week"
           }
         }
       }
@@ -857,6 +1017,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drop to keep"
+          }
+        }
+      }
+    },
+    "Terminada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal"
           }
         }
       }
@@ -957,6 +1137,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "or choose files…"
+          }
+        }
+      }
+    },
+    "quedan %lld %%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% left"
           }
         }
       }

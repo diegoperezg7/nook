@@ -20,6 +20,9 @@ final class NotchPanel: NSPanel {
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         backgroundColor = .clear
         isOpaque = false
+        // Siempre oscuro, como la Dynamic Island: el panel es negro como el notch y su
+        // contenido (y los popovers y menus que salen de el) tiene que leerse sobre negro.
+        appearance = NSAppearance(named: .darkAqua)
         hasShadow = false
         isMovable = false
         hidesOnDeactivate = false

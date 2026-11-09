@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var services: ServiceProvider?
     private var screenshots: ScreenshotLibrary?
     private var nowPlaying: NowPlaying?
+    private var agents: AgentMonitor?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -30,7 +31,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #endif
         let screenshots = ScreenshotLibrary()
         let nowPlaying = NowPlaying()
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, nowPlaying: nowPlaying)
+        let agents = AgentMonitor()
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, nowPlaying: nowPlaying, agents: agents)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -42,6 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.monitor = monitor
         self.screenshots = screenshots
         self.nowPlaying = nowPlaying
+        self.agents = agents
 
         notch.start()
         monitor.start()

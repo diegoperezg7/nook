@@ -21,6 +21,14 @@
 	<array>
 		<string>/Library/Containers/com.diegoperez.perch/Data/Library/Application Support/Perch/</string>
 		<string>/Library/Containers/com.diegoperez.notchbin/Data/Library/Application Support/Notchbin/</string>
+		<string>/.claude/sessions/</string>
+		<string>/.claude/nook-usage.json</string>
+		<string>/.codex/state_5.sqlite</string>
+		<string>/.codex/state_5.sqlite-wal</string>
+		<string>/.codex/state_5.sqlite-shm</string>
+		<string>/.codex/thread_history_1.sqlite</string>
+		<string>/.codex/thread_history_1.sqlite-wal</string>
+		<string>/.codex/thread_history_1.sqlite-shm</string>
 	</array>
 </dict>
 </plist>
