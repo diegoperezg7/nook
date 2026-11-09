@@ -179,8 +179,11 @@ private struct AgentCard: View {
             StatusPill(status: session.status)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: consumption)
-                    .foregroundStyle(session.tokens == nil ? AppColors.textSecondary : AppColors.textPrimary)
+                // El consumo solo si la fuente lo da (Codex); si no, nada que decir.
+                if let consumption {
+                    Text(verbatim: consumption)
+                        .foregroundStyle(AppColors.textPrimary)
+                }
                 AgeText(date: session.updatedAt)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -215,9 +218,8 @@ private struct AgentCard: View {
         }
     }
 
-    /// Lo que de verdad da la fuente; si no lo da, se dice.
-    private var consumption: String {
-        guard let tokens = session.tokens else { return String(localized: "Consumo: no lo expone") }
+    private var consumption: String? {
+        guard let tokens = session.tokens else { return nil }
         let formatted = tokens.formatted(.number.notation(.compactName).precision(.fractionLength(0...1)))
         return String(localized: "\(formatted) tokens")
     }

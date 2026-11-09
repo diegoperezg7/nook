@@ -418,13 +418,13 @@ private struct ShortcutsPage: View {
 }
 
 private struct ShortcutToggle: View {
-    let keys: String
+    let keys: LocalizedStringKey
     let title: LocalizedStringKey
     @Binding var isOn: Bool
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(verbatim: keys)
+            Text(keys)
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundStyle(AppColors.textPrimary)
                 .padding(.horizontal, 7)

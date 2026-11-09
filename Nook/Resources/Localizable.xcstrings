@@ -391,6 +391,16 @@
         }
       }
     },
+    "Agitar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shake"
+          }
+        }
+      }
+    },
     "Ahora": {
       "localizations": {
         "en": {
@@ -2801,6 +2811,16 @@
         }
       }
     },
+    "Seleccionar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select"
+          }
+        }
+      }
+    },
     "Seleccionar todo": {
       "localizations": {
         "en": {
@@ -3471,12 +3491,52 @@
         }
       }
     },
+    "⌃⌘ V": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌘ V"
+          }
+        }
+      }
+    },
     "⌃⌥ + ← → ↑ ↓ mitades · U I J K cuartos · D F G tercios · E T dos tercios · ↩ maximizar · C centrar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "⌃⌥ + ← → ↑ ↓ halves · U I J K quarters · D F G thirds · E T two thirds · ↩ maximize · C center"
+          }
+        }
+      }
+    },
+    "⌃⌥ Espacio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥ Space"
+          }
+        }
+      }
+    },
+    "⌃⌥ ← →": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥ ← →"
+          }
+        }
+      }
+    },
+    "⌥ Espacio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ Space"
           }
         }
       }

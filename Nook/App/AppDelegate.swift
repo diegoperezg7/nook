@@ -145,6 +145,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             store.clearShelf()
             store.clearHistory()
         }
+        // `-NookAddFiles "a.pdf|b.png"` llena la bandeja de desarrollo (capturas del README).
+        if let paths = UserDefaults.standard.string(forKey: "NookAddFiles") {
+            FileImporter.add(paths.split(separator: "|").map { URL(fileURLWithPath: String($0)) }, to: store)
+        }
         notch.applyDebugLaunchArguments()
         if UserDefaults.standard.string(forKey: "NookOpen") == "settings" { showSettings(); return }
         #endif
