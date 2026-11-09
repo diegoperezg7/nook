@@ -23,6 +23,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dictation: Dictation?
     private var ring: ActionRingController?
     private var ringHotKey: HotKey?
+    private var appVolume: AppVolume?
+
+    func applicationWillTerminate(_ notification: Notification) {
+        // Quita los taps: cada app vuelve a sonar a su volumen normal.
+        appVolume?.resetAll()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -43,13 +49,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let calendar = CalendarService()
         let focus = FocusTimer()
         let mail = MailService()
+        let appVolume = AppVolume()
         mail.onNew = { [weak hud] message in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail) else { return }
             hud?.show(.mail(sender: message.sender), for: 3)
         }
         hud.focus = focus
         hud.calendar = calendar
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail)
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail, appVolume: appVolume)
         let monitor = ClipboardMonitor(store: store)
         let basket = BasketController(store: store, container: container)
         let dictation = Dictation()
@@ -80,6 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.basket = basket
         self.dictation = dictation
         self.ring = ring
+        self.appVolume = appVolume
         ring.actions = makeRingActions()
 
         notch.start()

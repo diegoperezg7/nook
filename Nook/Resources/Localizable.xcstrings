@@ -221,6 +221,16 @@
         }
       }
     },
+    "Activar sonido": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmute"
+          }
+        }
+      }
+    },
     "Actualizar": {
       "localizations": {
         "en": {
@@ -247,6 +257,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Now"
+          }
+        }
+      }
+    },
+    "Ahora no suena ninguna app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps are playing sound"
           }
         }
       }
@@ -1831,6 +1851,16 @@
         }
       }
     },
+    "Silenciar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute"
+          }
+        }
+      }
+    },
     "Sin acceso al portapapeles": {
       "localizations": {
         "en": {
@@ -2161,6 +2191,16 @@
         }
       }
     },
+    "Volumen por app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per-App Volume"
+          }
+        }
+      }
+    },
     "abre el historial desde cualquier app": {
       "localizations": {
         "en": {
@@ -2177,6 +2217,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "in %lld min"
+          }
+        }
+      }
+    },
+    "macOS no ha dejado captar el sonido. Revisa el permiso en Ajustes del Sistema > Privacidad > Grabación de audio.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS didn't allow capturing the sound. Check the permission in System Settings > Privacy > Audio Recording."
           }
         }
       }

@@ -18,6 +18,8 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Nook capta el sonido de la app que elijas solo para subirle o bajarle el volumen. No graba ni guarda nada.</string>
 	<key>NSServices</key>
 	<array>
 		<dict>

@@ -11,6 +11,8 @@ struct NotchContentView: View {
     @Environment(CalendarService.self) private var calendarService
     @Environment(FocusTimer.self) private var focus
     @Environment(MailService.self) private var mail
+    @Environment(AppVolume.self) private var appVolume
+    @State private var showVolume = false
     @State private var showAlarm = false
     @State private var alarmTime = Date.now.addingTimeInterval(3600)
     @Namespace private var tabNamespace
@@ -60,6 +62,7 @@ struct NotchContentView: View {
                     .accessibilityLabel(Text("Añadir archivos…"))
                     .transition(.scale.combined(with: .opacity))
                 }
+                volumeButton
                 if mail.isEnabled { mailButton }
                 timerMenu
                 menu
@@ -90,6 +93,26 @@ struct NotchContentView: View {
     private func tabButton(_ tab: NotchViewModel.Tab, title: LocalizedStringKey, icon: String, logo: NSImage? = nil) -> some View {
         TabButton(title: title, icon: icon, logo: logo, selected: model.tab == tab, namespace: tabNamespace) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
+        }
+    }
+
+    /// Volumen de cada app que esta sonando, como el sonido del Centro de control.
+    private var volumeButton: some View {
+        Button {
+            appVolume.refresh()
+            model.isPreviewing = true
+            showVolume = true
+        } label: {
+            CircleIconLabel(icon: "speaker.wave.2.fill", active: !appVolume.volumes.isEmpty)
+        }
+        .buttonStyle(.plain)
+        .help(Text("Volumen por app"))
+        .accessibilityLabel(Text("Volumen por app"))
+        .popover(isPresented: $showVolume, arrowEdge: .bottom) {
+            AppVolumePanel(volume: appVolume)
+        }
+        .onChange(of: showVolume) { _, shown in
+            if !shown { model.isPreviewing = false }
         }
     }
 
