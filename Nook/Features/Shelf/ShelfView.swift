@@ -46,21 +46,14 @@ struct ItemStrip: View {
     let model: NotchViewModel
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 12) {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                    ItemCard(
-                        item: item, store: store, index: index,
-                        onCopied: model.didCopy,
-                        onDragStart: model.beginDragOut,
-                        onPreviewChange: { model.isPreviewing = $0 }
-                    )
-                    .transition(.scale(scale: 0.85).combined(with: .opacity))
-                }
-            }
-            // Margen vertical para que el zoom y la sombra del hover no se corten.
-            .padding(.horizontal, NotchContentView.margin)
-            .padding(.vertical, 8)
+        Carousel(data: items) { index, item in
+            ItemCard(
+                item: item, store: store, index: index,
+                onCopied: model.didCopy,
+                onDragStart: model.beginDragOut,
+                onPreviewChange: { model.isPreviewing = $0 }
+            )
+            .transition(.scale(scale: 0.85).combined(with: .opacity))
         }
         .frame(height: NotchMetrics.cardRowHeight)
     }

@@ -19,7 +19,7 @@ struct ItemCard: View {
     @State private var thumbnail: NSImage?
     @State private var showPeek = false
 
-    static let size = CGSize(width: 108, height: 120)
+    static let size = CGSize(width: 120, height: 120)
     private static let previewHeight: CGFloat = 76
     private static let corner: CGFloat = 14
 

@@ -38,6 +38,9 @@ enum AppColors {
     /// Ambar del semaforo: algo espera al usuario.
     static let warning = dynamic(light: 0xB86E00, dark: 0xF2A93B)
 
+    /// Naranja del Reloj de Apple: temporizador y alarmas, como en el sistema.
+    static let clock = Color(nsColor: .systemOrange)
+
     static let shadow = Color.black.opacity(0.28)
 
     private static func dynamic(light: UInt32, dark: UInt32, lightAlpha: CGFloat = 1, darkAlpha: CGFloat = 1) -> Color {

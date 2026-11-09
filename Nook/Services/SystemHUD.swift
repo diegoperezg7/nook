@@ -28,6 +28,7 @@ final class SystemHUD {
         case timer(end: Date, total: TimeInterval)
         case mediaInUse(mic: Bool, camera: Bool)
         case stayAwake(until: Date?)
+        case alarm(time: Date)
     }
 
     private(set) var current: Kind?
@@ -46,6 +47,7 @@ final class SystemHUD {
     /// La actividad que dura con mas prioridad: reunion > temporizador >
     /// microfono o camara > mantener despierto.
     var ambient: Kind? {
+        if let ringing = focus?.ringing { return .alarm(time: ringing) }
         if defaults.bool(forKey: SettingsKey.hudMeetings), let meeting = calendar?.imminentMeeting(at: now) {
             return .meeting(title: meeting.title, start: meeting.start)
         }

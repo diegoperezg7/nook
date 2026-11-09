@@ -10,6 +10,7 @@ struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
     @Environment(SystemHUD.self) private var hud
+    @Environment(FocusTimer.self) private var focus
 
     var body: some View {
         let metrics = model.metrics
@@ -51,6 +52,8 @@ struct NotchRootView: View {
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
             .animation(AppMotion.open, value: notice.map(HUDActivity.side(for:)))
+            // Abrir el notch para la alarma que esta sonando.
+            .onChange(of: model.isOpen) { _, open in if open { focus.silence() } }
             // Cerrado y con el raton encima, se asoma un poco desde arriba.
             .scaleEffect(model.isPeeking && !model.isOpen && !AppMotion.reduceMotion ? 1.02 : 1, anchor: .top)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.

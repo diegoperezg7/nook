@@ -83,22 +83,16 @@ struct ScreenshotsView: View {
     // MARK: - Tira
 
     private var strip: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 12) {
-                ForEach(library.shots) { shot in
-                    ScreenshotCard(
-                        shot: shot,
-                        selected: library.selection.contains(shot.url),
-                        onToggle: { withAnimation(AppMotion.snappy) { library.toggle(shot) } },
-                        onCopy: { copy([shot.url]) },
-                        onTrash: { withAnimation(AppMotion.snappy) { library.trash([shot.url]) } },
-                        onDragStart: model.beginDragOut
-                    )
-                    .transition(.scale(scale: 0.85).combined(with: .opacity))
-                }
-            }
-            .padding(.horizontal, NotchContentView.margin)
-            .padding(.vertical, 8)
+        Carousel(data: library.shots) { _, shot in
+            ScreenshotCard(
+                shot: shot,
+                selected: library.selection.contains(shot.url),
+                onToggle: { withAnimation(AppMotion.snappy) { library.toggle(shot) } },
+                onCopy: { copy([shot.url]) },
+                onTrash: { withAnimation(AppMotion.snappy) { library.trash([shot.url]) } },
+                onDragStart: model.beginDragOut
+            )
+            .transition(.scale(scale: 0.85).combined(with: .opacity))
         }
         .frame(height: NotchMetrics.cardRowHeight)
     }

@@ -12,7 +12,7 @@ struct HUDActivity: View {
         case .volume, .battery: return 58
         case .mediaInUse: return 44
         case .timer, .stayAwake: return 70
-        case .capsLock, .timerDone: return 96
+        case .capsLock, .timerDone, .alarm: return 96
         case .network, .meeting: return 104
         case .audioDevice, .download: return 112
         }
@@ -64,8 +64,11 @@ struct HUDActivity: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(online ? AppColors.success : AppColors.danger)
         case .timerDone:
-            Image(systemName: "timer").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.accent)
+            Image(systemName: "timer").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.clock)
                 .symbolEffect(.bounce, options: .repeat(3))
+        case .alarm:
+            Image(systemName: "alarm.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.clock)
+                .symbolEffect(.pulse)
         case .meeting:
             Image(systemName: "video.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
         case let .timer(end, total):
@@ -74,7 +77,7 @@ struct HUDActivity: View {
                 ZStack {
                     Circle().stroke(AppColors.notchText.opacity(0.2), lineWidth: 2.5)
                     Circle().trim(from: 0, to: total > 0 ? left / total : 0)
-                        .stroke(AppColors.accent, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                        .stroke(AppColors.clock, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                 }
                 .frame(width: 15, height: 15)
@@ -111,6 +114,10 @@ struct HUDActivity: View {
             Text(!online ? "Sin conexión" : vpn ? "VPN" : "Conectado").font(.system(size: 11, weight: .semibold))
         case .timerDone:
             Text("¡Tiempo!").font(.system(size: 12, weight: .bold))
+        case let .alarm(time):
+            Text(verbatim: time.formatted(date: .omitted, time: .shortened))
+                .font(.system(size: 12, weight: .bold).monospacedDigit())
+                .foregroundStyle(AppColors.clock)
         case let .meeting(_, start):
             TimelineView(.periodic(from: .now, by: 15)) { context in
                 let minutes = Int((start.timeIntervalSince(context.date) / 60).rounded(.up))
@@ -122,6 +129,7 @@ struct HUDActivity: View {
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 Text(verbatim: Self.clock(end.timeIntervalSince(context.date)))
                     .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(AppColors.clock)
             }
         case let .mediaInUse(mic, camera):
             if mic && camera {

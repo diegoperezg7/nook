@@ -32,14 +32,8 @@ struct AgentsView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: NotchMetrics.cardRowHeight)
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 12) {
-                        ForEach(monitor.sessions) { session in
-                            AgentCard(session: session)
-                        }
-                    }
-                    .padding(.horizontal, NotchContentView.margin)
-                    .padding(.vertical, 8)
+                Carousel(data: monitor.sessions) { _, session in
+                    AgentCard(session: session)
                 }
                 .frame(height: NotchMetrics.cardRowHeight)
             }

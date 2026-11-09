@@ -10,6 +10,8 @@ struct NotchContentView: View {
     @Environment(AgentMonitor.self) private var agents
     @Environment(CalendarService.self) private var calendarService
     @Environment(FocusTimer.self) private var focus
+    @State private var showAlarm = false
+    @State private var alarmTime = Date.now.addingTimeInterval(3600)
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -87,8 +89,8 @@ struct NotchContentView: View {
         }
     }
 
-    /// Temporizador (Pomodoro) y Mantener despierto. El boton se pone azul mientras
-    /// alguno de los dos esta en marcha.
+    /// Temporizador (Pomodoro), alarmas y Mantener despierto. El boton se pone
+    /// naranja (como el Reloj de Apple) mientras hay algo en marcha.
     private var timerMenu: some View {
         Menu {
             Section("Temporizador") {
@@ -99,6 +101,20 @@ struct NotchContentView: View {
                     Button(minutes == 25 ? String(localized: "Pomodoro · 25 min") : String(localized: "\(minutes) min")) {
                         focus.start(minutes: minutes)
                     }
+                }
+            }
+            Section("Alarmas") {
+                ForEach(focus.alarms, id: \.self) { date in
+                    Button {
+                        focus.removeAlarm(date)
+                    } label: {
+                        Label(String(localized: "Quitar alarma de las \(date.formatted(date: .omitted, time: .shortened))"), systemImage: "alarm")
+                    }
+                }
+                Button("Nueva alarma…", systemImage: "plus") {
+                    alarmTime = FocusTimer.nextOccurrence(of: .now.addingTimeInterval(3600))
+                    model.isPreviewing = true
+                    showAlarm = true
                 }
             }
             Section("Mantener despierto") {
@@ -113,13 +129,26 @@ struct NotchContentView: View {
                 Button("Hasta que lo pare") { focus.stayAwake(minutes: nil) }
             }
         } label: {
-            CircleIconLabel(icon: focus.isRunning ? "timer" : focus.isAwake ? "cup.and.saucer.fill" : "timer", active: focus.isRunning || focus.isAwake)
+            CircleIconLabel(
+                icon: focus.isRunning ? "timer" : !focus.alarms.isEmpty ? "alarm.fill" : focus.isAwake ? "cup.and.saucer.fill" : "timer",
+                active: focus.isRunning || focus.isAwake || !focus.alarms.isEmpty,
+                activeColor: focus.isRunning || !focus.alarms.isEmpty ? AppColors.clock : AppColors.accent
+            )
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
-        .help(Text("Temporizador y mantener despierto"))
+        .help(Text("Temporizador, alarmas y mantener despierto"))
+        .popover(isPresented: $showAlarm, arrowEdge: .bottom) {
+            AlarmPicker(time: $alarmTime) {
+                focus.addAlarm(at: alarmTime)
+                showAlarm = false
+            }
+        }
+        .onChange(of: showAlarm) { _, shown in
+            if !shown { model.isPreviewing = false }
+        }
     }
 
     private var menu: some View {
@@ -249,18 +278,59 @@ private struct TabButton: View {
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
 private struct CircleIconLabel: View {
     let icon: String
-    /// Algo en marcha (temporizador...): icono azul fijo.
+    /// Algo en marcha (temporizador...): icono en color fijo.
     var active = false
+    var activeColor = AppColors.accent
     @State private var hovering = false
 
     var body: some View {
         Image(systemName: icon)
             .font(.system(size: 13, weight: .bold))
-            .foregroundStyle(hovering || active ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
+            .foregroundStyle(active ? activeColor : hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
             .frame(width: 30, height: 30)
             .liquidGlass(in: Circle(), interactive: true)
             .contentShape(Circle())
             .onHover { hovering = $0 }
             .animation(AppMotion.snappy, value: hovering)
+    }
+}
+
+/// Elegir la hora de una alarma, al estilo del Reloj de Apple: la hora grande y
+/// el boton naranja.
+private struct AlarmPicker: View {
+    @Binding var time: Date
+    let onAdd: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("Nueva alarma")
+                .font(AppTypography.bodyStrong)
+                .foregroundStyle(AppColors.textSecondary)
+            DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
+                .labelsHidden()
+                .datePickerStyle(.stepperField)
+                .font(.system(size: 22, weight: .light).monospacedDigit())
+            Text(verbatim: summary)
+                .font(AppTypography.subtitle)
+                .foregroundStyle(AppColors.textSecondary)
+            Button(action: onAdd) {
+                Text("Añadir")
+                    .font(AppTypography.bodyStrong)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 28)
+                    .background(Capsule().fill(AppColors.clock))
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut(.defaultAction)
+        }
+        .padding(16)
+        .frame(width: 200)
+    }
+
+    /// "Hoy" o "Mañana", segun si esa hora ya ha pasado.
+    private var summary: String {
+        let next = FocusTimer.nextOccurrence(of: time)
+        return Calendar.current.isDateInToday(next) ? String(localized: "Sonará hoy") : String(localized: "Sonará mañana")
     }
 }

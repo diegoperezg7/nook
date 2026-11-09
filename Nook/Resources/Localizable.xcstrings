@@ -241,6 +241,26 @@
         }
       }
     },
+    "Alarmas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alarms"
+          }
+        }
+      }
+    },
+    "Anteriores": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous"
+          }
+        }
+      }
+    },
     "App": {
       "localizations": {
         "en": {
@@ -1051,6 +1071,26 @@
         }
       }
     },
+    "Nueva alarma": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Alarm"
+          }
+        }
+      }
+    },
+    "Nueva alarma…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Alarm…"
+          }
+        }
+      }
+    },
     "Ocultar en capturas de pantalla": {
       "localizations": {
         "en": {
@@ -1171,6 +1211,16 @@
         }
       }
     },
+    "Quitar alarma de las %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@ Alarm"
+          }
+        }
+      }
+    },
     "Quitar selección": {
       "localizations": {
         "en": {
@@ -1251,6 +1301,16 @@
         }
       }
     },
+    "Siguientes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
     "Sin acceso al portapapeles": {
       "localizations": {
         "en": {
@@ -1301,6 +1361,26 @@
         }
       }
     },
+    "Sonará hoy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rings today"
+          }
+        }
+      }
+    },
+    "Sonará mañana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rings tomorrow"
+          }
+        }
+      }
+    },
     "Suelta para guardar": {
       "localizations": {
         "en": {
@@ -1327,6 +1407,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Timer and Keep Awake"
+          }
+        }
+      }
+    },
+    "Temporizador, alarmas y mantener despierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer, Alarms and Keep Awake"
           }
         }
       }
