@@ -30,6 +30,8 @@ final class SystemHUD {
         /// Bateria de AirPods, teclado o raton (al conectar o cuando queda poca).
         case accessory(name: String, icon: String, level: Int, low: Bool)
         case notification(bundleID: String, title: String, body: String)
+        /// Un agente termino o te espera.
+        case agent(project: String?, waiting: Bool)
         // Actividades que duran.
         case meeting(title: String, start: Date)
         case timer(end: Date, total: TimeInterval)

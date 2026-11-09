@@ -153,4 +153,25 @@ final class AgentMonitorTests: XCTestCase {
         XCTAssertTrue(AgentSources.codexThreads(home: home).isEmpty)
         XCTAssertTrue(AgentSources.claudeSessions(home: home).isEmpty)
     }
+
+    // MARK: Avisos
+
+    private func status(_ id: String, _ status: AgentSession.Status) -> AgentSession {
+        AgentSession(id: id, tool: .claudeTerminal, project: "nook", status: status,
+                     updatedAt: .now, tokens: nil, model: nil)
+    }
+
+    func testFinishAndWaitingAreNotified() {
+        let old = [status("a", .running), status("b", .running), status("c", .pending(nil)), status("d", .finished)]
+        let new = [status("a", .finished), status("b", .pending("permiso")), status("c", .pending(nil)),
+                   status("d", .running), status("e", .pending(nil))]
+        let events = AgentSources.events(from: old, to: new)
+        XCTAssertEqual(events.map(\.0.id), ["a", "b"])
+        XCTAssertEqual(events.map(\.1), [.finished, .waiting])
+    }
+
+    func testPidIsRead() {
+        let session = AgentSources.claudeSession(from: ["sessionId": "x", "status": "busy", "entrypoint": "cli", "pid": 4242])
+        XCTAssertEqual(session?.pid, 4242)
+    }
 }

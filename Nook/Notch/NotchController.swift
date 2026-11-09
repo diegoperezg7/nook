@@ -230,6 +230,9 @@ final class NotchController {
                 // Con una reunion a punto de empezar se abre en el calendario (Unirse).
                 if case .meeting = self.hud.ambient {
                     self.model.open(reason: .hover, tab: .calendar)
+                } else if case .agent = self.hud.current {
+                    // Con el aviso de un agente, a sus tarjetas (un clic y a su terminal).
+                    self.model.open(reason: .hover, tab: .agents)
                 } else {
                     self.model.open(reason: .hover)
                 }

@@ -33,7 +33,9 @@ struct AgentsView: View {
                     .frame(height: NotchMetrics.cardRowHeight)
             } else {
                 Carousel(data: monitor.sessions) { _, session in
-                    AgentCard(session: session)
+                    Button { monitor.focus(session) } label: { AgentCard(session: session) }
+                        .buttonStyle(.plain)
+                        .help(Text("Ir a su terminal"))
                 }
                 .frame(height: NotchMetrics.cardRowHeight)
             }

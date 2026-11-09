@@ -37,6 +37,8 @@ enum SettingsKey {
     static let windowSnap = "windowSnap"
     static let selectionActions = "selectionActions"
     static let notifications = "notifications"
+    /// Aviso cuando un agente termina o te espera.
+    static let hudAgents = "hudAgents"
     /// Introduccion del primer arranque ya vista.
     static let onboardingDone = "onboardingDone"
     /// Lanzador con ⌥Espacio.
@@ -70,6 +72,7 @@ enum SettingsKey {
             hudMediaInUse: true,
             hudMeetings: true,
             hudMail: true,
+            hudAgents: true,
             mailEnabled: true,
             mailSource: "mail",
             basketOnShake: true,

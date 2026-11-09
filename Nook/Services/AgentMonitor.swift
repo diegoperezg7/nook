@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import Observation
 import SQLite3
@@ -37,6 +38,39 @@ final class AgentMonitor {
 
     @ObservationIgnored private let home: URL
     @ObservationIgnored private var refreshing = false
+    @ObservationIgnored private var hasLoaded = false
+    @ObservationIgnored private var timer: Timer?
+    /// Un agente termina o se queda esperando al usuario (para el aviso del notch).
+    @ObservationIgnored var onChange: ((AgentSession, AgentEvent) -> Void)?
+
+    /// Lee las sesiones cada pocos segundos (son ficheros pequeños) para avisar.
+    func start() {
+        Task { await refresh() }
+        timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                Task { await self.refresh() }
+            }
+        }
+    }
+
+    /// Trae delante la app donde corre la sesion (terminal o editor). Dentro de tmux
+    /// tambien elige su ventana y su panel, y sube desde el cliente que la muestra.
+    func focus(_ session: AgentSession) {
+        if let target = session.tmux, let tmux = AgentSources.tmuxPath {
+            Task.detached(priority: .userInitiated) {
+                let client = AgentSources.selectTmux(target, tmux: tmux)
+                await MainActor.run {
+                    if let client, let app = AgentSources.hostApp(of: client) { app.activate() }
+                }
+            }
+        } else if let pid = session.pid, let app = AgentSources.hostApp(of: pid) {
+            app.activate()
+        } else if session.tool == .claudeVSCode,
+                  let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.microsoft.VSCode") {
+            NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+        }
+    }
 
     nonisolated static let claudeUsageSnapshot = ".claude/nook-usage.json"
 
@@ -53,8 +87,13 @@ final class AgentMonitor {
             (AgentSources.claudeSessions(home: home) + AgentSources.codexThreads(home: home),
              AgentSources.claudeUsage(at: home.appendingPathComponent(AgentMonitor.claudeUsageSnapshot)))
         }.value
-        allSessions = snapshot.0.sorted { $0.updatedAt > $1.updatedAt }
-        claudeUsage = snapshot.1
+        let sorted = snapshot.0.sorted { $0.updatedAt > $1.updatedAt }
+        if hasLoaded {
+            for (session, event) in AgentSources.events(from: allSessions, to: sorted) { onChange?(session, event) }
+        }
+        hasLoaded = true
+        if sorted != allSessions { allSessions = sorted }
+        if snapshot.1 != claudeUsage { claudeUsage = snapshot.1 }
     }
 
     /// Carpeta personal real: dentro del sandbox `NSHomeDirectory()` es el contenedor.
@@ -105,7 +144,14 @@ struct AgentSession: Identifiable, Equatable, Sendable {
     /// Tokens de la sesion si la fuente los da (Codex); nil si no los expone.
     let tokens: Int?
     let model: String?
+    /// Proceso de la sesion (Claude Code), para llevarte a su terminal.
+    var pid: pid_t?
+    /// Panel de tmux donde corre ("sesion:@ventana.%panel"), si va dentro de tmux.
+    var tmux: String?
 }
+
+/// Lo que merece un aviso.
+enum AgentEvent: Equatable { case finished, waiting }
 
 /// Consumo de la suscripcion: ventanas con su porcentaje usado.
 struct SubscriptionUsage: Equatable, Sendable {
@@ -170,8 +216,79 @@ enum AgentSources {
             status: status,
             updatedAt: millis.map { Date(timeIntervalSince1970: $0.doubleValue / 1000) } ?? .distantPast,
             tokens: nil,
-            model: nil
+            model: nil,
+            pid: (object["pid"] as? NSNumber).map { pid_t($0.int32Value) },
+            tmux: (object["tmux"] as? String).flatMap { $0.isEmpty ? nil : $0 }
         )
+    }
+
+    /// Cambios que avisan: de "en curso" a terminada, o a esperar al usuario. Las
+    /// sesiones nuevas no avisan (no se sabe que hacian antes).
+    static func events(from old: [AgentSession], to new: [AgentSession]) -> [(AgentSession, AgentEvent)] {
+        new.compactMap { session in
+            guard let before = old.first(where: { $0.id == session.id })?.status else { return nil }
+            switch (before, session.status) {
+            case (.running, .finished): return (session, .finished)
+            case (.pending, .pending): return nil
+            case (_, .pending): return (session, .waiting)
+            default: return nil
+            }
+        }
+    }
+
+    nonisolated static var tmuxPath: String? {
+        ["/opt/homebrew/bin/tmux", "/usr/local/bin/tmux", "/usr/bin/tmux"].first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
+    /// Selecciona la ventana y el panel de tmux ("sesion:@ventana.%panel") y devuelve
+    /// el proceso del cliente que muestra esa sesion.
+    nonisolated static func selectTmux(_ target: String, tmux: String) -> pid_t? {
+        let parts = target.split(separator: ":", maxSplits: 1)
+        guard parts.count == 2 else { return nil }
+        let session = String(parts[0])
+        let rest = parts[1].split(separator: ".", maxSplits: 1)
+        if let window = rest.first { run(tmux, ["select-window", "-t", "\(session):\(window)"]) }
+        if rest.count == 2 { run(tmux, ["select-pane", "-t", String(rest[1])]) }
+        let clients = run(tmux, ["list-clients", "-t", session, "-F", "#{client_activity} #{client_pid}"])
+        // El cliente usado mas recientemente, si hay varios.
+        return clients.split(separator: "\n")
+            .compactMap { line -> (Int, pid_t)? in
+                let fields = line.split(separator: " ")
+                guard fields.count == 2, let activity = Int(fields[0]), let pid = pid_t(fields[1]) else { return nil }
+                return (activity, pid)
+            }
+            .max { $0.0 < $1.0 }?.1
+    }
+
+    @discardableResult
+    nonisolated private static func run(_ path: String, _ arguments: [String]) -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: path)
+        process.arguments = arguments
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        guard (try? process.run()) != nil else { return "" }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        return String(decoding: data, as: UTF8.self)
+    }
+
+    /// La app (con ventana) de la que cuelga un proceso: se sube por los padres.
+    @MainActor
+    static func hostApp(of pid: pid_t) -> NSRunningApplication? {
+        var current = pid
+        for _ in 0..<12 {
+            if let app = NSRunningApplication(processIdentifier: current), app.activationPolicy == .regular { return app }
+            var info = kinfo_proc()
+            var size = MemoryLayout<kinfo_proc>.size
+            var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, current]
+            guard sysctl(&mib, 4, &info, &size, nil, 0) == 0, size > 0 else { return nil }
+            let parent = info.kp_eproc.e_ppid
+            guard parent > 1, parent != current else { return nil }
+            current = parent
+        }
+        return nil
     }
 
     static func claudeUsage(at url: URL) -> SubscriptionUsage? {

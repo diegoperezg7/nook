@@ -452,9 +452,10 @@ struct NoticeGrid: View {
     @AppStorage(SettingsKey.hudMeetings) private var meetings = true
     @AppStorage(SettingsKey.hudMail) private var mailNotice = true
     @AppStorage(SettingsKey.notifications) private var notifications = true
+    @AppStorage(SettingsKey.hudAgents) private var agents = true
 
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 8) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 8) {
             Chip(symbol: "speaker.wave.2.fill", title: "Volumen", isOn: $volume)
             Chip(symbol: "battery.75percent", title: "Batería", isOn: $battery)
             Chip(symbol: "airpods", title: "Bluetooth", isOn: $devices)
@@ -465,6 +466,7 @@ struct NoticeGrid: View {
             Chip(symbol: "video.fill", title: "Reuniones", isOn: $meetings)
             Chip(symbol: "envelope.fill", title: "Correo", isOn: $mailNotice)
             Chip(symbol: "bell.fill", title: "Notificaciones", isOn: $notifications)
+            Chip(symbol: "sparkles", title: "Agentes de IA", isOn: $agents)
         }
     }
 }

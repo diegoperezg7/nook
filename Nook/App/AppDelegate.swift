@@ -69,6 +69,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail) else { return }
             hud?.show(.mail(sender: message.sender), for: 3)
         }
+        agents.onChange = { [weak hud] session, event in
+            guard UserDefaults.standard.bool(forKey: SettingsKey.hudAgents) else { return }
+            hud?.show(.agent(project: session.project, waiting: event == .waiting), for: event == .waiting ? 6 : 4)
+        }
         hud.focus = focus
         hud.calendar = calendar
         let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail, battery: battery)
@@ -117,6 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hud.start()
         calendar.start()
         mail.start()
+        agents.start()
         battery.start()
         basket.start()
         store.trimHistory()
