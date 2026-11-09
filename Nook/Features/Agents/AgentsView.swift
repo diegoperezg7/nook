@@ -186,7 +186,7 @@ private struct AgentCard: View {
             .lineLimit(1)
         }
         .padding(10)
-        .frame(width: 200, height: 120, alignment: .topLeading)
+        .frame(width: 172, height: 120, alignment: .topLeading)
         .liquidGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 

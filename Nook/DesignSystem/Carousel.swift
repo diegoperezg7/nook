@@ -14,8 +14,6 @@ struct Carousel<Data: RandomAccessCollection, Card: View>: View where Data.Eleme
     @State private var position: Data.Element.ID?
     @State private var content: CGRect = .zero
     @State private var viewport: CGFloat = 0
-    @State private var hovering = false
-
     private static var space: String { "carousel" }
     private let margin = NotchContentView.margin
 
@@ -43,18 +41,15 @@ struct Carousel<Data: RandomAccessCollection, Card: View>: View where Data.Eleme
         .mask(Rectangle().padding(.horizontal, -6))
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { viewport = $0 }
         .overlay(alignment: .leading) {
-            if hovering, canGoBack { arrow(-1).offset(x: -10) }
+            if canGoBack { arrow(-1).offset(x: -10) }
         }
         .overlay(alignment: .trailing) {
-            if hovering, canGoForward { arrow(1).offset(x: 10) }
+            // Siempre a la vista: asi se sabe que hay mas sin pasar el raton.
+            if canGoForward { arrow(1).offset(x: 10) }
         }
-        .animation(AppMotion.snappy, value: hovering)
         .animation(AppMotion.snappy, value: canGoBack)
         .animation(AppMotion.snappy, value: canGoForward)
         .padding(.horizontal, margin)
-        .onContinuousHover { phase in
-            if case .active = phase { hovering = true } else { hovering = false }
-        }
     }
 
     /// Hueco para que quepan tarjetas enteras: tantas como entren con el minimo y
