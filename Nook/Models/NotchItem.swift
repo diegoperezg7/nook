@@ -26,6 +26,11 @@ final class NotchItem {
     var externalPath: String?
     var contentHash: String
     var isPinned: Bool
+    /// Texto reconocido en una imagen (OCR local): la busqueda tambien mira aqui.
+    /// Vacio si no se encontro texto; nil si aun no se ha analizado.
+    var recognizedText: String?
+    /// App desde la que se copio (historial).
+    var sourceBundleID: String?
 
     init(
         id: UUID = UUID(),
@@ -37,7 +42,9 @@ final class NotchItem {
         storedPath: String? = nil,
         externalPath: String? = nil,
         contentHash: String,
-        isPinned: Bool = false
+        isPinned: Bool = false,
+        recognizedText: String? = nil,
+        sourceBundleID: String? = nil
     ) {
         self.id = id
         self.kindRaw = kind.rawValue
@@ -49,13 +56,62 @@ final class NotchItem {
         self.externalPath = externalPath
         self.contentHash = contentHash
         self.isPinned = isPinned
+        self.recognizedText = recognizedText
+        self.sourceBundleID = sourceBundleID
     }
 
     var kind: ItemKind { ItemKind(rawValue: kindRaw) ?? .text }
     var origin: ItemOrigin { ItemOrigin(rawValue: originRaw) ?? .clipboard }
 
     func matches(_ query: String) -> Bool {
-        let haystack = [text, fileName].compactMap { $0 }
+        let haystack = [text, fileName, recognizedText].compactMap { $0 }
         return haystack.contains { $0.localizedCaseInsensitiveContains(query) }
+    }
+}
+
+/// Filtro por tipo del historial.
+enum HistoryFilter: String, CaseIterable, Identifiable {
+    case all, text, links, images, files
+
+    var id: String { rawValue }
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .all: return "Todo"
+        case .text: return "Texto"
+        case .links: return "Enlaces"
+        case .images: return "Imágenes"
+        case .files: return "Archivos"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .all: return "square.grid.2x2"
+        case .text: return "text.alignleft"
+        case .links: return "link"
+        case .images: return "photo"
+        case .files: return "doc"
+        }
+    }
+
+    func includes(_ item: NotchItem) -> Bool {
+        switch self {
+        case .all: return true
+        case .text: return item.kind == .text && !item.isLink
+        case .links: return item.isLink
+        case .images: return item.kind == .image
+        case .files: return item.kind == .file
+        }
+    }
+}
+
+extension NotchItem {
+    /// Texto que es solo un enlace web.
+    var isLink: Bool {
+        guard kind == .text, let text = text?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !text.contains(where: \.isWhitespace),
+              let url = URL(string: text), let scheme = url.scheme?.lowercased() else { return false }
+        return (scheme == "http" || scheme == "https") && url.host != nil
     }
 }

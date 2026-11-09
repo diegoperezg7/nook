@@ -6,6 +6,8 @@ enum SettingsKey {
     static let historyLimit = "historyLimit"
     static let hotKeyEnabled = "hotKeyEnabled"
     static let showWithoutNotch = "showWithoutNotch"
+    /// El panel no sale en capturas ni grabaciones de pantalla.
+    static let hideFromCaptures = "hideFromCaptures"
 
     /// 0 = sin limite: el historial solo se borra cuando lo pide el usuario.
     static let unlimitedHistory = 0
@@ -17,6 +19,7 @@ enum SettingsKey {
             historyLimit: unlimitedHistory,
             hotKeyEnabled: true,
             showWithoutNotch: true,
+            hideFromCaptures: true,
         ])
     }
 }

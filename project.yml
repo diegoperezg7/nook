@@ -26,10 +26,24 @@ targets:
         - NookTests
     # Sandbox desde el primer dia: no hace falta ningun permiso que lo impida
     # (sin Accesibilidad ni Grabacion de pantalla) y deja abierta la Mac App Store.
+    # Servicio de Finder: clic derecho > Servicios > Añadir a Nook.
+    info:
+      path: Nook/Info.plist
+      properties:
+        NSServices:
+          - NSMenuItem:
+              default: Añadir a Nook
+            NSMessage: addToNook
+            NSPortName: Nook
+            NSRequiredContext: {}
+            NSSendFileTypes:
+              - public.item
     entitlements:
       path: Nook/Nook.entitlements
       properties:
         com.apple.security.app-sandbox: true
+        # Archivos elegidos en el panel de abrir (boton "+").
+        com.apple.security.files.user-selected.read-only: true
         # Solo lectura de los datos de los nombres anteriores de la app (Perch,
         # Notchbin): se importan una vez al arrancar para no perder nada.
         com.apple.security.temporary-exception.files.home-relative-path.read-only:

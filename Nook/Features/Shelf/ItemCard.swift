@@ -60,10 +60,18 @@ struct ItemCard: View {
                     .foregroundStyle(AppColors.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                Text(item.createdAt, style: .relative)
-                    .font(AppTypography.cardCaption)
-                    .foregroundStyle(AppColors.textSecondary)
-                    .lineLimit(1)
+                HStack(spacing: 4) {
+                    if let source = AppIcons.icon(for: item.sourceBundleID) {
+                        Image(nsImage: source)
+                            .resizable()
+                            .frame(width: 12, height: 12)
+                            .help(Text(verbatim: AppIcons.name(for: item.sourceBundleID) ?? ""))
+                    }
+                    Text(item.createdAt, style: .relative)
+                        .font(AppTypography.cardCaption)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .lineLimit(1)
+                }
             }
             .padding(.horizontal, 3)
         }
@@ -330,5 +338,24 @@ struct ItemCard: View {
         guard item.kind != .text, let url = store.fileURL(for: item) else { return }
         let image = await Thumbnails.image(for: url)
         withAnimation(.easeOut(duration: 0.2)) { thumbnail = image }
+    }
+}
+
+/// Icono y nombre de la app de la que se copio algo (con cache).
+enum AppIcons {
+    private static let cache = NSCache<NSString, NSImage>()
+
+    static func icon(for bundleID: String?) -> NSImage? {
+        guard let bundleID else { return nil }
+        if let cached = cache.object(forKey: bundleID as NSString) { return cached }
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return nil }
+        let icon = NSWorkspace.shared.icon(forFile: url.path)
+        cache.setObject(icon, forKey: bundleID as NSString)
+        return icon
+    }
+
+    static func name(for bundleID: String?) -> String? {
+        guard let bundleID, let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return nil }
+        return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
     }
 }

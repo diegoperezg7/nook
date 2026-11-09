@@ -15,26 +15,27 @@ struct ClipboardView: View {
     private var items: [NotchItem]
 
     @FocusState private var searchFocused: Bool
+    @State private var filter = HistoryFilter.all
     @AppStorage(SettingsKey.captureClipboard) private var captureEnabled = true
 
     private var visibleItems: [NotchItem] {
         let query = model.searchText.trimmingCharacters(in: .whitespaces)
-        let filtered = query.isEmpty ? items : items.filter { $0.matches(query) }
+        let filtered = items.filter { filter.includes($0) && (query.isEmpty || $0.matches(query)) }
         return filtered.filter(\.isPinned) + filtered.filter { !$0.isPinned }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 searchField
                 if let notice {
                     notice
                 }
+                filterBar
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, NotchContentView.margin)
-            .padding(.top, 2)
-            .padding(.bottom, 4)
+            .padding(.bottom, 6)
 
             if visibleItems.isEmpty {
                 emptyState
@@ -50,8 +51,8 @@ struct ClipboardView: View {
     private var searchField: some View {
         HStack(spacing: 7) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(AppColors.textSecondary)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(searchFocused ? AppColors.accent : AppColors.textSecondary)
             TextField("Buscar en el historial", text: $model.searchText)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
@@ -65,9 +66,9 @@ struct ClipboardView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 11)
-        .frame(height: 30)
-        .frame(maxWidth: 260)
+        .padding(.horizontal, 12)
+        .frame(height: 32)
+        .frame(maxWidth: .infinity)
         .background(Capsule().fill(AppColors.controlTrack))
         .overlay(
             Capsule()
@@ -76,6 +77,32 @@ struct ClipboardView: View {
         .contentShape(Capsule())
         .onTapGesture { searchFocused = true }
         .animation(AppMotion.snappy, value: searchFocused)
+    }
+
+    /// Filtro por tipo: iconos en un carril; el activo en azul.
+    private var filterBar: some View {
+        HStack(spacing: 2) {
+            ForEach(HistoryFilter.allCases) { option in
+                let selected = filter == option
+                Button {
+                    withAnimation(AppMotion.snappy) { filter = option }
+                } label: {
+                    Image(systemName: option.icon)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(selected ? AppColors.onAccent : AppColors.textPrimary.opacity(0.75))
+                        .frame(width: 30, height: 26)
+                        .background { if selected { Capsule().fill(AppColors.accent) } }
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .help(Text(option.title))
+                .accessibilityLabel(Text(option.title))
+            }
+        }
+        .padding(3)
+        .background(Capsule().fill(AppColors.controlTrack))
+        .overlay(Capsule().strokeBorder(AppColors.cardBorder, lineWidth: 0.5))
+        .fixedSize()
     }
 
     /// Aviso cuando el historial no se esta guardando y por que.
@@ -94,22 +121,41 @@ struct ClipboardView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 6) {
-            Image(systemName: model.searchText.isEmpty ? "list.clipboard" : "magnifyingglass")
-                .font(.system(size: 22, weight: .regular))
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(AppColors.textPrimary)
-            Text(model.searchText.isEmpty ? "Copia algo y aparecerá aquí" : "Sin resultados")
-                .font(AppTypography.title)
-                .foregroundStyle(AppColors.textPrimary)
-            if model.searchText.isEmpty {
-                Text("⌃⌘V abre el historial desde cualquier app")
-                    .font(AppTypography.subtitle)
-                    .foregroundStyle(AppColors.textSecondary)
+        VStack(spacing: 10) {
+            Image(systemName: model.searchText.isEmpty && filter == .all ? "list.clipboard" : "magnifyingglass")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(AppColors.accent)
+                .frame(width: 38, height: 38)
+                .background(Circle().fill(AppColors.accentWell))
+                .overlay(Circle().strokeBorder(AppColors.accentBorder, lineWidth: 1))
+            VStack(spacing: 6) {
+                Text(emptyTitle)
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.textPrimary)
+                if model.searchText.isEmpty, filter == .all {
+                    HStack(spacing: 6) {
+                        Text(verbatim: "⌃⌘V")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(AppColors.accent)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(AppColors.accentWell))
+                            .overlay(Capsule().strokeBorder(AppColors.accentBorder, lineWidth: 0.75))
+                        Text("abre el historial desde cualquier app")
+                            .font(AppTypography.subtitle)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.bottom, NotchContentView.margin)
         .transition(.opacity)
+    }
+
+    private var emptyTitle: LocalizedStringKey {
+        if !model.searchText.isEmpty || filter != .all { return "Sin resultados" }
+        return "Copia algo y aparecerá aquí"
     }
 
     private func copyFirst() {

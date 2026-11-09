@@ -77,15 +77,19 @@ final class ClipboardMonitor {
         let types = (pasteboard.types ?? []).map(\.rawValue)
         guard !ClipboardFilter.shouldIgnore(types: types) else { return }
 
+        // La app activa al detectar el cambio es la que copio (se mira cada 0,5 s).
+        let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        let source = front == Bundle.main.bundleIdentifier ? nil : front
+
         let urls = pasteboard.readObjects(
             forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]
         ) as? [URL] ?? []
         if !urls.isEmpty {
-            urls.prefix(ClipboardFilter.maxFilesPerCopy).forEach(store.captureFile)
+            urls.prefix(ClipboardFilter.maxFilesPerCopy).forEach { store.captureFile($0, source: source) }
         } else if let data = pasteboard.data(forType: .png) ?? pasteboard.data(forType: .tiff) {
-            store.captureImage(data)
+            store.captureImage(data, source: source)
         } else if let text = pasteboard.string(forType: .string) {
-            store.captureText(text)
+            store.captureText(text, source: source)
         }
     }
 }

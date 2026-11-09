@@ -27,6 +27,9 @@ enum AppColors {
     static let accent = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF)
     static let accentSoft = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.16, darkAlpha: 0.22)
     static let onAccent = Color.white
+    /// Velo y borde azul de las zonas interactivas en reposo (caja de soltar, controles).
+    static let accentWell = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.06, darkAlpha: 0.1)
+    static let accentBorder = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.4, darkAlpha: 0.5)
 
     static let danger = dynamic(light: 0xD93036, dark: 0xF2555A)
     static let success = dynamic(light: 0x1E9E5A, dark: 0x3CCB7F)

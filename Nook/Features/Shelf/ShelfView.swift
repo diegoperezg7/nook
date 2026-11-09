@@ -16,18 +16,18 @@ struct ShelfView: View {
     var body: some View {
         ZStack {
             if items.isEmpty {
-                DropHint(isTargeted: model.isDropTargeted)
-                    .padding(.horizontal, NotchContentView.margin)
-                    .padding(.top, 4)
-                    .padding(.bottom, NotchContentView.margin)
+                DropHint(isTargeted: model.isDropTargeted) {
+                    // El notch esta por encima de todo: se cierra para no tapar el dialogo.
+                    model.close()
+                    FileImporter.chooseFiles(into: store)
+                }
+                    .padding([.horizontal, .bottom], NotchContentView.margin)
             } else {
                 ItemStrip(items: items, store: store, model: model)
                     .overlay {
                         if model.isDropTargeted {
                             DropHint(isTargeted: true, overlay: true)
-                                .padding(.horizontal, NotchContentView.margin)
-                                .padding(.top, 4)
-                                .padding(.bottom, NotchContentView.margin)
+                                .padding([.horizontal, .bottom], NotchContentView.margin)
                                 .transition(.opacity)
                         }
                     }
@@ -63,37 +63,56 @@ struct ItemStrip: View {
     }
 }
 
-/// Zona de soltar: borde discontinuo que se vuelve azul y "late" al arrastrar encima.
+/// Zona de soltar: velo azul con borde discontinuo; al arrastrar encima se enciende.
+/// Esquinas de 16 pt: concentricas con las del panel (28 pt) a 16 pt de margen.
 struct DropHint: View {
     let isTargeted: Bool
     var overlay = false
+    /// Alternativa a arrastrar: abre el panel de elegir archivos.
+    var onChoose: (() -> Void)?
+
+    private static let corner: CGFloat = 16
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .strokeBorder(
-                isTargeted ? AppColors.accent : AppColors.textSecondary.opacity(0.35),
-                style: StrokeStyle(lineWidth: isTargeted ? 2 : 1.25, dash: [7, 6])
-            )
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isTargeted ? AppColors.accentSoft : AppColors.previewWell)
-                    .background {
-                        if overlay { RoundedRectangle(cornerRadius: 18, style: .continuous).fill(.regularMaterial) }
-                    }
+        let shape = RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
+        shape
+            .fill(isTargeted ? AppColors.accentSoft : AppColors.accentWell)
+            .background { if overlay { shape.fill(.regularMaterial) } }
+            .overlay(
+                shape.strokeBorder(
+                    isTargeted ? AppColors.accent : AppColors.accentBorder,
+                    style: StrokeStyle(lineWidth: isTargeted ? 2 : 1.25, dash: [6, 5])
+                )
             )
             .overlay {
-                VStack(spacing: 6) {
-                    Image(systemName: isTargeted ? "arrow.down.doc.fill" : "arrow.down.doc")
-                        .font(.system(size: 24, weight: .regular))
-                        .symbolRenderingMode(.hierarchical)
-                        .symbolEffect(.bounce, value: isTargeted)
-                    Text(isTargeted ? "Suelta para guardar" : "Arrastra aquí archivos, imágenes o texto")
-                        .font(AppTypography.title)
-                    Text("Se quedan a mano hasta que los saques")
-                        .font(AppTypography.subtitle)
-                        .foregroundStyle(AppColors.textSecondary)
+                VStack(spacing: 10) {
+                    Image(systemName: isTargeted ? "arrow.down" : "tray.and.arrow.down.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(AppColors.onAccent)
+                        .frame(width: 38, height: 38)
+                        .background(Circle().fill(AppColors.accent))
+                        .shadow(color: AppColors.accent.opacity(0.45), radius: 6, y: 2)
+                        .contentTransition(.symbolEffect(.replace))
+                        .scaleEffect(isTargeted && !AppMotion.reduceMotion ? 1.12 : 1)
+                    VStack(spacing: 4) {
+                        Text(isTargeted ? "Suelta para guardar" : "Arrastra aquí archivos, imágenes o texto")
+                            .font(AppTypography.title)
+                            .foregroundStyle(isTargeted ? AppColors.accent : AppColors.textPrimary)
+                        Text("Se quedan a mano hasta que los saques")
+                            .font(AppTypography.subtitle)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                    if let onChoose, !isTargeted {
+                        Button(action: onChoose) {
+                            Text("o elige archivos…")
+                                .font(AppTypography.bodyStrong)
+                                .foregroundStyle(AppColors.accent)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .foregroundStyle(isTargeted ? AppColors.accent : AppColors.textPrimary)
+                .padding(16)
             }
+            .animation(AppMotion.snappy, value: isTargeted)
     }
 }

@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKey: HotKey?
     private var settingsWindow: NSWindow?
     private var defaultsObserver: NSObjectProtocol?
+    private var services: ServiceProvider?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -39,6 +40,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch.start()
         monitor.start()
         store.trimHistory()
+        store.recognizeMissingText()
+
+        let services = ServiceProvider(store: store)
+        NSApp.servicesProvider = services
+        NSUpdateDynamicServices()
+        self.services = services
         applySettings()
 
         defaultsObserver = NotificationCenter.default.addObserver(
@@ -67,6 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             hotKey = nil
         }
         notch?.refreshScreen()
+        notch?.setHiddenFromCaptures(UserDefaults.standard.bool(forKey: SettingsKey.hideFromCaptures))
         store?.trimHistory()
     }
 

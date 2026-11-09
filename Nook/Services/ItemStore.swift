@@ -94,28 +94,29 @@ final class ItemStore {
 
     // MARK: - Historial
 
-    func captureText(_ text: String) {
+    func captureText(_ text: String, source: String? = nil) {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let hash = Self.hash(text)
         guard !bumpExisting(hash: hash) else { return }
-        insert(NotchItem(kind: .text, origin: .clipboard, text: text, contentHash: hash))
+        insert(NotchItem(kind: .text, origin: .clipboard, text: text, contentHash: hash, sourceBundleID: source))
         trimHistory()
     }
 
-    func captureImage(_ data: Data) {
+    func captureImage(_ data: Data, source: String? = nil) {
         let hash = Self.hash(data)
         guard !bumpExisting(hash: hash) else { return }
         guard let item = makeImageItem(data, origin: .clipboard, hash: hash) else { return }
+        item.sourceBundleID = source
         insert(item)
         trimHistory()
     }
 
-    func captureFile(_ url: URL) {
+    func captureFile(_ url: URL, source: String? = nil) {
         let hash = Self.hash(url.path)
         guard !bumpExisting(hash: hash) else { return }
         insert(NotchItem(
             kind: .file, origin: .clipboard, fileName: url.lastPathComponent,
-            externalPath: url.path, contentHash: hash
+            externalPath: url.path, contentHash: hash, sourceBundleID: source
         ))
         trimHistory()
     }
@@ -257,6 +258,34 @@ final class ItemStore {
     func insert(_ item: NotchItem) {
         context.insert(item)
         save()
+        recognizeText(in: item)
+    }
+
+    /// Busca texto en las imagenes guardadas para poder encontrarlas al buscar.
+    /// Se hace en segundo plano; `recognizedText` queda vacio si no hay texto.
+    func recognizeText(in item: NotchItem) {
+        guard item.recognizedText == nil, item.storedPath != nil,
+              let url = fileURL(for: item), FileActions.isImage(url) else { return }
+        let id = item.id
+        Task.detached(priority: .utility) { [weak self] in
+            let text = (try? FileActions.recognizeText(in: url)) ?? ""
+            await self?.setRecognizedText(text, forItem: id)
+        }
+    }
+
+    private func setRecognizedText(_ text: String, forItem id: UUID) {
+        var descriptor = FetchDescriptor<NotchItem>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        // El elemento pudo borrarse mientras se analizaba.
+        guard let item = try? context.fetch(descriptor).first else { return }
+        item.recognizedText = text
+        save()
+    }
+
+    /// Imagenes guardadas antes de que existiera la busqueda por texto.
+    func recognizeMissingText() {
+        let descriptor = FetchDescriptor<NotchItem>(predicate: #Predicate { $0.recognizedText == nil })
+        (try? context.fetch(descriptor))?.forEach(recognizeText)
     }
 
     private func removeFilesAndDelete(_ item: NotchItem) {

@@ -10,6 +10,7 @@
 		003C6E4DB629ABB0FBE9BCBD /* NotchPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85211BF4348740C571E070F0 /* NotchPanel.swift */; };
 		057E94EBFC1DCDF8E7C53CF5 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2988C736CCAF8A9213C411B /* AppSettings.swift */; };
 		0C664A5C897DC87CE1B511FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA003E269F1E0F3206F33F2 /* AppDelegate.swift */; };
+		107508E840EEEDAB19E78331 /* HistoryFeaturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F7823DCD380341A906632A /* HistoryFeaturesTests.swift */; };
 		11E1B35AEAC096AA7D4775EA /* NotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF27E7D4490EDDBE1D8BE9BE /* NotchShape.swift */; };
 		199FB57244FC9D268241BE7C /* ClipboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92CD6123F423D3A887A1A1C /* ClipboardView.swift */; };
 		1EA45C25154A858B376F3204 /* ShelfView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1FF9888B56832BAEE0031F9 /* ShelfView.swift */; };
@@ -19,12 +20,14 @@
 		2BB3602A4B19FC4C05F0C451 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 170212C508F45D65AB1B9513 /* Assets.xcassets */; };
 		2BC89E7CD9FDB6A48EDC12C8 /* NotchItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDBB41C044D6FE7DD35C1C9 /* NotchItem.swift */; };
 		30A59FA6278318A44BD649ED /* FileActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */; };
+		3870E74001E74F2543000F87 /* FileImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */; };
 		5CBDC3EABBAF0CE1A7E34C8A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8BFAD895F6326CEBC52A3C /* SettingsView.swift */; };
 		67F0AA8F8676C55EC0B3F9F5 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0703CC2EA9365ACDE4E73D12 /* AppColors.swift */; };
 		6B12A977BA9AEB9604BFBF01 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0306FA026889F8FA33579 /* NotchController.swift */; };
 		75F2BA6E0CF5FFD6A978F1ED /* AppTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8AFA3334D93034DA95A1EB /* AppTypography.swift */; };
 		765C762424EA2E930D719744 /* HotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D52E5AFBCF5050933B2E85 /* HotKey.swift */; };
 		7B375C3E484C6F18E7D0D436 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2C32D5C8F67C14ECA26D51 /* ClipboardMonitor.swift */; };
+		83AFA2FCDF479BBBC9F4A079 /* ServicesMenu.strings in Resources */ = {isa = PBXBuildFile; fileRef = 12F6B7D27BFA5649CA0C4184 /* ServicesMenu.strings */; };
 		8660AB314716BF15488962FC /* NotchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C7DC31F493BA6708B8D891 /* NotchViewModel.swift */; };
 		8D0A9910A0DA0086D2B3C609 /* DropReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB66BEFBE67290FF72A20FC /* DropReader.swift */; };
 		8D4CD8A37EA0EE8386DEA8EB /* FileActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */; };
@@ -53,13 +56,16 @@
 
 /* Begin PBXFileReference section */
 		007AA4253F285A9F465AE5F5 /* NotchMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchMetrics.swift; sourceTree = "<group>"; };
+		022144C0BA47F49B651F7CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0703CC2EA9365ACDE4E73D12 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		0BB66BEFBE67290FF72A20FC /* DropReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropReader.swift; sourceTree = "<group>"; };
+		10F7823DCD380341A906632A /* HistoryFeaturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryFeaturesTests.swift; sourceTree = "<group>"; };
 		170212C508F45D65AB1B9513 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AA0306FA026889F8FA33579 /* NotchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchController.swift; sourceTree = "<group>"; };
 		1E12DEFF243E7B4B84A7A135 /* NookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NookApp.swift; sourceTree = "<group>"; };
 		1FC91D5134A42734B16E0B8B /* NotchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchContentView.swift; sourceTree = "<group>"; };
 		2D8AFA3334D93034DA95A1EB /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
+		3962A19399805A00EC692FF6 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		3AA003E269F1E0F3206F33F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3F8BFAD895F6326CEBC52A3C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		3FC775FBE2FA5D57184584DC /* Nook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Nook.entitlements; sourceTree = "<group>"; };
@@ -69,8 +75,10 @@
 		4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStoreTests.swift; sourceTree = "<group>"; };
 		602FD69B4C2C9E727EBC2063 /* NotchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchRootView.swift; sourceTree = "<group>"; };
 		6AF31C476DBDFF1170647A72 /* Nook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		822BB33D3C50EBD983E28BE0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		85211BF4348740C571E070F0 /* NotchPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchPanel.swift; sourceTree = "<group>"; };
 		8B838B524EC00D7BEE032A3B /* ItemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStore.swift; sourceTree = "<group>"; };
+		8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporter.swift; sourceTree = "<group>"; };
 		9ED0324EB54CC305C7C511CA /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A2988C736CCAF8A9213C411B /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
@@ -104,6 +112,7 @@
 				AB2C32D5C8F67C14ECA26D51 /* ClipboardMonitor.swift */,
 				0BB66BEFBE67290FF72A20FC /* DropReader.swift */,
 				C095D2C6995D4B9DCD62E8C5 /* FileActions.swift */,
+				8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */,
 				C9D52E5AFBCF5050933B2E85 /* HotKey.swift */,
 				8B838B524EC00D7BEE032A3B /* ItemStore.swift */,
 				DA81A6D53766532D322DFE0B /* LegacyImport.swift */,
@@ -126,6 +135,7 @@
 			children = (
 				170212C508F45D65AB1B9513 /* Assets.xcassets */,
 				9ED0324EB54CC305C7C511CA /* Localizable.xcstrings */,
+				12F6B7D27BFA5649CA0C4184 /* ServicesMenu.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -142,6 +152,7 @@
 		726FFD2802A28B7087BEA2D4 /* Nook */ = {
 			isa = PBXGroup;
 			children = (
+				022144C0BA47F49B651F7CB0 /* Info.plist */,
 				3FC775FBE2FA5D57184584DC /* Nook.entitlements */,
 				429B79DE7CC19572CA1356C5 /* App */,
 				B9E0ECB4010FF1B17BABC4C0 /* DesignSystem */,
@@ -196,6 +207,7 @@
 			isa = PBXGroup;
 			children = (
 				E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */,
+				10F7823DCD380341A906632A /* HistoryFeaturesTests.swift */,
 				4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */,
 				478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */,
 				AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */,
@@ -319,6 +331,7 @@
 			files = (
 				2BB3602A4B19FC4C05F0C451 /* Assets.xcassets in Resources */,
 				9F62B875BB54039E08E7C42B /* Localizable.xcstrings in Resources */,
+				83AFA2FCDF479BBBC9F4A079 /* ServicesMenu.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +351,7 @@
 				199FB57244FC9D268241BE7C /* ClipboardView.swift in Sources */,
 				8D0A9910A0DA0086D2B3C609 /* DropReader.swift in Sources */,
 				30A59FA6278318A44BD649ED /* FileActions.swift in Sources */,
+				3870E74001E74F2543000F87 /* FileImporter.swift in Sources */,
 				765C762424EA2E930D719744 /* HotKey.swift in Sources */,
 				DECF331C9665469D551BD770 /* ItemCard.swift in Sources */,
 				C9DFFEA1F255B973B1956C1F /* ItemStore.swift in Sources */,
@@ -363,6 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D4CD8A37EA0EE8386DEA8EB /* FileActionsTests.swift in Sources */,
+				107508E840EEEDAB19E78331 /* HistoryFeaturesTests.swift in Sources */,
 				1F76E53B63D53B3331E218C7 /* ItemStoreTests.swift in Sources */,
 				91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */,
 				B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */,
@@ -378,6 +393,18 @@
 			targetProxy = 20FF74F2B6DAE5176A762127 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		12F6B7D27BFA5649CA0C4184 /* ServicesMenu.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				822BB33D3C50EBD983E28BE0 /* en */,
+				3962A19399805A00EC692FF6 /* es */,
+			);
+			name = ServicesMenu.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		259235495A4ED778BA9C9A78 /* Release */ = {
@@ -552,6 +579,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 3;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -576,6 +604,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 3;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nook;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;

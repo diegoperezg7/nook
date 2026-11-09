@@ -7,6 +7,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.historyLimit) private var historyLimit = SettingsKey.unlimitedHistory
     @AppStorage(SettingsKey.hotKeyEnabled) private var hotKeyEnabled = true
     @AppStorage(SettingsKey.showWithoutNotch) private var showWithoutNotch = true
+    @AppStorage(SettingsKey.hideFromCaptures) private var hideFromCaptures = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
 
@@ -41,6 +42,7 @@ struct SettingsView: View {
 
             Section("General") {
                 Toggle("Mostrar en pantallas sin notch", isOn: $showWithoutNotch)
+                Toggle("Ocultar en capturas de pantalla", isOn: $hideFromCaptures)
                 Toggle("Abrir al iniciar sesión", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, enabled in setLaunchAtLogin(enabled) }
             }

@@ -104,6 +104,11 @@ final class NotchController {
         panel.orderFrontRegardless()
     }
 
+    /// Fuera de capturas y grabaciones (el notch abierto puede tener cosas privadas).
+    func setHiddenFromCaptures(_ hidden: Bool) {
+        panel.sharingType = hidden ? .none : .readOnly
+    }
+
     func toggleFromHotKey() {
         if model.isOpen {
             model.close()

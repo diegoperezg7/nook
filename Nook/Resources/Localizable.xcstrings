@@ -81,12 +81,42 @@
         }
       }
     },
+    "Archivos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files"
+          }
+        }
+      }
+    },
     "Arrastra aquí archivos, imágenes o texto": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Drag files, images or text here"
+          }
+        }
+      }
+    },
+    "Añadir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        }
+      }
+    },
+    "Añadir archivos…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Files…"
           }
         }
       }
@@ -101,12 +131,22 @@
         }
       }
     },
-    "Borrar historial (salvo fijados)": {
+    "Borrar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear History (Keep Pinned)"
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "Borrar historial…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear History…"
           }
         }
       }
@@ -117,6 +157,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Search history"
+          }
+        }
+      }
+    },
+    "Cancelar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         }
       }
@@ -231,12 +281,32 @@
         }
       }
     },
+    "Elige lo que quieres dejar en la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose what you want to keep on the shelf"
+          }
+        }
+      }
+    },
     "Eliminar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Delete"
+          }
+        }
+      }
+    },
+    "Enlaces": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links"
           }
         }
       }
@@ -311,6 +381,16 @@
         }
       }
     },
+    "Imágenes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images"
+          }
+        }
+      }
+    },
     "Listo": {
       "localizations": {
         "en": {
@@ -351,12 +431,32 @@
         }
       }
     },
+    "No hay archivos que añadir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There are no files to add"
+          }
+        }
+      }
+    },
     "No se guarda lo que los gestores de contraseñas marcan como privado. El historial se queda en este Mac.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Anything password managers mark as private is never saved. History stays on this Mac."
+          }
+        }
+      }
+    },
+    "Ocultar en capturas de pantalla": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide in screenshots"
           }
         }
       }
@@ -407,6 +507,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quit Nook"
+          }
+        }
+      }
+    },
+    "Se borrarán todos los elementos de la bandeja. No se puede deshacer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything on the shelf will be deleted. This can’t be undone."
+          }
+        }
+      }
+    },
+    "Se borrarán todos los elementos del historial salvo los fijados. No se puede deshacer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything in the history except pinned items will be deleted. This can’t be undone."
           }
         }
       }
@@ -491,12 +611,32 @@
         }
       }
     },
-    "Vaciar bandeja": {
+    "Todo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empty Shelf"
+            "value": "All"
+          }
+        }
+      }
+    },
+    "Vaciar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty"
+          }
+        }
+      }
+    },
+    "Vaciar bandeja…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty Shelf…"
           }
         }
       }
@@ -511,12 +651,42 @@
         }
       }
     },
-    "⌃⌘V abre el historial desde cualquier app": {
+    "abre el historial desde cualquier app": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "⌃⌘V opens history from any app"
+            "value": "opens the history from any app"
+          }
+        }
+      }
+    },
+    "o elige archivos…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "or choose files…"
+          }
+        }
+      }
+    },
+    "¿Borrar el historial?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear the history?"
+          }
+        }
+      }
+    },
+    "¿Vaciar la bandeja?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the shelf?"
           }
         }
       }
