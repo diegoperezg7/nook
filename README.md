@@ -5,93 +5,118 @@
 <h1 align="center">Nook</h1>
 
 <p align="center">
-  <strong>Una bandeja y un historial del portapapeles que viven en el notch de tu Mac.</strong><br>
-  Deja ahí lo que vas a necesitar luego y sácalo arrastrando cuando toque.
+  <strong>El notch de tu Mac convertido en un sitio útil.</strong><br>
+  Bandeja de archivos, historial del portapapeles, calendario, correo, agentes de IA,
+  temporizadores y avisos del sistema, todo a un gesto del ratón.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/macOS-14%2B-1F5BFF" alt="macOS 14+">
+  <img src="https://img.shields.io/badge/macOS-14.2%2B-1F5BFF" alt="macOS 14.2+">
   <img src="https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-1F5BFF" alt="Swift">
-  <img src="https://img.shields.io/badge/Liquid%20Glass-macOS%2026-4C7DFF" alt="Liquid Glass">
+  <img src="https://img.shields.io/badge/firmada-Developer%20ID%20%2B%20notarizada-4C7DFF" alt="Firmada y notarizada">
   <img src="https://img.shields.io/badge/idiomas-ES%20%7C%20EN-4C7DFF" alt="ES y EN">
 </p>
 
 <p align="center">
-  <img src="docs/images/animacion.gif" width="720" alt="Al pasar el ratón por el notch, el panel sale de su centro y se agranda">
+  <img src="docs/images/bandeja.png" width="720" alt="Panel de Nook abierto bajo el notch con cuatro archivos en la bandeja">
 </p>
 
 ---
 
-## Sale del notch
+## Cómo funciona
 
-Pasa el ratón por el notch y el panel sale de su centro: crece hacia abajo y a los lados a la
-vez, con un rebote suave, mientras el negro se disuelve en Liquid Glass y el contenido aparece
-detrás. Todo es cristal: el panel, las pestañas, los botones y las tarjetas.
+Pasa el ratón por el notch y el panel sale de él con un muelle suave. Cerrado, el notch
+mide exactamente lo mismo que el recorte de la pantalla (MacBook Air y MacBook Pro); cuando
+pasa algo, se ensancha lo justo para avisarte a los lados y vuelve a su sitio.
+
+Arriba están las pestañas (bandeja, portapapeles, capturas, calendario, agentes) y, a la
+derecha, el volumen por app, el reloj con temporizadores y alarmas, y el menú.
 
 ## Bandeja
 
 Arrastra archivos, imágenes o texto al notch y se quedan a mano, con su vista previa real,
-hasta que los saques. Nook guarda una copia, así que siguen ahí aunque muevas o borres el
-original, cierres la app o apagues el Mac.
+hasta que los saques arrastrando. Nook guarda una copia, así que siguen ahí aunque borres el
+original o reinicies el Mac.
 
-<p align="center">
-  <img src="docs/images/bandeja.png" width="720" alt="Bandeja con un PDF, una foto, una imagen y un documento de texto">
-</p>
-
-**Sin arrastrar, también:** el botón <code>+</code> abre el selector de archivos, y en Finder
-tienes <em>clic derecho &gt; Servicios &gt; Añadir a Nook</em>.
-
-### Vista previa grande
-
-¿Dos PDF que se llaman casi igual? Pasa el ratón por una tarjeta y pulsa el ojo (o haz doble
-clic): se abre una vista grande con el tipo y el tamaño. Desde ahí la arrastras a cualquier
-app, la copias, la abres con Vista Rápida o la muestras en Finder.
-
-<p align="center">
-  <img src="docs/images/vista-previa.png" width="620" alt="Vista previa grande de un PDF con botones Copiar, Abrir y Finder">
-</p>
+- **Cesta al agitar:** agita el ratón mientras arrastras archivos y aparece una cesta flotante.
+- **Vista previa grande y Quick Look**, compartir por AirDrop, comprimir en `.zip`, convertir
+  imágenes (PNG, JPEG, HEIC) y copiar el texto de una imagen (OCR local).
+- Con más de los que caben, las tarjetas pasan en **carrusel**: flechas a los lados y
+  desplazamiento lateral.
 
 ## Historial del portapapeles
 
-Todo lo que copias queda guardado: texto, enlaces, imágenes y archivos, con el icono de la
-app de la que salió. Filtra por tipo, busca y fija lo que no quieras perder.
-
 <p align="center">
-  <img src="docs/images/historial.png" width="720" alt="Historial con texto, un enlace, un comando y una factura escaneada">
+  <img src="docs/images/historial.png" width="720" alt="Historial del portapapeles con buscador y filtros por tipo">
 </p>
 
-- **Busca dentro de las imágenes.** El texto de capturas y fotos se reconoce en el propio Mac
-  (Vision), así que buscar "factura" encuentra la imagen de la factura.
-- **<kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> desde cualquier app** abre el historial con el
-  buscador listo; <kbd>↩</kbd> copia el primer resultado y vuelves a donde estabas para pegar.
-- **Sin contadores corriendo.** Cada tarjeta dice cuándo llegó: "hace 20 s" durante el primer
-  minuto y después "hace 5 min", "hace 2 h"...
-- **Nunca se borra solo.** No hay límite por defecto, y vaciar la bandeja o borrar el historial
-  pide confirmación.
-- **Respeta lo privado.** Lo que los gestores de contraseñas marcan como confidencial no se guarda.
+Todo lo que copias queda guardado (texto, enlaces, imágenes y archivos) con el icono de la
+app de origen. Filtra por tipo, busca, incluso dentro de las imágenes, y fija lo importante.
 
-## Todo lo demás
+- <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> desde cualquier app abre el historial; al elegir, se
+  pega directamente donde estabas.
+- Lo que los gestores de contraseñas marcan como privado no se guarda. Nunca se borra solo.
 
-| | |
+## Agentes de IA
+
+<p align="center">
+  <img src="docs/images/agentes.png" width="720" alt="Pestaña de agentes con dos sesiones de Claude Code en curso y el consumo restante">
+</p>
+
+Las sesiones de agentes de código abiertas en tu Mac, con su estado (en curso, esperando,
+terminado), el proyecto y el consumo que queda en la ventana de 5 horas y en la semana.
+
+## Calendario, recordatorios y correo
+
+- **Calendario** de Apple con todas tus cuentas de *Cuentas de Internet*, incluido Microsoft
+  365/Outlook. Entrada rápida en lenguaje natural ("Café con Ana mañana a las 10").
+- **Recordatorios del día**: vencidos, de hoy y sin fecha, con su casilla para completarlos.
+  Si escribes algo sin fecha en la entrada rápida, se guarda como recordatorio.
+- **Controles de reunión**: cuenta atrás antes de cada reunión y botón para unirte.
+- **Correo sin leer** de Mail o de Outlook clásico: quién te escribe y el asunto, y un aviso
+  en el notch al llegar uno nuevo.
+
+## Avisos en el notch
+
+Volumen, batería y cargador, auriculares y altavoces Bluetooth (con su batería), Bloq Mayús,
+conexión y VPN, descargas terminadas, micrófono o cámara en uso, notificaciones del sistema,
+temporizadores y alarmas. Cada aviso se puede desactivar en Ajustes.
+
+## Atajos y herramientas
+
+| Atajo | Qué hace |
 |---|---|
-| **Vista previa** | Doble clic abre Quick Look; las tarjetas muestran páginas de PDF, fotos y documentos reales. |
-| **Compartir** | AirDrop, Mensajes o Mail desde el menú de cada tarjeta, y "Mostrar en Finder". |
-| **Copiar texto de una imagen** | OCR local, nada sale del Mac. |
-| **Comprimir y convertir** | Crea un `.zip` o convierte imágenes a PNG, JPEG o HEIC. |
-| **Copiar bien en cualquier app** | Las imágenes y los PDF se copian como archivo y como contenido, así se pegan tanto en Finder como en un chat. |
-| **Fuera de las capturas** | El panel no aparece en capturas ni grabaciones de pantalla (se puede desactivar). |
-| **Sin notch** | En pantallas sin notch aparece una pastilla arriba en el centro. |
-| **Claro y oscuro, ES y EN** | Y con "Reducir movimiento" las animaciones se simplifican. |
+| <kbd>⌥</kbd> <kbd>Espacio</kbd> | **Lanzador**: abre apps y archivos, calcula (`15% de 80`) y convierte unidades (`10 km en mi`). |
+| <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> | Historial del portapapeles. |
+| <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>Espacio</kbd> | Anillo de acciones junto al cursor. |
+| <kbd>⌃</kbd> <kbd>⌥</kbd> + flechas | Ajustar ventanas: mitades, cuartos, tercios, maximizar y centrar. |
+
+Además: acciones al seleccionar texto (copiar, buscar, traducir, a la bandeja), dictado,
+captura de una zona con OCR y volumen por app.
 
 ## Permisos
 
-Ninguno especial: no pide Accesibilidad ni Grabación de pantalla y funciona en sandbox.
-Desde macOS 15.4 el sistema puede preguntar por **"Pegar desde otras apps"**; si el acceso
-queda en "Preguntar" o "Denegar", el historial se pausa y Nook explica cómo permitirlo.
+Nook funciona sin permisos especiales; cada uno desbloquea algo concreto y se pide solo
+cuando lo activas:
+
+| Permiso | Para qué |
+|---|---|
+| Calendarios y Recordatorios | Eventos, reuniones y recordatorios del día. |
+| Accesibilidad | Pegar desde el historial, ajustar ventanas, texto seleccionado, controles de reunión. |
+| Acceso total al disco | Leer las notificaciones del sistema (solo las nuevas; no se guardan). |
+| Automatización (Mail / Outlook) | Ver los correos sin leer. |
+| Grabación de audio del sistema | Volumen por app. |
+
+Nada sale de tu Mac: no hay servidores ni analítica.
+
+## Instalar
+
+Descarga el DMG de la última versión, arrastra Nook a Aplicaciones y ábrelo. Está firmado con
+Developer ID y notarizado por Apple, así que se abre sin avisos de Gatekeeper.
 
 ## Compilar
 
-Requisitos: Xcode 26 o posterior y [XcodeGen](https://github.com/yonaskolb/XcodeGen). macOS 14+.
+Requisitos: Xcode 26 o posterior y [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 xcodegen generate
@@ -99,18 +124,17 @@ xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd build
 xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd test
 ```
 
-La build Debug usa su propio identificador (`com.diegoperez.nook.debug`), así que probarla
-no toca la bandeja ni el historial de la app instalada. Argumentos solo de Debug:
+La build Debug usa su propio identificador y sus propios datos, así que probarla no toca la
+bandeja ni el historial de la app instalada. Argumentos solo de Debug:
 
-- `-NookOpen shelf|clipboard` abre el panel al arrancar y lo deja abierto.
-- `-NookReset YES` vacía la bandeja y el historial de la build Debug.
-- `-hideFromCaptures NO` deja ver el panel en capturas.
+- `-NookOpen shelf|clipboard|screenshots|calendar|agents|mail` abre esa pestaña al arrancar.
+- `-hideFromCaptures NO` deja ver el panel en capturas de pantalla.
+- `-mailEnabled NO`, `-captureClipboard NO` desactivan el correo y el historial.
 
 ## Distribución
 
 ```bash
-./scripts/release.sh                                  # DMG firmado con Developer ID
-NOTARY_PROFILE=keyfold-notary ./scripts/release.sh    # además notarizado y grapado
+NOTARY_PROFILE=keyfold-notary ./scripts/release.sh   # DMG firmado, notarizado y grapado
 ```
 
-El DMG queda en `dist/`. El icono se genera con `swift scripts/make-icon.swift Nook/Resources/Assets.xcassets/AppIcon.appiconset`.
+El DMG queda en `dist/`.
