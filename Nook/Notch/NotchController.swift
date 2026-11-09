@@ -23,14 +23,16 @@ final class NotchController {
     /// opcion con el cursor fuera no debe cerrarlo antes de que la accion termine.
     private var isMenuOpen = false
 
-    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary) {
+    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, nowPlaying: NowPlaying) {
         self.store = store
         let screen = Self.targetScreen() ?? NSScreen.main ?? NSScreen.screens[0]
         model = NotchViewModel(metrics: NotchMetrics.make(for: screen))
+        model.nowPlaying = nowPlaying
 
         let root = NotchRootView(model: model, store: store)
             .modelContainer(container)
             .environment(screenshots)
+            .environment(nowPlaying)
         // La vista SwiftUI va dentro de un contenedor con autoresizing: como
         // contentView directo, redimensionar la ventana provocaba un bucle de
         // "Update Constraints in Window" y AppKit abortaba la app.
@@ -163,7 +165,7 @@ final class NotchController {
     /// Solo la forma visible acepta raton; el resto de la ventana deja pasar los clics.
     private func updateMouseInteraction() {
         let point = NSEvent.mouseLocation
-        let hotRect = model.isOpen ? model.openHotRect : model.metrics.closedHotRect
+        let hotRect = model.isOpen ? model.openHotRect : model.closedHotRect
         let interactive = hotRect.contains(point)
         if panel.ignoresMouseEvents == interactive { panel.ignoresMouseEvents = !interactive }
     }
@@ -179,7 +181,7 @@ final class NotchController {
             } else {
                 scheduleClose()
             }
-        } else if model.metrics.closedHotRect.contains(point) {
+        } else if model.closedHotRect.contains(point) {
             scheduleOpen()
         } else {
             pendingOpen?.cancel()
@@ -194,7 +196,7 @@ final class NotchController {
         let work = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.pendingOpen = nil
-            if self.model.metrics.closedHotRect.contains(NSEvent.mouseLocation) {
+            if self.model.closedHotRect.contains(NSEvent.mouseLocation) {
                 self.model.open(reason: .hover)
             }
         }
@@ -237,12 +239,13 @@ final class NotchController {
     }
 
     #if DEBUG
-    /// Abre el panel para capturas: `-NookOpen shelf|clipboard|screenshots`.
+    /// Abre el panel para capturas: `-NookOpen shelf|clipboard|screenshots|music`.
     func applyDebugLaunchArguments() {
         guard let value = UserDefaults.standard.string(forKey: "NookOpen") else { return }
         let tab: NotchViewModel.Tab = switch value {
         case "clipboard": .clipboard
         case "screenshots": .screenshots
+        case "music": .music
         default: .shelf
         }
         model.open(reason: .pinned, tab: tab)

@@ -9,11 +9,15 @@ import SwiftUI
 struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
+    @Environment(NowPlaying.self) private var nowPlaying
 
     var body: some View {
         let metrics = model.metrics
         let open = metrics.openSize(searchRow: model.tab.hasToolbar)
-        let width = model.expandedWidth ? open.width : metrics.closedSize.width
+        // Con musica sonando, el notch cerrado se ensancha para la caratula y las barras.
+        let activity = nowPlaying.isPlaying && !model.isOpen
+        let closedWidth = metrics.closedSize.width + (activity ? NotchMetrics.activitySide * 2 : 0)
+        let width = model.expandedWidth ? open.width : closedWidth
         let height = model.expandedHeight ? open.height : metrics.closedSize.height
         let shape = NotchShape(
             topRadius: model.expandedWidth ? NotchMetrics.openEar : NotchMetrics.closedEar,
@@ -23,6 +27,12 @@ struct NotchRootView: View {
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
                 GlassBackground(shape: shape, isGlass: model.expandedHeight)
+
+                if activity {
+                    MusicActivity(nowPlaying: nowPlaying, metrics: metrics)
+                        .frame(width: closedWidth)
+                        .transition(.opacity.animation(.easeOut(duration: 0.2)))
+                }
 
                 if model.isOpen {
                     NotchContentView(model: model, store: store)
@@ -39,6 +49,7 @@ struct NotchRootView: View {
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
+            .animation(AppMotion.open, value: activity)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.
             .scaleEffect(model.isDropTargeted && model.isOpen && !AppMotion.reduceMotion ? 1.03 : 1, anchor: .top)
             .animation(AppMotion.snappy, value: model.isDropTargeted)

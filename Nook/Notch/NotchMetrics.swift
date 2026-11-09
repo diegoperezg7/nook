@@ -18,6 +18,8 @@ struct NotchMetrics: Equatable {
     static let topSpacing: CGFloat = 10
     static let bottomMargin: CGFloat = 18
     static let pillWidth: CGFloat = 180
+    /// Lo que crece el notch cerrado a cada lado mientras suena musica.
+    static let activitySide: CGFloat = 38
 
     var hasNotch: Bool
     var screenFrame: CGRect
@@ -40,8 +42,8 @@ struct NotchMetrics: Equatable {
     /// Tamaño del panel abierto. La bandeja no tiene buscador y es mas baja: el panel
     /// se ajusta al contenido en vez de dejar un hueco abajo.
     func openSize(searchRow: Bool) -> CGSize {
-        // ~210 pt a cada lado del notch: pestañas a un lado, botones al otro, con aire.
-        let width = min(max(notchWidth + 420, 600), screenFrame.width - 40)
+        // ~250 pt a cada lado del notch: pestañas a un lado, botones al otro, con aire.
+        let width = min(max(notchWidth + 500, 680), screenFrame.width - 40)
         let content = Self.topSpacing + (searchRow ? Self.searchRowHeight : 0) + Self.cardRowHeight + Self.bottomMargin
         return CGSize(width: width, height: headerHeight + content)
     }
