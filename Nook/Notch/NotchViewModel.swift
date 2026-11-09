@@ -54,6 +54,7 @@ final class NotchViewModel {
     @ObservationIgnored var onDropTargetChanged: ((Bool) -> Void)?
     @ObservationIgnored var onDragOutStarted: (() -> Void)?
     @ObservationIgnored var onOpenSettings: (() -> Void)?
+    @ObservationIgnored var onCheckForUpdates: (() -> Void)?
     @ObservationIgnored private var closeToken = 0
 
     init(metrics: NotchMetrics) {

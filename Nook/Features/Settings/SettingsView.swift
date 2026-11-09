@@ -20,6 +20,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.mailEnabled) private var mailEnabled = true
     @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
     @AppStorage(SettingsKey.basketOnShake) private var basketOnShake = true
+    @AppStorage(SettingsKey.shelfExpiryDays) private var shelfExpiryDays = 0
     @AppStorage(SettingsKey.actionRing) private var actionRing = true
     @AppStorage(SettingsKey.pasteOnSelect) private var pasteOnSelect = true
     @AppStorage(SettingsKey.windowSnap) private var windowSnap = true
@@ -77,6 +78,16 @@ struct SettingsView: View {
                     ForEach(SettingsKey.closeDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
                 }
                 Toggle("Cesta al agitar el ratón arrastrando archivos", isOn: $basketOnShake)
+                Picker("Quitar de la bandeja lo que lleve más de", selection: $shelfExpiryDays) {
+                    ForEach(SettingsKey.shelfExpiryOptions, id: \.self) { days in
+                        switch days {
+                        case 0: Text("Nunca").tag(days)
+                        case 1: Text("1 día").tag(days)
+                        case 7: Text("1 semana").tag(days)
+                        default: Text("1 mes").tag(days)
+                        }
+                    }
+                }
             }
             Section {
                 LabeledContent("Introducción") {

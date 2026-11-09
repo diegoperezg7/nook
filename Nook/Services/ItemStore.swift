@@ -189,6 +189,20 @@ final class ItemStore {
         return ((try? context.fetch(descriptor)) ?? []).filter { $0.kind != .text }.compactMap(fileURL(for:))
     }
 
+    /// Quita de la bandeja lo que lleva mas de `days` dias (0 = nunca). Lo pide el usuario
+    /// en Ajustes; por defecto no se borra nada.
+    @discardableResult
+    func expireShelf(days: Int, now: Date = .now) -> Int {
+        guard days > 0 else { return 0 }
+        let raw = ItemOrigin.shelf.rawValue
+        let limit = now.addingTimeInterval(-Double(days) * 86_400)
+        let descriptor = FetchDescriptor<NotchItem>(predicate: #Predicate { $0.originRaw == raw && $0.createdAt < limit })
+        let old = (try? context.fetch(descriptor)) ?? []
+        old.forEach(removeFilesAndDelete)
+        if !old.isEmpty { save() }
+        return old.count
+    }
+
     func clearShelf() {
         deleteAll(origin: .shelf, keepPinned: false)
     }

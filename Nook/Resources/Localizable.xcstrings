@@ -11,6 +11,16 @@
         }
       }
     },
+    "%lld archivos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld files"
+          }
+        }
+      }
+    },
     "%lld capturas": {
       "localizations": {
         "en": {
@@ -121,12 +131,42 @@
         }
       }
     },
+    "1 día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 day"
+          }
+        }
+      }
+    },
+    "1 mes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 month"
+          }
+        }
+      }
+    },
     "1 seleccionada": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "1 selected"
+          }
+        }
+      }
+    },
+    "1 semana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 week"
           }
         }
       }
@@ -381,6 +421,16 @@
         }
       }
     },
+    "Actualizaciones automáticas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic updates"
+          }
+        }
+      }
+    },
     "Actualizar": {
       "localizations": {
         "en": {
@@ -601,12 +651,32 @@
         }
       }
     },
+    "Arrastra para sacar todos los archivos de la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to take every file out of the shelf"
+          }
+        }
+      }
+    },
     "Arrastra para usarlo en otra app": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Drag to use it in another app"
+          }
+        }
+      }
+    },
+    "Arrastrar todo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag all"
           }
         }
       }
@@ -857,6 +927,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Search"
+          }
+        }
+      }
+    },
+    "Buscar actualizaciones…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
           }
         }
       }
@@ -1117,6 +1197,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Failed"
+          }
+        }
+      }
+    },
+    "Con varios archivos en la bandeja, arrastra la primera tarjeta y salen todos a la vez.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With several files on the shelf, drag the first card and they all come out at once."
           }
         }
       }
@@ -1691,6 +1781,16 @@
         }
       }
     },
+    "Espejo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mirror"
+          }
+        }
+      }
+    },
     "Esta versión no deja leer el correo (el Outlook nuevo no tiene AppleScript)": {
       "localizations": {
         "en": {
@@ -1771,12 +1871,42 @@
         }
       }
     },
+    "Fijados": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pinned"
+          }
+        }
+      }
+    },
+    "Fijados y bandeja que se ordena sola": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pinned items and a self-tidying shelf"
+          }
+        }
+      }
+    },
     "Fijar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Pin"
+          }
+        }
+      }
+    },
+    "Filtra el historial por lo que tienes fijado. En Ajustes puedes hacer que la bandeja quite lo antiguo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter your history by what you've pinned. In Settings, the shelf can clear out old items."
           }
         }
       }
@@ -2261,6 +2391,16 @@
         }
       }
     },
+    "Mírate antes de una llamada con el botón de la cámara del notch. Solo se enciende mientras lo tienes abierto.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check yourself before a call with the camera button in the notch. It's only on while it's open."
+          }
+        }
+      }
+    },
     "Nada este día": {
       "localizations": {
         "en": {
@@ -2297,6 +2437,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "There are no files to add"
+          }
+        }
+      }
+    },
+    "No hay cámara disponible": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No camera available"
           }
         }
       }
@@ -2381,6 +2531,16 @@
         }
       }
     },
+    "Nook busca versiones nuevas una vez al día y se actualiza solo. También desde el menú ⋯ > Buscar actualizaciones.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nook checks for new versions once a day and updates itself. You can also use the ⋯ menu > Check for Updates."
+          }
+        }
+      }
+    },
     "Nook necesita permiso para leer la bandeja": {
       "localizations": {
         "en": {
@@ -2397,6 +2557,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nook can't access the clipboard"
+          }
+        }
+      }
+    },
+    "Nook no tiene permiso para la cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nook doesn't have camera access"
           }
         }
       }
@@ -2467,6 +2637,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "New Alarm…"
+          }
+        }
+      }
+    },
+    "Nunca": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
           }
         }
       }
@@ -2787,6 +2967,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove %@ Alarm"
+          }
+        }
+      }
+    },
+    "Quitar de la bandeja lo que lleve más de": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from the shelf after"
           }
         }
       }

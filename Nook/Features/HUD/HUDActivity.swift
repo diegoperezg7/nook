@@ -85,8 +85,12 @@ struct HUDActivity: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(online ? AppColors.success : AppColors.danger)
         case .timerDone:
-            Self.logo(AgentIcons.clock, fallback: "timer")
-                .symbolEffect(.bounce, options: .repeat(3))
+            if #available(macOS 15, *) {
+                Self.logo(AgentIcons.clock, fallback: "timer")
+                    .symbolEffect(.bounce, options: .repeat(3))
+            } else {
+                Self.logo(AgentIcons.clock, fallback: "timer")
+            }
         case let .notification(bundleID, _, _):
             if let icon = AgentIcons.icon(bundleID) {
                 Image(nsImage: icon).resizable().frame(width: 18, height: 18)
@@ -125,8 +129,12 @@ struct HUDActivity: View {
         case .stayAwake:
             Image(systemName: "cup.and.saucer.fill").font(.system(size: 13, weight: .semibold))
         case let .agent(_, waiting):
-            Self.logo(AgentIcons.claude, fallback: "sparkles")
-                .symbolEffect(.bounce, options: .repeat(waiting ? 2 : 1))
+            if #available(macOS 15, *) {
+                Self.logo(AgentIcons.claude, fallback: "sparkles")
+                    .symbolEffect(.bounce, options: .repeat(waiting ? 2 : 1))
+            } else {
+                Self.logo(AgentIcons.claude, fallback: "sparkles")
+            }
         }
     }
 

@@ -21,6 +21,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hud: SystemHUD?
     private var calendar: CalendarService?
     private var focus: FocusTimer?
+    private var shelfExpiryTimer: Timer?
+    private let updater = Updater()
     private var mail: MailService?
     private var basket: BasketController?
     private var dictation: Dictation?
@@ -92,6 +94,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let ring = ActionRingController(weather: Weather())
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
+        notch.model.onCheckForUpdates = { [weak self] in
+            self?.notch?.model.close()
+            self?.updater.checkForUpdates()
+        }
         monitor.onAccessChange = { [weak notch] access in notch?.model.clipboardAccess = access }
 
         self.container = container
@@ -127,6 +133,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         basket.start()
         store.trimHistory()
         store.recognizeMissingText()
+        // Caducidad de la bandeja (si el usuario la activo): al arrancar y cada hora.
+        store.expireShelf(days: UserDefaults.standard.integer(forKey: SettingsKey.shelfExpiryDays))
+        shelfExpiryTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak store] _ in
+            MainActor.assumeIsolated {
+                store?.expireShelf(days: UserDefaults.standard.integer(forKey: SettingsKey.shelfExpiryDays))
+            }
+        }
 
         let services = ServiceProvider(store: store)
         NSApp.servicesProvider = services

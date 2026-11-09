@@ -24,7 +24,7 @@ struct ShelfView: View {
                     .frame(height: NotchMetrics.cardRowHeight)
                     .padding(.horizontal, NotchContentView.margin)
             } else {
-                ItemStrip(items: items, store: store, model: model)
+                ItemStrip(items: items, store: store, model: model, dragAll: fileCount >= 2 ? fileCount : nil)
                     .overlay {
                         if model.isDropTargeted {
                             DropHint(isTargeted: true, overlay: true)
@@ -37,6 +37,8 @@ struct ShelfView: View {
         }
         .animation(AppMotion.snappy, value: model.isDropTargeted)
     }
+
+    private var fileCount: Int { items.filter { $0.kind != .text }.count }
 }
 
 /// Fila horizontal de tarjetas, comun a la bandeja y al historial.
@@ -44,16 +46,40 @@ struct ItemStrip: View {
     let items: [NotchItem]
     let store: ItemStore
     let model: NotchViewModel
+    /// En la bandeja con varios archivos: tarjeta "Arrastrar todo" delante.
+    var dragAll: Int?
+
+    private enum Entry: Identifiable {
+        case all(Int)
+        case item(NotchItem)
+
+        var id: String {
+            switch self {
+            case .all: return "drag-all"
+            case let .item(item): return item.id.uuidString
+            }
+        }
+    }
+
+    private var entries: [Entry] {
+        (dragAll.map { [Entry.all($0)] } ?? []) + items.map(Entry.item)
+    }
 
     var body: some View {
-        Carousel(data: items) { index, item in
-            ItemCard(
-                item: item, store: store, index: index,
-                onCopied: model.didCopy,
-                onDragStart: model.beginDragOut,
-                onPreviewChange: { model.isPreviewing = $0 }
-            )
-            .transition(.scale(scale: 0.85).combined(with: .opacity))
+        Carousel(data: entries) { index, entry in
+            switch entry {
+            case let .all(count):
+                DragAllCard(count: count, urls: store.shelfFileURLs, onDragStart: model.beginDragOut)
+                    .transition(.scale(scale: 0.85).combined(with: .opacity))
+            case let .item(item):
+                ItemCard(
+                    item: item, store: store, index: index,
+                    onCopied: model.didCopy,
+                    onDragStart: model.beginDragOut,
+                    onPreviewChange: { model.isPreviewing = $0 }
+                )
+                .transition(.scale(scale: 0.85).combined(with: .opacity))
+            }
         }
         .frame(height: NotchMetrics.cardRowHeight)
     }

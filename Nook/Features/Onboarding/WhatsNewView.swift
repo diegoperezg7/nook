@@ -11,12 +11,14 @@ enum WhatsNew {
     }
 
     static let notes: [Note] = [
-        Note(icon: "envelope.open.fill", title: "Acciones rápidas en el correo",
-             detail: "Pasa el ratón por un correo para marcarlo como leído o mandarlo a la papelera, sin abrirlo. Si te equivocas, puedes deshacerlo."),
-        Note(icon: "moon.fill", title: "Correo más cómodo de leer",
-             detail: "Los correos escritos a mano se ven en oscuro, a juego con el notch."),
-        Note(icon: "drop.fill", title: "Icono nuevo",
-             detail: "Una gota de cristal que cuelga del notch."),
+        Note(icon: "arrow.down.circle.fill", title: "Actualizaciones automáticas",
+             detail: "Nook busca versiones nuevas una vez al día y se actualiza solo. También desde el menú ⋯ > Buscar actualizaciones."),
+        Note(icon: "person.crop.square.fill", title: "Espejo",
+             detail: "Mírate antes de una llamada con el botón de la cámara del notch. Solo se enciende mientras lo tienes abierto."),
+        Note(icon: "square.stack.3d.up.fill", title: "Arrastrar todo",
+             detail: "Con varios archivos en la bandeja, arrastra la primera tarjeta y salen todos a la vez."),
+        Note(icon: "pin.fill", title: "Fijados y bandeja que se ordena sola",
+             detail: "Filtra el historial por lo que tienes fijado. En Ajustes puedes hacer que la bandeja quite lo antiguo."),
     ]
 
     static var version: String {

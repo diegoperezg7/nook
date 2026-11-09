@@ -14,6 +14,7 @@ struct NotchContentView: View {
     @Environment(BatteryCenter.self) private var battery
     @Environment(SystemHUD.self) private var hud
     @State private var showBattery = false
+    @State private var showMirror = false
     @State private var showAlarm = false
     @State private var alarmTime = Date.now.addingTimeInterval(3600)
     @Namespace private var tabNamespace
@@ -64,6 +65,7 @@ struct NotchContentView: View {
                     if mail.isEnabled { mailButton }
                     timerMenu
                 }
+                mirrorButton
                 batteryButton
                 menu
             }
@@ -131,6 +133,28 @@ struct NotchContentView: View {
     }
 
     /// AirPods conectados: su modelo en un aro de bateria; al pulsar, cada pieza con su %.
+    /// Espejo: la camara para verte antes de una llamada.
+    private var mirrorButton: some View {
+        Button {
+            model.isPreviewing = true
+            showMirror = true
+        } label: {
+            Image(systemName: "person.crop.square.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.9))
+                .frame(width: 30, height: 30)
+                .liquidGlass(in: Circle(), interactive: true)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .help(Text("Espejo"))
+        .accessibilityLabel(Text("Espejo"))
+        .popover(isPresented: $showMirror, arrowEdge: .bottom) { MirrorView() }
+        .onChange(of: showMirror) { _, shown in
+            if !shown { model.isPreviewing = false }
+        }
+    }
+
     @ViewBuilder
     private var batteryButton: some View {
         if let headline = battery.headline {
@@ -277,6 +301,7 @@ struct NotchContentView: View {
     private var menu: some View {
         Menu {
             Button("Ajustes…", systemImage: "gearshape") { model.onOpenSettings?() }
+            Button("Buscar actualizaciones…", systemImage: "arrow.down.circle") { model.onCheckForUpdates?() }
             Divider()
             switch model.tab {
             case .shelf:

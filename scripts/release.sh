@@ -1,6 +1,6 @@
 #!/bin/bash
-# Compila en Release, firma con Developer ID (hardened runtime + sandbox), crea el DMG
-# y, si se indica perfil de notarytool, lo notariza y grapa.
+# Compila en Release, firma con Developer ID (hardened runtime), crea el DMG y, si se
+# indica perfil de notarytool, lo notariza y grapa. Deja tambien el appcast de Sparkle.
 #
 # Uso:
 #   ./scripts/release.sh                                  # DMG firmado, sin notarizar
@@ -36,6 +36,13 @@ if grep -q '\$(' "$ENTITLEMENTS"; then
   echo "Entitlements con variables sin sustituir" >&2
   exit 1
 fi
+# Sparkle trae sus propios ejecutables: se firman de dentro afuera antes que la app.
+SPARKLE="$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
+for part in XPCServices/Installer.xpc XPCServices/Downloader.xpc Autoupdate Updater.app; do
+  codesign --force --options runtime --timestamp --preserve-metadata=entitlements \
+    --sign "$IDENTITY" "$SPARKLE/$part"
+done
+codesign --force --options runtime --timestamp --sign "$IDENTITY" "$APP/Contents/Frameworks/Sparkle.framework"
 codesign --force --options runtime --timestamp \
   --entitlements "$ENTITLEMENTS" \
   --sign "$IDENTITY" "$APP"
@@ -99,4 +106,26 @@ else
   echo "Sin NOTARY_PROFILE: el DMG esta firmado pero no notarizado."
 fi
 
-echo "Listo: $DMG"
+# Appcast de Sparkle: se sube como archivo de la release (la app lo lee de
+# releases/latest/download/appcast.xml). Firma EdDSA con la clave del Llavero.
+BUILD=$(grep 'CURRENT_PROJECT_VERSION' project.yml | head -1 | sed -E 's/.*"(.*)".*/\1/')
+SIGN_UPDATE="$DERIVED/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
+SIGNATURE=$("$SIGN_UPDATE" --account nook "$DMG")
+cat > "$OUT/appcast.xml" <<APPCAST
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Nook</title>
+    <item>
+      <title>Nook $VERSION</title>
+      <pubDate>$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
+      <sparkle:version>$BUILD</sparkle:version>
+      <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.2</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/diegoperezg7/nook/releases/download/v$VERSION/Nook-$VERSION.dmg" $SIGNATURE type="application/octet-stream"/>
+    </item>
+  </channel>
+</rss>
+APPCAST
+
+echo "Listo: $DMG y $OUT/appcast.xml (subir los dos a la release v$VERSION)"

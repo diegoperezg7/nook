@@ -52,10 +52,15 @@ enum SettingsKey {
     static let unlimitedHistory = 0
     static let historyLimitOptions = [unlimitedHistory, 100, 250, 500, 1000]
 
+    /// Dias que se queda algo en la bandeja antes de quitarse solo (0 = nunca).
+    static let shelfExpiryDays = "shelfExpiryDays"
+    static let shelfExpiryOptions = [0, 1, 7, 30]
+
     static func registerDefaults(_ defaults: UserDefaults = .standard) {
         defaults.register(defaults: [
             captureClipboard: true,
             historyLimit: unlimitedHistory,
+            shelfExpiryDays: 0,
             hotKeyEnabled: true,
             showWithoutNotch: true,
             hideFromCaptures: true,

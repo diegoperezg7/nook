@@ -67,8 +67,10 @@ struct Carousel<Data: RandomAccessCollection, Card: View>: View where Data.Eleme
     }
 
     private var ids: [Data.Element.ID] { data.map(\.id) }
-    private var canGoBack: Bool { content.minX < -2 }
-    private var canGoForward: Bool { content.maxX > viewport + 2 }
+    /// Con margen: el ajuste a tarjetas puede dejar la fila unos puntos corrida sin
+    /// que haya nada escondido.
+    private var canGoBack: Bool { content.minX < -8 }
+    private var canGoForward: Bool { content.maxX > viewport + 8 }
 
     /// Tarjetas que caben a la vez (minimo una).
     private var perPage: Int {

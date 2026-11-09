@@ -92,6 +92,29 @@ final class HistoryFeaturesTests: XCTestCase {
         pasteboard.releaseGlobally()
     }
 
+    func testPinnedFilterShowsOnlyPinned() throws {
+        store.captureText("IBAN ES00 0000")
+        store.captureText("otra cosa")
+        let iban = try XCTUnwrap(try history().first { $0.text == "IBAN ES00 0000" })
+        store.togglePin(iban)
+        let pinned = try history().filter(HistoryFilter.pinned.includes)
+        XCTAssertEqual(pinned.map(\.text), ["IBAN ES00 0000"])
+    }
+
+    func testShelfExpiryRemovesOnlyOldShelfItems() throws {
+        store.addShelfText("vieja")
+        store.addShelfText("nueva")
+        store.captureText("historial viejo")
+        let now = Date()
+        for item in try history() where item.text != "nueva" {
+            item.createdAt = now.addingTimeInterval(-10 * 86_400)
+        }
+        XCTAssertEqual(store.expireShelf(days: 0, now: now), 0, "0 = nunca")
+        XCTAssertEqual(store.expireShelf(days: 7, now: now), 1)
+        let left = Set(try history().compactMap(\.text))
+        XCTAssertEqual(left, ["nueva", "historial viejo"])
+    }
+
     func testTextWithALinkInsideIsNotALink() throws {
         store.captureText("mira https://example.com")
         XCTAssertFalse(try XCTUnwrap(try history().first).isLink)

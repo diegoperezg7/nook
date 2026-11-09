@@ -42,5 +42,13 @@
 	</array>
 	<key>NookAppGroup</key>
 	<string>$(NOOK_APP_GROUP)</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://github.com/diegoperezg7/nook/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>tnW3xBsF18kFnVEQl6EUZHRgEoatYiXYfNmvIVmMMS0=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>

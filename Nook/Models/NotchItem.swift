@@ -71,7 +71,7 @@ final class NotchItem {
 
 /// Filtro por tipo del historial.
 enum HistoryFilter: String, CaseIterable, Identifiable {
-    case all, text, links, images, files
+    case all, text, links, images, files, pinned
 
     var id: String { rawValue }
 
@@ -82,6 +82,7 @@ enum HistoryFilter: String, CaseIterable, Identifiable {
         case .links: return "Enlaces"
         case .images: return "Imágenes"
         case .files: return "Archivos"
+        case .pinned: return "Fijados"
         }
     }
 
@@ -92,6 +93,7 @@ enum HistoryFilter: String, CaseIterable, Identifiable {
         case .links: return "link"
         case .images: return "photo"
         case .files: return "doc"
+        case .pinned: return "pin"
         }
     }
 
@@ -102,6 +104,7 @@ enum HistoryFilter: String, CaseIterable, Identifiable {
         case .links: return item.isLink
         case .images: return item.kind == .image
         case .files: return item.kind == .file
+        case .pinned: return item.isPinned
         }
     }
 }
