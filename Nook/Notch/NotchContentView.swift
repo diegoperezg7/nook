@@ -12,6 +12,7 @@ struct NotchContentView: View {
     @Environment(FocusTimer.self) private var focus
     @Environment(MailService.self) private var mail
     @Environment(AppVolume.self) private var appVolume
+    @Environment(SystemHUD.self) private var hud
     @State private var showVolume = false
     @State private var showAlarm = false
     @State private var alarmTime = Date.now.addingTimeInterval(3600)
@@ -62,9 +63,13 @@ struct NotchContentView: View {
                     .accessibilityLabel(Text("Añadir archivos…"))
                     .transition(.scale.combined(with: .opacity))
                 }
-                volumeButton
-                if mail.isEnabled { mailButton }
-                timerMenu
+                if let call = MeetingControls.current(micInUse: hud.micInUse) {
+                    callControls(call)
+                } else {
+                    volumeButton
+                    if mail.isEnabled { mailButton }
+                    timerMenu
+                }
                 menu
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -93,6 +98,40 @@ struct NotchContentView: View {
     private func tabButton(_ tab: NotchViewModel.Tab, title: LocalizedStringKey, icon: String, logo: NSImage? = nil) -> some View {
         TabButton(title: title, icon: icon, logo: logo, selected: model.tab == tab, namespace: tabNamespace) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
+        }
+    }
+
+    /// En llamada: micro, camara y colgar de la app de la reunion.
+    private func callControls(_ call: MeetingControls.Target) -> some View {
+        HStack(spacing: 8) {
+            callButton("mic.slash.fill", String(localized: "Silenciar o activar el micro en \(call.name)"), .mic, call)
+            callButton("video.slash.fill", String(localized: "Apagar o encender la cámara en \(call.name)"), .camera, call)
+            if call.leave != nil {
+                Button { run(.leave, call) } label: {
+                    Image(systemName: "phone.down.fill")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(AppColors.danger))
+                }
+                .buttonStyle(.plain)
+                .help(Text("Colgar en \(call.name)"))
+            }
+        }
+        .transition(.scale.combined(with: .opacity))
+    }
+
+    private func callButton(_ icon: String, _ help: String, _ action: MeetingControls.Action, _ call: MeetingControls.Target) -> some View {
+        Button { run(action, call) } label: { CircleIconLabel(icon: icon) }
+            .buttonStyle(.plain)
+            .help(Text(verbatim: help))
+            .accessibilityLabel(Text(verbatim: help))
+    }
+
+    private func run(_ action: MeetingControls.Action, _ call: MeetingControls.Target) {
+        model.close()
+        if !MeetingControls.perform(action, on: call) {
+            hud.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
         }
     }
 

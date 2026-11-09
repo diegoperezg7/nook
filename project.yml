@@ -32,6 +32,8 @@ targets:
       properties:
         # Volumen por app: captar el sonido de una app para cambiar su volumen.
         NookAppGroup: $(NOOK_APP_GROUP)
+        # Bateria de AirPods y accesorios (system_profiler lee Bluetooth).
+        NSBluetoothAlwaysUsageDescription: "Nook muestra en el notch la batería de tus AirPods, teclado y ratón."
         NSAudioCaptureUsageDescription: "Nook capta el sonido de la app que elijas solo para subirle o bajarle el volumen. No graba ni guarda nada."
         NSServices:
           - NSMenuItem:
@@ -61,8 +63,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.diegoperez.nook
         NOOK_APP_GROUP: H473PHH58Y.com.diegoperez.nook
         PRODUCT_NAME: Nook
-        MARKETING_VERSION: "0.11.0"
-        CURRENT_PROJECT_VERSION: "14"
+        MARKETING_VERSION: "0.12.0"
+        CURRENT_PROJECT_VERSION: "15"
         GENERATE_INFOPLIST_FILE: YES
         # Sin icono en el Dock ni menu: la app vive en el notch.
         INFOPLIST_KEY_LSUIElement: YES

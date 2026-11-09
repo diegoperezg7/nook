@@ -16,6 +16,8 @@ struct HUDActivity: View {
         case .network, .meeting: return 104
         case .audioDevice, .download, .mail, .notice: return 112
         case .dictation: return 140
+        case .accessory: return 112
+        case .notification: return 150
         }
     }
 
@@ -67,6 +69,14 @@ struct HUDActivity: View {
         case .timerDone:
             Self.logo(AgentIcons.clock, fallback: "timer")
                 .symbolEffect(.bounce, options: .repeat(3))
+        case let .notification(bundleID, _, _):
+            if let icon = AgentIcons.icon(bundleID) {
+                Image(nsImage: icon).resizable().frame(width: 18, height: 18)
+            } else {
+                Image(systemName: "bell.fill").font(.system(size: 13, weight: .semibold))
+            }
+        case let .accessory(_, icon, _, _):
+            Image(systemName: icon).font(.system(size: 14, weight: .semibold))
         case let .notice(icon, _):
             Image(systemName: icon).font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
         case .dictation:
@@ -122,6 +132,29 @@ struct HUDActivity: View {
             Text(!online ? "Sin conexión" : vpn ? "VPN" : "Conectado").font(.system(size: 11, weight: .semibold))
         case .timerDone:
             Text("¡Tiempo!").font(.system(size: 12, weight: .bold))
+        case let .notification(_, title, body):
+            VStack(alignment: .trailing, spacing: 0) {
+                Text(verbatim: title).font(.system(size: 10, weight: .bold)).lineLimit(1)
+                if !body.isEmpty {
+                    Text(verbatim: body).font(.system(size: 9, weight: .medium)).opacity(0.75).lineLimit(1)
+                }
+            }
+            .truncationMode(.tail)
+        case let .accessory(name, _, level, low):
+            HStack(spacing: 6) {
+                if low {
+                    Text(verbatim: name).font(.system(size: 10, weight: .semibold)).lineLimit(1).truncationMode(.tail)
+                }
+                ZStack {
+                    Circle().stroke(AppColors.notchText.opacity(0.2), lineWidth: 2.5)
+                    Circle().trim(from: 0, to: CGFloat(level) / 100)
+                        .stroke(low ? AppColors.danger : AppColors.success, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                }
+                .frame(width: 14, height: 14)
+                Text(verbatim: "\(level) %").font(.system(size: 12, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(low ? AppColors.danger : AppColors.notchText)
+            }
         case let .notice(_, text):
             Text(verbatim: text).font(.system(size: 11, weight: .semibold)).lineLimit(1)
         case let .dictation(text):

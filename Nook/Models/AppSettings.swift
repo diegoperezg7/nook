@@ -32,6 +32,11 @@ enum SettingsKey {
     static let basketOnShake = "basketOnShake"
     /// Anillo de acciones con ⌃⌥Espacio.
     static let actionRing = "actionRing"
+    /// Al elegir algo del historial (⌃⌘V) se pega en la app anterior.
+    static let pasteOnSelect = "pasteOnSelect"
+    static let windowSnap = "windowSnap"
+    static let selectionActions = "selectionActions"
+    static let notifications = "notifications"
     /// Ciudad del tiempo (vacia = sin tiempo) y sus coordenadas.
     static let weatherCity = "weatherCity"
     static let weatherLatitude = "weatherLatitude"
@@ -63,6 +68,10 @@ enum SettingsKey {
             mailSource: "mail",
             basketOnShake: true,
             actionRing: true,
+            pasteOnSelect: true,
+            windowSnap: true,
+            selectionActions: true,
+            notifications: true,
         ])
     }
 }

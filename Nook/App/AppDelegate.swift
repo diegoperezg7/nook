@@ -24,6 +24,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var ring: ActionRingController?
     private var ringHotKey: HotKey?
     private var appVolume: AppVolume?
+    private let windowSnap = WindowSnap()
+    private var selection: SelectionActions?
+    private let notificationFeed = NotificationFeed()
 
     func applicationWillTerminate(_ notification: Notification) {
         // Quita los taps: cada app vuelve a sonar a su volumen normal.
@@ -100,6 +103,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.basket = basket
         self.dictation = dictation
         self.ring = ring
+        self.selection = SelectionActions(store: store)
+        notificationFeed.onNotice = { [weak hud] notice in
+            hud?.show(.notification(bundleID: notice.bundleID, title: notice.title, body: notice.body), for: 5)
+        }
+        windowSnap.onNeedsPermission = { [weak hud] in
+            hud?.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
+        }
         self.appVolume = appVolume
         ring.actions = makeRingActions()
 
@@ -147,6 +157,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch?.setHiddenFromCaptures(UserDefaults.standard.bool(forKey: SettingsKey.hideFromCaptures))
         store?.trimHistory()
         basket?.apply()
+        windowSnap.apply()
+        selection?.apply()
+        notificationFeed.apply()
         let wantsRing = UserDefaults.standard.bool(forKey: SettingsKey.actionRing)
         if wantsRing, ringHotKey == nil {
             // ⌃⌥Espacio.
@@ -214,7 +227,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let calendar else { return }
         notch?.model.close()
         if settingsWindow == nil {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(calendar: calendar)))
+            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(calendar: calendar, notifications: notificationFeed)))
             window.title = String(localized: "Ajustes de Nook")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false

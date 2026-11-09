@@ -139,9 +139,19 @@ final class NotchController {
 
     private func didClose() {
         updateMouseInteraction()
+        let paste = model.pasteOnClose
+        model.pasteOnClose = false
         if let previousApp {
             previousApp.activate()
             self.previousApp = nil
+            if paste, UserDefaults.standard.bool(forKey: SettingsKey.pasteOnSelect) {
+                if AXAccess.isTrusted {
+                    // Que la app anterior tenga ya el foco antes del ⌘V.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { AXAccess.paste() }
+                } else {
+                    hud.show(.notice(icon: "hand.raised.fill", text: String(localized: "Copiado · activa Accesibilidad para pegar")), for: 2.5)
+                }
+            }
         }
         // Soltar el teclado: si no, el panel cerrado seguiria siendo key.
         if panel.isKeyWindow {

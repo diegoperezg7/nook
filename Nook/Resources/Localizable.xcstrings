@@ -131,6 +131,16 @@
         }
       }
     },
+    "A la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To Shelf"
+          }
+        }
+      }
+    },
     "Abrir": {
       "localizations": {
         "en": {
@@ -147,6 +157,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open System Settings"
+          }
+        }
+      }
+    },
+    "Abrir Ajustes…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings…"
           }
         }
       }
@@ -211,12 +231,52 @@
         }
       }
     },
+    "Accesibilidad": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility"
+          }
+        }
+      }
+    },
     "Acceso al portapapeles": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Clipboard access"
+          }
+        }
+      }
+    },
+    "Acceso total al disco": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Disk Access"
+          }
+        }
+      }
+    },
+    "Acciones al seleccionar texto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions on selected text"
+          }
+        }
+      }
+    },
+    "Activa Accesibilidad en Ajustes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on Accessibility in Settings"
           }
         }
       }
@@ -267,6 +327,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No apps are playing sound"
+          }
+        }
+      }
+    },
+    "Ajustar ventanas con ⌃⌥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrange windows with ⌃⌥"
           }
         }
       }
@@ -337,6 +407,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Previous"
+          }
+        }
+      }
+    },
+    "Apagar o encender la cámara en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn the camera off or on in %@"
           }
         }
       }
@@ -691,6 +771,16 @@
         }
       }
     },
+    "Colgar en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hang up in %@"
+          }
+        }
+      }
+    },
     "Compartir": {
       "localizations": {
         "en": {
@@ -817,6 +907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copied"
+          }
+        }
+      }
+    },
+    "Copiado · activa Accesibilidad para pegar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied · turn on Accessibility to paste"
           }
         }
       }
@@ -1281,6 +1381,16 @@
         }
       }
     },
+    "Instala y abre una vez Nook 0.11 para que copie tu bandeja y tu historial; después vuelve a esta versión. No se ha borrado nada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install and open Nook 0.11 once so it copies your shelf and history, then come back to this version. Nothing has been deleted."
+          }
+        }
+      }
+    },
     "Interrumpida": {
       "localizations": {
         "en": {
@@ -1541,6 +1651,16 @@
         }
       }
     },
+    "Notificaciones en el notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications in the notch"
+          }
+        }
+      }
+    },
     "Nueva alarma": {
       "localizations": {
         "en": {
@@ -1611,12 +1731,42 @@
         }
       }
     },
+    "Para leer las notificaciones que entrega macOS. Añade Nook en la lista y vuelve a abrirla. Solo se leen las nuevas; nada se guarda.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To read the notifications macOS delivers. Add Nook to the list and reopen it. Only new ones are read; nothing is stored."
+          }
+        }
+      }
+    },
+    "Para pegar en otras apps, ajustar ventanas, el texto seleccionado y los controles de reunión.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To paste into other apps, arrange windows, act on selected text and control meetings."
+          }
+        }
+      }
+    },
     "Para ver Outlook, añade la cuenta de Microsoft 365 en Ajustes del Sistema > Cuentas de Internet.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "To see Outlook, add your Microsoft 365 account in System Settings > Internet Accounts."
+          }
+        }
+      }
+    },
+    "Pegar al elegir (con ⌃⌘V)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste when chosen (with ⌃⌘V)"
           }
         }
       }
@@ -1667,6 +1817,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Waiting: asks you"
+          }
+        }
+      }
+    },
+    "Permisos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions"
           }
         }
       }
@@ -1861,6 +2021,16 @@
         }
       }
     },
+    "Silenciar o activar el micro en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute or unmute the mic in %@"
+          }
+        }
+      }
+    },
     "Sin acceso al portapapeles": {
       "localizations": {
         "en": {
@@ -1887,6 +2057,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unlimited"
+          }
+        }
+      }
+    },
+    "Sin permiso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not allowed"
           }
         }
       }
@@ -2081,12 +2261,32 @@
         }
       }
     },
+    "Traducir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translate"
+          }
+        }
+      }
+    },
     "Tus capturas de pantalla, a mano": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Your screenshots, close at hand"
+          }
+        }
+      }
+    },
+    "Tus datos siguen en la versión anterior": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data is still in the previous version"
           }
         }
       }
@@ -2287,6 +2487,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empty the shelf?"
+          }
+        }
+      }
+    },
+    "⌃⌥ + ← → ↑ ↓ mitades · U I J K cuartos · D F G tercios · E T dos tercios · ↩ maximizar · C centrar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃⌥ + ← → ↑ ↓ halves · U I J K quarters · D F G thirds · E T two thirds · ↩ maximize · C center"
           }
         }
       }

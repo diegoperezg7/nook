@@ -23,11 +23,18 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
     @AppStorage(SettingsKey.basketOnShake) private var basketOnShake = true
     @AppStorage(SettingsKey.actionRing) private var actionRing = true
+    @AppStorage(SettingsKey.pasteOnSelect) private var pasteOnSelect = true
+    @AppStorage(SettingsKey.windowSnap) private var windowSnap = true
+    @AppStorage(SettingsKey.selectionActions) private var selectionActions = true
+    @State private var axTrusted = AXAccess.isTrusted
     @AppStorage(SettingsKey.weatherCity) private var weatherCity = ""
     @State private var cityQuery = ""
     @State private var citySearch: CitySearch = .idle
     private enum CitySearch: Equatable { case idle, searching, notFound }
     let calendar: CalendarService
+    let notifications: NotificationFeed
+    @AppStorage(SettingsKey.notifications) private var notificationsOn = true
+    @State private var fullDiskAccess = FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath)
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
 
@@ -45,6 +52,8 @@ struct SettingsView: View {
                     }
                 }
                 Toggle("Abrir el historial con ⌃⌘V", isOn: $hotKeyEnabled)
+                Toggle("Pegar al elegir (con ⌃⌘V)", isOn: $pasteOnSelect)
+                    .onChange(of: pasteOnSelect) { _, on in if on, !axTrusted { AXAccess.request() } }
                 LabeledContent("Acceso al portapapeles") {
                     HStack(spacing: 8) {
                         Text(accessLabel).foregroundStyle(access == .allowed ? AppColors.success : AppColors.danger)
@@ -112,8 +121,46 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Section("Permisos") {
+                LabeledContent("Accesibilidad") {
+                    HStack(spacing: 8) {
+                        Text(axTrusted ? "Permitido" : "Sin permiso")
+                            .foregroundStyle(axTrusted ? AppColors.success : AppColors.danger)
+                        if !axTrusted {
+                            Button("Permitir…") { AXAccess.request(); AXAccess.openSettings() }
+                        }
+                    }
+                }
+                Text("Para pegar en otras apps, ajustar ventanas, el texto seleccionado y los controles de reunión.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Toggle("Notificaciones en el notch", isOn: $notificationsOn)
+                LabeledContent("Acceso total al disco") {
+                    HStack(spacing: 8) {
+                        Text(fullDiskAccess ? "Permitido" : "Sin permiso")
+                            .foregroundStyle(fullDiskAccess ? AppColors.success : AppColors.danger)
+                        if !fullDiskAccess {
+                            Button("Abrir Ajustes…") { notifications.openFullDiskAccessSettings() }
+                        }
+                    }
+                }
+                Text("Para leer las notificaciones que entrega macOS. Añade Nook en la lista y vuelve a abrirla. Solo se leen las nuevas; nada se guarda.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            // Al volver de Ajustes del Sistema se actualiza el estado.
+            .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+                axTrusted = AXAccess.isTrusted
+                fullDiskAccess = FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath)
+            }
+
             Section("Herramientas") {
                 Toggle("Anillo de acciones con ⌃⌥Espacio", isOn: $actionRing)
+                Toggle("Acciones al seleccionar texto", isOn: $selectionActions)
+                Toggle("Ajustar ventanas con ⌃⌥", isOn: $windowSnap)
+                Text("⌃⌥ + ← → ↑ ↓ mitades · U I J K cuartos · D F G tercios · E T dos tercios · ↩ maximizar · C centrar")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
                 LabeledContent("Tiempo") {
                     HStack(spacing: 8) {
                         TextField("Ciudad", text: $cityQuery, prompt: Text(weatherCity.isEmpty ? String(localized: "Ciudad") : weatherCity))
@@ -151,7 +198,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480)
+        .frame(width: 480, height: 640)
         .fixedSize(horizontal: false, vertical: true)
         .tint(AppColors.accent)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in

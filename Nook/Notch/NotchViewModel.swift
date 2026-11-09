@@ -95,8 +95,15 @@ final class NotchViewModel {
     }
 
     /// Tras copiar un elemento: con el atajo el usuario quiere volver a pegar ya.
+    /// Elegido algo del historial abierto con el atajo: se cierra y, al volver a la
+    /// app anterior, se pega (ver NotchController.didClose).
+    @ObservationIgnored var pasteOnClose = false
+
     func didCopy() {
-        if openReason == .hotKey { close() }
+        if openReason == .hotKey {
+            pasteOnClose = true
+            close()
+        }
     }
 
     func beginDragOut() {

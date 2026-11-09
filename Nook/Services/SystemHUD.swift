@@ -27,6 +27,9 @@ final class SystemHUD {
         /// Resultado de una herramienta: "Texto copiado", "En la bandeja"...
         case notice(icon: String, text: String)
         case dictation(text: String)
+        /// Bateria de AirPods, teclado o raton (al conectar o cuando queda poca).
+        case accessory(name: String, icon: String, level: Int, low: Bool)
+        case notification(bundleID: String, title: String, body: String)
         // Actividades que duran.
         case meeting(title: String, start: Date)
         case timer(end: Date, total: TimeInterval)
@@ -81,7 +84,11 @@ final class SystemHUD {
             case let .level(level, muted):
                 if self.defaults.bool(forKey: SettingsKey.hudVolume) { self.show(.volume(level: level, muted: muted)) }
             case let .device(name, icon):
-                if self.defaults.bool(forKey: SettingsKey.hudDevices) { self.show(.audioDevice(name: name, icon: icon), for: 3) }
+                if self.defaults.bool(forKey: SettingsKey.hudDevices) {
+                    self.show(.audioDevice(name: name, icon: icon), for: 3)
+                    // Despues del nombre, su bateria (si es Bluetooth y la da).
+                    self.showBattery(of: name, after: 3)
+                }
             }
         }
         battery = BatteryMonitor { [weak self] level, charging in
@@ -98,6 +105,43 @@ final class SystemHUD {
         capsLockOn = Self.capsLockState()
         startPolling()
         startNetwork()
+        startAccessoryChecks()
+    }
+
+    // MARK: - Bateria de accesorios
+
+    @ObservationIgnored private var accessoryTimer: Timer?
+    /// Accesorios ya avisados por poca bateria (hasta que vuelvan a cargarse).
+    @ObservationIgnored private var warnedLow: Set<String> = []
+
+    private func showBattery(of name: String, after delay: TimeInterval) {
+        Task {
+            try? await Task.sleep(for: .seconds(delay))
+            let devices = await AccessoryBattery.readAll()
+            guard let device = devices.first(where: { $0.name == name }), let level = device.lowest,
+                  defaults.bool(forKey: SettingsKey.hudDevices) else { return }
+            show(.accessory(name: device.name, icon: device.icon, level: level, low: level <= 20), for: 3)
+        }
+    }
+
+    /// Cada 5 minutos: aviso de poca bateria (20 % o menos), una vez por carga.
+    private func startAccessoryChecks() {
+        accessoryTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.defaults.bool(forKey: SettingsKey.hudDevices) else { return }
+                Task {
+                    for device in await AccessoryBattery.readAll() {
+                        guard let level = device.lowest else { continue }
+                        if level > 30 { self.warnedLow.remove(device.name) }
+                        if level <= 20, !self.warnedLow.contains(device.name) {
+                            self.warnedLow.insert(device.name)
+                            self.show(.accessory(name: device.name, icon: device.icon, level: level, low: true), for: 4)
+                            break
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Sondeo (Bloq Mayus, microfono, camara, reloj)
