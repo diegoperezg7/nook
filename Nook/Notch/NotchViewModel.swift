@@ -5,10 +5,10 @@ import SwiftUI
 @MainActor
 final class NotchViewModel {
     enum Tab: Hashable {
-        case shelf, clipboard, screenshots, agents
+        case shelf, clipboard, screenshots, calendar, agents
 
         /// El historial, las capturas y los agentes tienen una fila de herramientas sobre las tarjetas.
-        var hasToolbar: Bool { self == .clipboard || self == .screenshots || self == .agents }
+        var hasToolbar: Bool { self != .shelf }
     }
 
     enum OpenReason {

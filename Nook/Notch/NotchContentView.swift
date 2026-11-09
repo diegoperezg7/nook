@@ -8,6 +8,7 @@ struct NotchContentView: View {
     let store: ItemStore
     @Environment(ScreenshotLibrary.self) private var screenshots
     @Environment(AgentMonitor.self) private var agents
+    @Environment(CalendarService.self) private var calendarService
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -24,6 +25,8 @@ struct NotchContentView: View {
                     ClipboardView(model: model, store: store)
                 case .screenshots:
                     ScreenshotsView(model: model, store: store, library: screenshots)
+                case .calendar:
+                    CalendarView(calendar: calendarService)
                 case .agents:
                     AgentsView(monitor: agents)
                 }
@@ -69,6 +72,7 @@ struct NotchContentView: View {
             tabButton(.shelf, title: "Bandeja", icon: "tray.full.fill")
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
             tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder")
+            tabButton(.calendar, title: "Calendario", icon: "calendar")
             tabButton(.agents, title: "Agentes de IA", icon: "brain", logo: AgentIcons.claude)
         }
         .padding(3)
@@ -91,7 +95,7 @@ struct NotchContentView: View {
                 Button("Vaciar bandeja…", systemImage: "trash", role: .destructive) { confirmClearShelf() }
             case .clipboard:
                 Button("Borrar historial…", systemImage: "trash", role: .destructive) { confirmClearHistory() }
-            case .agents:
+            case .agents, .calendar:
                 EmptyView()
             case .screenshots:
                 Button("Cambiar carpeta de capturas…", systemImage: "folder.badge.gearshape") {

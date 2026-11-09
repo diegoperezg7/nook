@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var screenshots: ScreenshotLibrary?
     private var agents: AgentMonitor?
     private var hud: SystemHUD?
+    private var calendar: CalendarService?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -32,7 +33,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let screenshots = ScreenshotLibrary()
         let agents = AgentMonitor()
         let hud = SystemHUD()
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud)
+        let calendar = CalendarService()
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -45,10 +47,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.screenshots = screenshots
         self.agents = agents
         self.hud = hud
+        self.calendar = calendar
 
         notch.start()
         monitor.start()
         hud.start()
+        calendar.start()
         store.trimHistory()
         store.recognizeMissingText()
 

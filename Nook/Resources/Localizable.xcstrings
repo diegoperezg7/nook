@@ -141,6 +141,16 @@
         }
       }
     },
+    "Abrir en Calendario": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in Calendar"
+          }
+        }
+      }
+    },
     "Acceso al portapapeles": {
       "localizations": {
         "en": {
@@ -271,6 +281,26 @@
         }
       }
     },
+    "Añade un evento: «Café con Ana mañana a las 10»": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an event: “Coffee with Ana tomorrow at 10”"
+          }
+        }
+      }
+    },
+    "Añadido: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added: %@"
+          }
+        }
+      }
+    },
     "Añadir": {
       "localizations": {
         "en": {
@@ -347,6 +377,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Search history"
+          }
+        }
+      }
+    },
+    "Calendario": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar"
           }
         }
       }
@@ -631,6 +671,16 @@
         }
       }
     },
+    "Evento": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event"
+          }
+        }
+      }
+    },
     "Fijar": {
       "localizations": {
         "en": {
@@ -701,6 +751,16 @@
         }
       }
     },
+    "Hoy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
     "Imagen": {
       "localizations": {
         "en": {
@@ -741,6 +801,16 @@
         }
       }
     },
+    "Mañana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tomorrow"
+          }
+        }
+      }
+    },
     "Mostrar en Finder": {
       "localizations": {
         "en": {
@@ -777,6 +847,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "More Options"
+          }
+        }
+      }
+    },
+    "Nada este día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing this day"
+          }
+        }
+      }
+    },
+    "No encuentro la fecha. Prueba «mañana a las 10» o «el viernes»": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I can't find a date. Try “tomorrow at 10” or “on Friday”"
           }
         }
       }
@@ -887,6 +977,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Allowed"
+          }
+        }
+      }
+    },
+    "Permitir acceso al calendario": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Calendar Access"
+          }
+        }
+      }
+    },
+    "Permitir en Ajustes del Sistema…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow in System Settings…"
           }
         }
       }
@@ -1091,12 +1201,32 @@
         }
       }
     },
+    "Todo el día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All day"
+          }
+        }
+      }
+    },
     "Tus capturas de pantalla, a mano": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Your screenshots, close at hand"
+          }
+        }
+      }
+    },
+    "Tus eventos, a un vistazo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your events at a glance"
           }
         }
       }
