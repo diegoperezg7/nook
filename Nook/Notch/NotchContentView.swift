@@ -9,6 +9,7 @@ struct NotchContentView: View {
     @Environment(ScreenshotLibrary.self) private var screenshots
     @Environment(NowPlaying.self) private var nowPlaying
     @Environment(AgentMonitor.self) private var agents
+    @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
     static let margin = NotchMetrics.sideMargin
@@ -69,22 +70,27 @@ struct NotchContentView: View {
     }
 
     /// Pestañas: dos capsulas de cristal; la activa, tintada con el acento.
+    /// Pestañas juntas en una sola capsula de cristal (control segmentado); la activa
+    /// lleva una pildora azul que se desliza. Asi caben todas en el lado del notch.
     private var tabs: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 2) {
             tabButton(.shelf, title: "Bandeja", icon: "tray.full.fill")
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
             tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder")
-            tabButton(.agents, title: "Agentes de IA", icon: "brain")
+            tabButton(.agents, title: "Agentes de IA", icon: "brain", logo: AgentIcons.claude)
             // Solo mientras hay algo en Musica o Spotify.
             if nowPlaying.track != nil {
-                tabButton(.music, title: "Música", icon: "music.note")
+                // El logo de la app que suena (Spotify o Musica).
+                tabButton(.music, title: "Música", icon: "music.note", logo: nowPlaying.player?.icon)
                     .transition(.scale.combined(with: .opacity))
             }
         }
+        .padding(3)
+        .liquidGlass(in: Capsule())
     }
 
-    private func tabButton(_ tab: NotchViewModel.Tab, title: LocalizedStringKey, icon: String) -> some View {
-        TabButton(title: title, icon: icon, selected: model.tab == tab) {
+    private func tabButton(_ tab: NotchViewModel.Tab, title: LocalizedStringKey, icon: String, logo: NSImage? = nil) -> some View {
+        TabButton(title: title, icon: icon, logo: logo, selected: model.tab == tab, namespace: tabNamespace) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
         }
     }
@@ -167,37 +173,43 @@ struct NotchContentView: View {
     }
 }
 
-/// Activa: capsula azul solida (un cristal tintado sobre el panel de cristal pierde
-/// el color). Las demas, de cristal.
-private struct TabSurface: ViewModifier {
-    let selected: Bool
-
-    func body(content: Content) -> some View {
-        if selected {
-            content
-                .background(Capsule().fill(AppColors.accent))
-                .shadow(color: AppColors.accent.opacity(0.4), radius: 5, y: 1)
-        } else {
-            content.liquidGlass(in: Capsule(), interactive: true)
-        }
-    }
-}
-
-/// Pestaña: la activa en azul; las demas de cristal y su icono se tiñe al pasar.
+/// Segmento del control de pestañas. La activa, sobre una pildora azul solida (un
+/// cristal tintado sobre el panel pierde el color) que se desliza entre segmentos.
 private struct TabButton: View {
     let title: LocalizedStringKey
     let icon: String
+    /// Logo oficial de una app (Spotify, Claude...) en lugar del simbolo.
+    var logo: NSImage?
     let selected: Bool
+    let namespace: Namespace.ID
     let action: () -> Void
     @State private var hovering = false
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: icon)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(selected ? AppColors.onAccent : (hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85)))
-                .frame(width: 42, height: 28)
-                .modifier(TabSurface(selected: selected))
+            Group {
+                if let logo {
+                    Image(nsImage: logo)
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                        .scaleEffect(hovering && !selected ? 1.08 : 1)
+                } else {
+                    Image(systemName: icon)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(selected ? AppColors.onAccent : (hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85)))
+                }
+            }
+                .frame(width: 30, height: 24)
+                .background {
+                    if selected {
+                        Capsule()
+                            .fill(AppColors.accent)
+                            .shadow(color: AppColors.accent.opacity(0.4), radius: 4, y: 1)
+                            .matchedGeometryEffect(id: "tab", in: namespace)
+                    } else if hovering {
+                        Capsule().fill(AppColors.notchText.opacity(0.08))
+                    }
+                }
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)

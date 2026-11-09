@@ -42,8 +42,9 @@ struct NotchMetrics: Equatable {
     /// Tamaño del panel abierto. La bandeja no tiene buscador y es mas baja: el panel
     /// se ajusta al contenido en vez de dejar un hueco abajo.
     func openSize(searchRow: Bool) -> CGSize {
-        // ~250 pt a cada lado del notch: pestañas a un lado, botones al otro, con aire.
-        let width = min(max(notchWidth + 500, 680), screenFrame.width - 40)
+        // ~210 pt a cada lado del notch: pestañas (control compacto) a un lado,
+        // botones al otro. Compacto: no se ensancha al añadir pestañas.
+        let width = min(max(notchWidth + 420, 600), screenFrame.width - 40)
         let content = Self.topSpacing + (searchRow ? Self.searchRowHeight : 0) + Self.cardRowHeight + Self.bottomMargin
         return CGSize(width: width, height: headerHeight + content)
     }

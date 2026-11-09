@@ -147,13 +147,18 @@ final class NowPlaying {
         guard parts.count == 6 else { return }
         self.player = player
         isPlaying = parts[0] == "playing"
-        // Musica da la duracion en segundos; Spotify, en milisegundos.
-        var duration = Double(parts[4].replacingOccurrences(of: ",", with: ".")) ?? 0
-        if player == .spotify { duration /= 1000 }
+        // Musica da la duracion en segundos; Spotify dice segundos en su diccionario
+        // pero segun la version devuelve milisegundos.
+        let duration = Self.seconds(Double(parts[4].replacingOccurrences(of: ",", with: ".")) ?? 0)
         track = Track(title: parts[1], artist: parts[2], album: parts[3], duration: duration)
         position = Double(parts[5].replacingOccurrences(of: ",", with: ".")) ?? 0
         positionDate = .now
         loadArtwork()
+    }
+
+    /// Una cancion de mas de 10 h no existe: un valor asi viene en milisegundos.
+    nonisolated static func seconds(_ value: Double) -> TimeInterval {
+        value > 36_000 ? value / 1000 : value
     }
 
     private func readPosition() {
