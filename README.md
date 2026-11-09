@@ -53,7 +53,7 @@ from any app. Passwords are never saved.
 ## Keep an eye on your AI agents
 
 <p align="center">
-  <img src="docs/images/agents.png" width="760" alt="Three Claude Code sessions running and the subscription usage left">
+  <img src="docs/images/agents.png" width="760" alt="Claude Code sessions running and the subscription usage left">
 </p>
 
 If you work with coding agents, Nook tells you **when one finishes or is waiting for your
