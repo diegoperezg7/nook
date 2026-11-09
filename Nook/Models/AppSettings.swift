@@ -37,6 +37,8 @@ enum SettingsKey {
     static let windowSnap = "windowSnap"
     static let selectionActions = "selectionActions"
     static let notifications = "notifications"
+    /// Introduccion del primer arranque ya vista.
+    static let onboardingDone = "onboardingDone"
     /// Lanzador con ⌥Espacio.
     static let launcher = "launcher"
     /// Ciudad del tiempo (vacia = sin tiempo) y sus coordenadas.
@@ -61,9 +63,11 @@ enum SettingsKey {
             hudDevices: true,
             hudBattery: true,
             hudDownloads: true,
-            hudCapsLock: true,
+            // macOS ya muestra Bloq Mayus junto al cursor y el punto naranja del
+            // micro o la camara: los dos avisos propios van apagados de serie.
+            hudCapsLock: false,
             hudNetwork: true,
-            hudMediaInUse: true,
+            hudMediaInUse: false,
             hudMeetings: true,
             hudMail: true,
             mailEnabled: true,

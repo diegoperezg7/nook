@@ -151,6 +151,16 @@
         }
       }
     },
+    "Abrir Ajustes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
     "Abrir Ajustes del Sistema": {
       "localizations": {
         "en": {
@@ -167,6 +177,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open Settings…"
+          }
+        }
+      }
+    },
+    "Abrir Nook al iniciar sesión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Nook at login"
           }
         }
       }
@@ -281,12 +301,42 @@
         }
       }
     },
+    "Acciones sobre el texto seleccionado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions on selected text"
+          }
+        }
+      }
+    },
     "Activa Accesibilidad en Ajustes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Turn on Accessibility in Settings"
+          }
+        }
+      }
+    },
+    "Activa lo que vayas a usar. Todo se puede cambiar después en Ajustes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on what you'll use. You can change everything later in Settings."
+          }
+        }
+      }
+    },
+    "Activado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
           }
         }
       }
@@ -341,6 +391,16 @@
         }
       }
     },
+    "Ajustar ventanas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snap windows"
+          }
+        }
+      }
+    },
     "Ajustar ventanas con ⌃⌥": {
       "localizations": {
         "en": {
@@ -381,6 +441,16 @@
         }
       }
     },
+    "Al conectar, macOS pedirá permiso para leer el correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When connecting, macOS will ask for permission to read mail"
+          }
+        }
+      }
+    },
     "Al instante": {
       "localizations": {
         "en": {
@@ -407,6 +477,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Action ring with ⌃⌥Space"
+          }
+        }
+      }
+    },
+    "Anillo de acciones junto al cursor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action ring next to the cursor"
           }
         }
       }
@@ -471,6 +551,16 @@
         }
       }
     },
+    "Arrastra archivos encima": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag files onto it"
+          }
+        }
+      }
+    },
     "Arrastra para usarlo en otra app": {
       "localizations": {
         "en": {
@@ -481,12 +571,72 @@
         }
       }
     },
+    "Atajos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts"
+          }
+        }
+      }
+    },
+    "Atajos y avisos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts and alerts"
+          }
+        }
+      }
+    },
+    "Atrás": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
     "Auriculares y altavoces Bluetooth": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Bluetooth Headphones and Speakers"
+          }
+        }
+      }
+    },
+    "Automatización de Mail u Outlook para ver los no leídos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mail or Outlook automation to see unread messages."
+          }
+        }
+      }
+    },
+    "Avisos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerts"
+          }
+        }
+      }
+    },
+    "Avisos del notch cerrado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed-notch alerts"
           }
         }
       }
@@ -571,6 +721,16 @@
         }
       }
     },
+    "Batería": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery"
+          }
+        }
+      }
+    },
     "Batería y cargador": {
       "localizations": {
         "en": {
@@ -581,12 +741,32 @@
         }
       }
     },
+    "Bienvenido a Nook": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome to Nook"
+          }
+        }
+      }
+    },
     "Bloq Mayús": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Caps Lock"
+          }
+        }
+      }
+    },
+    "Bluetooth": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
           }
         }
       }
@@ -661,12 +841,32 @@
         }
       }
     },
+    "Cada aviso se ensancha solo hasta los menús y los iconos de la barra, sin taparlos (necesita Accesibilidad).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each alert only widens up to the menus and menu bar icons, never covering them (needs Accessibility)."
+          }
+        }
+      }
+    },
     "Calendario": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Calendar"
+          }
+        }
+      }
+    },
+    "Calendario y correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar and mail"
           }
         }
       }
@@ -771,6 +971,16 @@
         }
       }
     },
+    "Cesta al agitar el ratón arrastrando": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basket when shaking the mouse while dragging"
+          }
+        }
+      }
+    },
     "Cesta al agitar el ratón arrastrando archivos": {
       "localizations": {
         "en": {
@@ -861,12 +1071,42 @@
         }
       }
     },
+    "Conectar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        }
+      }
+    },
+    "Conexión": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection"
+          }
+        }
+      }
+    },
     "Conexión a internet y VPN": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Internet Connection and VPN"
+          }
+        }
+      }
+    },
+    "Configurar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up"
           }
         }
       }
@@ -981,6 +1221,16 @@
         }
       }
     },
+    "Correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mail"
+          }
+        }
+      }
+    },
     "Correo nuevo": {
       "localizations": {
         "en": {
@@ -991,12 +1241,52 @@
         }
       }
     },
+    "Correo sin leer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unread mail"
+          }
+        }
+      }
+    },
+    "Cualquier cuenta de Cuentas de Internet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any account in Internet Accounts"
+          }
+        }
+      }
+    },
     "Cuenta atrás de reuniones": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Meeting Countdown"
+          }
+        }
+      }
+    },
+    "Cuentas de Internet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet Accounts"
+          }
+        }
+      }
+    },
+    "Cuentas de Internet…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet Accounts…"
           }
         }
       }
@@ -1027,6 +1317,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Denied"
+          }
+        }
+      }
+    },
+    "Desactivado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
           }
         }
       }
@@ -1171,6 +1471,26 @@
         }
       }
     },
+    "Empezar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get started"
+          }
+        }
+      }
+    },
+    "En Ajustes del Sistema, activa Nook en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Nook.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In System Settings, turn on Nook in the list (or add it with +). When you come back, the status updates by itself; disk access may require reopening Nook."
+          }
+        }
+      }
+    },
     "En curso": {
       "localizations": {
         "en": {
@@ -1271,6 +1591,16 @@
         }
       }
     },
+    "Esta versión no deja leer el correo (el Outlook nuevo no tiene AppleScript)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This version doesn't allow reading mail (the new Outlook has no AppleScript)"
+          }
+        }
+      }
+    },
     "Estado desconocido (%@)": {
       "localizations": {
         "en": {
@@ -1297,6 +1627,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Event"
+          }
+        }
+      }
+    },
+    "Eventos y controles de reunión.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Events and meeting controls."
+          }
+        }
+      }
+    },
+    "Eventos y cuenta atrás de reuniones con botón para unirte.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Events and meeting countdowns with a join button."
+          }
+        }
+      }
+    },
+    "Falta el permiso de Automatización": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automation permission missing"
           }
         }
       }
@@ -1461,12 +1821,42 @@
         }
       }
     },
+    "Introducción": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduction"
+          }
+        }
+      }
+    },
+    "La versión clásica, por AppleScript": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The classic version, via AppleScript"
+          }
+        }
+      }
+    },
     "Lanzador con ⌥Espacio": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Launcher with ⌥Space"
+          }
+        }
+      }
+    },
+    "Lanzador: apps, archivos y cuentas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launcher: apps, files and math"
           }
         }
       }
@@ -1491,12 +1881,42 @@
         }
       }
     },
+    "Los pendientes de hoy en el calendario.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's to-dos in the calendar."
+          }
+        }
+      }
+    },
+    "Los pendientes de hoy, con su casilla para completarlos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's to-dos, with a checkbox to complete them."
+          }
+        }
+      }
+    },
     "Mail": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Mail"
+          }
+        }
+      }
+    },
+    "Mail de Apple": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Mail"
           }
         }
       }
@@ -1561,6 +1981,16 @@
         }
       }
     },
+    "Micro y cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mic and camera"
+          }
+        }
+      }
+    },
     "Micrófono o cámara en uso": {
       "localizations": {
         "en": {
@@ -1587,6 +2017,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show in Finder"
+          }
+        }
+      }
+    },
+    "Mostrar en el notch las notificaciones que entrega macOS. Solo se leen las nuevas y no se guardan.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the notifications macOS delivers in the notch. Only new ones are read, and nothing is stored."
           }
         }
       }
@@ -1691,6 +2131,16 @@
         }
       }
     },
+    "No mirar el correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't check mail"
+          }
+        }
+      }
+    },
     "No se guarda lo que los gestores de contraseñas marcan como privado. El historial se queda en este Mac.": {
       "localizations": {
         "en": {
@@ -1747,6 +2197,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notch"
+          }
+        }
+      }
+    },
+    "Notificaciones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "Notificaciones del sistema en el notch. Solo las nuevas; nada se guarda.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System notifications in the notch. Only new ones; nothing is stored."
           }
         }
       }
@@ -1831,6 +2301,26 @@
         }
       }
     },
+    "Outlook, Google o Exchange": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outlook, Google or Exchange"
+          }
+        }
+      }
+    },
+    "Panel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Panel"
+          }
+        }
+      }
+    },
     "Para leer las notificaciones que entrega macOS. Añade Nook en la lista y vuelve a abrirla. Solo se leen las nuevas; nada se guarda.": {
       "localizations": {
         "en": {
@@ -1861,12 +2351,52 @@
         }
       }
     },
+    "Pasa el ratón por el notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hover over the notch"
+          }
+        }
+      }
+    },
+    "Pasa el ratón por el notch para abrir Nook. Los ajustes están en el menú ⋯ del panel.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hover over the notch to open Nook. Settings are in the panel's ⋯ menu."
+          }
+        }
+      }
+    },
     "Pegar al elegir (con ⌃⌘V)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Paste when chosen (with ⌃⌘V)"
+          }
+        }
+      }
+    },
+    "Pegar desde el historial, ajustar ventanas con ⌃⌥, acciones del texto seleccionado, controles de reunión y que los avisos no tapen los iconos de la barra.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste from history, snap windows with ⌃⌥, selected-text actions, meeting controls, and alerts that don't cover menu bar icons."
+          }
+        }
+      }
+    },
+    "Pegar, ajustar ventanas, texto seleccionado, reuniones y avisos que no tapan la barra.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste, snap windows, selected text, meetings and alerts that don't cover the menu bar."
           }
         }
       }
@@ -1931,12 +2461,32 @@
         }
       }
     },
+    "Permisos avanzados": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced permissions"
+          }
+        }
+      }
+    },
     "Permitido": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Allowed"
+          }
+        }
+      }
+    },
+    "Permitir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow"
           }
         }
       }
@@ -2041,12 +2591,42 @@
         }
       }
     },
+    "Recordatorios": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders"
+          }
+        }
+      }
+    },
+    "Reuniones": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meetings"
+          }
+        }
+      }
+    },
     "Salir de Nook": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Quit Nook"
+          }
+        }
+      }
+    },
+    "Saltar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
           }
         }
       }
@@ -2111,6 +2691,16 @@
         }
       }
     },
+    "Siguiente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
     "Siguientes": {
       "localizations": {
         "en": {
@@ -2151,6 +2741,16 @@
         }
       }
     },
+    "Sin acceso al calendario": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No calendar access"
+          }
+        }
+      }
+    },
     "Sin acceso al portapapeles": {
       "localizations": {
         "en": {
@@ -2167,6 +2767,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Offline"
+          }
+        }
+      }
+    },
+    "Sin correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No mail"
           }
         }
       }
@@ -2221,12 +2831,32 @@
         }
       }
     },
+    "Solo remitente, asunto y hora, y solo si la app está abierta. El Outlook nuevo no deja leer el correo: usa Mail con la cuenta en Cuentas de Internet o el Outlook clásico.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only sender, subject and time, and only while the app is open. The new Outlook doesn't allow reading mail: use Mail with the account in Internet Accounts, or classic Outlook."
+          }
+        }
+      }
+    },
     "Solo remitente, asunto y hora, y solo si la app está abierta. Nada sale de este Mac. El Outlook nuevo no deja leer el correo: usa Mail con la cuenta añadida en Cuentas de Internet o el Outlook clásico.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Only sender, subject and time, and only while the app is open. Nothing leaves this Mac. New Outlook doesn't allow reading mail: use Mail with the account added in Internet Accounts, or Legacy Outlook."
+          }
+        }
+      }
+    },
+    "Son opcionales: cada uno desbloquea algo concreto. Nook no envía nada fuera de tu Mac.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They're optional: each one unlocks something specific. Nook sends nothing off your Mac."
           }
         }
       }
@@ -2351,6 +2981,16 @@
         }
       }
     },
+    "Tiempo en el anillo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weather in the ring"
+          }
+        }
+      }
+    },
     "Todo": {
       "localizations": {
         "en": {
@@ -2381,12 +3021,32 @@
         }
       }
     },
+    "Todo listo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All set"
+          }
+        }
+      }
+    },
     "Traducir": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Translate"
+          }
+        }
+      }
+    },
+    "Tu notch se convierte en un sitio útil: deja archivos, recupera lo que copiaste, mira tu agenda y tus correos, y recibe avisos sin que nada te tape la pantalla.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your notch becomes a useful place: drop files, get back what you copied, check your schedule and mail, and get alerts without anything covering your screen."
           }
         }
       }
@@ -2417,6 +3077,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your events at a glance"
+          }
+        }
+      }
+    },
+    "Tus reuniones, recordatorios y correos sin leer, a un vistazo desde el notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your meetings, reminders and unread mail, at a glance from the notch."
           }
         }
       }
@@ -2477,6 +3147,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empty Shelf…"
+          }
+        }
+      }
+    },
+    "Ver de nuevo…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show again…"
           }
         }
       }
@@ -2611,6 +3291,16 @@
         }
       }
     },
+    "¿Outlook, Google o Exchange? Añade la cuenta en Cuentas de Internet y sus calendarios aparecen en Nook.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outlook, Google or Exchange? Add the account in Internet Accounts and its calendars show up in Nook."
+          }
+        }
+      }
+    },
     "¿Vaciar la bandeja?": {
       "localizations": {
         "en": {
@@ -2627,6 +3317,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "⌃⌥ + ← → ↑ ↓ halves · U I J K quarters · D F G thirds · E T two thirds · ↩ maximize · C center"
+          }
+        }
+      }
+    },
+    "⌥Espacio para el lanzador": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥Space for the launcher"
           }
         }
       }

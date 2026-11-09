@@ -5,8 +5,10 @@ import SwiftUI
 struct HUDActivity: View {
     let kind: SystemHUD.Kind
     let metrics: NotchMetrics
+    /// Lo que crece el notch a cada lado (segun el hueco libre de la barra de menus).
+    let sides: HUDSides
 
-    /// Ancho que crece el notch a cada lado para este aviso.
+    /// Ancho que pide cada lado del notch para este aviso.
     static func side(for kind: SystemHUD.Kind) -> CGFloat {
         switch kind {
         case .volume, .battery: return 58
@@ -22,18 +24,33 @@ struct HUDActivity: View {
     }
 
     var body: some View {
-        let side = Self.side(for: kind)
+        let ear = NotchMetrics.closedEar
         HStack(spacing: 0) {
-            leading
-                .frame(width: side - 8, alignment: .leading)
-                .padding(.leading, NotchMetrics.closedEar + 12)
-            Spacer(minLength: metrics.notchWidth)
-            trailing
-                .frame(width: side - 8, alignment: .trailing)
-                .padding(.trailing, NotchMetrics.closedEar + 12)
+            Group {
+                if sides.merged, sides.left > 0 {
+                    HStack(spacing: 8) { leading; trailing }
+                } else if sides.left > 0 {
+                    leading
+                }
+            }
+            .padding(.leading, ear + 10)
+            .frame(width: sides.left + ear, alignment: .leading)
+
+            Color.clear.frame(width: metrics.notchWidth)
+
+            Group {
+                if sides.merged, sides.right > 0 {
+                    HStack(spacing: 8) { leading; trailing }
+                } else if sides.right > 0 {
+                    trailing
+                }
+            }
+            .padding(.trailing, ear + 10)
+            .frame(width: sides.right + ear, alignment: .trailing)
         }
         .foregroundStyle(AppColors.notchText)
         .frame(height: metrics.notchHeight)
+        .clipped()
     }
 
     @ViewBuilder

@@ -11,6 +11,7 @@ struct NotchRootView: View {
     let store: ItemStore
     @Environment(SystemHUD.self) private var hud
     @Environment(FocusTimer.self) private var focus
+    @Environment(MenuBarSpace.self) private var menuBar
 
     var body: some View {
         let metrics = model.metrics
@@ -18,9 +19,14 @@ struct NotchRootView: View {
         // Cerrado, el notch se ensancha para un aviso breve (volumen, bateria...) o,
         // si no hay ninguno, para lo que este en marcha (reunion, temporizador...).
         let notice = model.isOpen ? nil : (hud.current ?? hud.ambient)
-        let side = notice.map(HUDActivity.side(for:)) ?? 0
-        let closedWidth = metrics.closedSize.width + side * 2
+        // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
+        let free = menuBar.free
+        let sides = HUDSides.make(desired: notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
+        let closedWidth = metrics.closedSize.width + sides.left + sides.right
         let width = model.expandedWidth ? open.width : closedWidth
+        // Si un lado crece mas que el otro, la forma se desplaza para que el notch
+        // fisico siga en su sitio.
+        let shift = model.expandedWidth ? 0 : (sides.right - sides.left) / 2
         let height = model.expandedHeight ? open.height : metrics.closedSize.height
         let shape = NotchShape(
             topRadius: model.expandedWidth ? NotchMetrics.openEar : NotchMetrics.closedEar,
@@ -32,7 +38,7 @@ struct NotchRootView: View {
                 NotchBackground(shape: shape)
 
                 if let notice {
-                    HUDActivity(kind: notice, metrics: metrics)
+                    HUDActivity(kind: notice, metrics: metrics, sides: sides)
                         .frame(width: closedWidth)
                         .transition(.opacity.animation(.easeOut(duration: 0.15)))
                 }
@@ -45,13 +51,14 @@ struct NotchRootView: View {
             }
             .frame(width: width, height: height, alignment: .top)
             .clipShape(shape)
+            .offset(x: shift)
             .overlay {
                 if model.isDropTargeted, model.isOpen {
                     DropGlow(shape: shape)
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
-            .animation(AppMotion.open, value: notice.map(HUDActivity.side(for:)))
+            .animation(AppMotion.open, value: sides)
             // Abrir el notch para la alarma que esta sonando.
             .onChange(of: model.isOpen) { _, open in if open { focus.silence() } }
             // Cerrado y con el raton encima, se asoma un poco desde arriba.

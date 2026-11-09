@@ -2,7 +2,14 @@ import AppKit
 import ServiceManagement
 import SwiftUI
 
+/// Ajustes por pestañas, como en las apps de Apple: cada una cabe sin desplazarse
+/// mucho y lo de cada tema esta junto.
 struct SettingsView: View {
+    let calendar: CalendarService
+    let mail: MailService
+    let permissions: PermissionState
+    let showOnboarding: () -> Void
+
     @AppStorage(SettingsKey.captureClipboard) private var captureClipboard = true
     @AppStorage(SettingsKey.historyLimit) private var historyLimit = SettingsKey.unlimitedHistory
     @AppStorage(SettingsKey.hotKeyEnabled) private var hotKeyEnabled = true
@@ -10,15 +17,6 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.hideFromCaptures) private var hideFromCaptures = true
     @AppStorage(SettingsKey.openDelay) private var openDelay = 0.1
     @AppStorage(SettingsKey.closeDelay) private var closeDelay = 0.18
-    @AppStorage(SettingsKey.hudVolume) private var hudVolume = true
-    @AppStorage(SettingsKey.hudDevices) private var hudDevices = true
-    @AppStorage(SettingsKey.hudBattery) private var hudBattery = true
-    @AppStorage(SettingsKey.hudDownloads) private var hudDownloads = true
-    @AppStorage(SettingsKey.hudCapsLock) private var hudCapsLock = true
-    @AppStorage(SettingsKey.hudNetwork) private var hudNetwork = true
-    @AppStorage(SettingsKey.hudMediaInUse) private var hudMediaInUse = true
-    @AppStorage(SettingsKey.hudMeetings) private var hudMeetings = true
-    @AppStorage(SettingsKey.hudMail) private var hudMail = true
     @AppStorage(SettingsKey.mailEnabled) private var mailEnabled = true
     @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
     @AppStorage(SettingsKey.basketOnShake) private var basketOnShake = true
@@ -27,21 +25,87 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.windowSnap) private var windowSnap = true
     @AppStorage(SettingsKey.selectionActions) private var selectionActions = true
     @AppStorage(SettingsKey.launcher) private var launcherOn = true
-    @State private var axTrusted = AXAccess.isTrusted
     @AppStorage(SettingsKey.weatherCity) private var weatherCity = ""
     @State private var cityQuery = ""
     @State private var citySearch: CitySearch = .idle
     private enum CitySearch: Equatable { case idle, searching, notFound }
-    let calendar: CalendarService
-    let notifications: NotificationFeed
-    @AppStorage(SettingsKey.notifications) private var notificationsOn = true
-    @State private var fullDiskAccess = FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath)
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @State private var launchAtLogin = LoginItem.isEnabled
     @State private var access = ClipboardAccess.current
+    @State private var tab = Self.initialTab
 
     var body: some View {
+        TabView(selection: $tab) {
+            general.tabItem { Label("General", systemImage: "gearshape") }.tag(0)
+            notices.tabItem { Label("Avisos", systemImage: "bell.badge") }.tag(1)
+            clipboard.tabItem { Label("Portapapeles", systemImage: "doc.on.clipboard") }.tag(2)
+            accounts.tabItem { Label("Calendario y correo", systemImage: "calendar") }.tag(3)
+            shortcuts.tabItem { Label("Atajos", systemImage: "command") }.tag(4)
+            privacy.tabItem { Label("Permisos", systemImage: "lock.shield") }.tag(5)
+        }
+        .frame(width: 560, height: 520)
+        .tint(AppColors.accent)
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            access = ClipboardAccess.current
+            launchAtLogin = LoginItem.isEnabled
+        }
+    }
+
+    private static var initialTab: Int {
+        #if DEBUG
+        // `-NookSettingsTab 3` abre esa pestaña (para revisarla).
+        return UserDefaults.standard.integer(forKey: "NookSettingsTab")
+        #else
+        return 0
+        #endif
+    }
+
+    // MARK: Pestañas
+
+    private var general: some View {
         Form {
-            Section("Portapapeles") {
+            Section {
+                Toggle("Abrir al iniciar sesión", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, on in launchAtLogin = LoginItem.set(on) }
+                Toggle("Mostrar en pantallas sin notch", isOn: $showWithoutNotch)
+                Toggle("Ocultar en capturas de pantalla", isOn: $hideFromCaptures)
+            }
+            Section("Panel") {
+                Picker("Abrir al pasar el ratón", selection: $openDelay) {
+                    ForEach(SettingsKey.openDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
+                }
+                Picker("Cerrar al salir", selection: $closeDelay) {
+                    ForEach(SettingsKey.closeDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
+                }
+                Toggle("Cesta al agitar el ratón arrastrando archivos", isOn: $basketOnShake)
+            }
+            Section {
+                LabeledContent("Introducción") {
+                    Button("Ver de nuevo…", action: showOnboarding)
+                }
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private var notices: some View {
+        Form {
+            Section {
+                NoticeGrid()
+                    .padding(.vertical, 4)
+            } header: {
+                Text("Avisos del notch cerrado")
+            } footer: {
+                Text("Cada aviso se ensancha solo hasta los menús y los iconos de la barra, sin taparlos (necesita Accesibilidad).")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private var clipboard: some View {
+        Form {
+            Section {
                 Toggle("Guardar el historial del portapapeles", isOn: $captureClipboard)
                 Picker("Elementos en el historial", selection: $historyLimit) {
                     ForEach(SettingsKey.historyLimitOptions, id: \.self) { limit in
@@ -52,9 +116,6 @@ struct SettingsView: View {
                         }
                     }
                 }
-                Toggle("Abrir el historial con ⌃⌘V", isOn: $hotKeyEnabled)
-                Toggle("Pegar al elegir (con ⌃⌘V)", isOn: $pasteOnSelect)
-                    .onChange(of: pasteOnSelect) { _, on in if on, !axTrusted { AXAccess.request() } }
                 LabeledContent("Acceso al portapapeles") {
                     HStack(spacing: 8) {
                         Text(accessLabel).foregroundStyle(access == .allowed ? AppColors.success : AppColors.danger)
@@ -65,39 +126,42 @@ struct SettingsView: View {
                         }
                     }
                 }
+            } footer: {
                 Text("No se guarda lo que los gestores de contraseñas marcan como privado. El historial se queda en este Mac.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-
-            Section("Avisos en el notch") {
-                Toggle("Volumen", isOn: $hudVolume)
-                Toggle("Auriculares y altavoces Bluetooth", isOn: $hudDevices)
-                Toggle("Batería y cargador", isOn: $hudBattery)
-                Toggle("Descargas", isOn: $hudDownloads)
-                Toggle("Bloq Mayús", isOn: $hudCapsLock)
-                Toggle("Conexión a internet y VPN", isOn: $hudNetwork)
-                Toggle("Micrófono o cámara en uso", isOn: $hudMediaInUse)
-                Toggle("Cuenta atrás de reuniones", isOn: $hudMeetings)
-                Toggle("Correo nuevo", isOn: $hudMail)
+            Section("⌃⌘V") {
+                Toggle("Abrir el historial con ⌃⌘V", isOn: $hotKeyEnabled)
+                Toggle("Pegar al elegir (con ⌃⌘V)", isOn: $pasteOnSelect)
+                    .onChange(of: pasteOnSelect) { _, on in if on, !permissions.accessibility { AXAccess.request() } }
             }
+        }
+        .formStyle(.grouped)
+    }
 
-            Section("Bandeja de entrada") {
+    private var accounts: some View {
+        Form {
+            Section {
                 Toggle("Ver los correos sin leer en el notch", isOn: $mailEnabled)
                 Picker("Leer de", selection: $mailSource) {
-                    Text("Mail").tag(MailService.Source.mail.rawValue)
+                    Text("Mail de Apple").tag(MailService.Source.mail.rawValue)
                     Text("Outlook (clásico)").tag(MailService.Source.outlook.rawValue)
                 }
                 .disabled(!mailEnabled)
-                Text("Solo remitente, asunto y hora, y solo si la app está abierta. Nada sale de este Mac. El Outlook nuevo no deja leer el correo: usa Mail con la cuenta añadida en Cuentas de Internet o el Outlook clásico.")
+            } header: {
+                Text("Correo")
+            } footer: {
+                Text("Solo remitente, asunto y hora, y solo si la app está abierta. El Outlook nuevo no deja leer el correo: usa Mail con la cuenta en Cuentas de Internet o el Outlook clásico.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
-            Section("Calendarios") {
+            Section {
                 if calendar.accounts.isEmpty {
-                    Text("Da acceso al calendario desde la pestaña Calendario del notch.")
-                        .foregroundStyle(.secondary)
+                    LabeledContent("Sin acceso al calendario") {
+                        Button("Permitir") { calendar.requestAccess() }
+                    }
                 }
                 ForEach(calendar.accounts) { account in
                     VStack(alignment: .leading, spacing: 6) {
@@ -117,56 +181,34 @@ struct SettingsView: View {
                         }
                     }
                 }
-                Text("Para ver Outlook, añade la cuenta de Microsoft 365 en Ajustes del Sistema > Cuentas de Internet.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-
-            Section("Permisos") {
-                LabeledContent("Accesibilidad") {
-                    HStack(spacing: 8) {
-                        Text(axTrusted ? "Permitido" : "Sin permiso")
-                            .foregroundStyle(axTrusted ? AppColors.success : AppColors.danger)
-                        if !axTrusted {
-                            Button("Permitir…") { AXAccess.request(); AXAccess.openSettings() }
-                        }
-                    }
+                LabeledContent("Outlook, Google o Exchange") {
+                    Button("Cuentas de Internet…", action: SystemSettingsLink.internetAccounts)
                 }
-                Text("Para pegar en otras apps, ajustar ventanas, el texto seleccionado y los controles de reunión.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                Toggle("Notificaciones en el notch", isOn: $notificationsOn)
-                LabeledContent("Acceso total al disco") {
-                    HStack(spacing: 8) {
-                        Text(fullDiskAccess ? "Permitido" : "Sin permiso")
-                            .foregroundStyle(fullDiskAccess ? AppColors.success : AppColors.danger)
-                        if !fullDiskAccess {
-                            Button("Abrir Ajustes…") { notifications.openFullDiskAccessSettings() }
-                        }
-                    }
-                }
-                Text("Para leer las notificaciones que entrega macOS. Añade Nook en la lista y vuelve a abrirla. Solo se leen las nuevas; nada se guarda.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            } header: {
+                Text("Calendarios")
             }
-            // Al volver de Ajustes del Sistema se actualiza el estado.
-            .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-                axTrusted = AXAccess.isTrusted
-                fullDiskAccess = FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath)
-            }
+        }
+        .formStyle(.grouped)
+    }
 
-            Section("Herramientas") {
+    private var shortcuts: some View {
+        Form {
+            Section {
                 Toggle("Lanzador con ⌥Espacio", isOn: $launcherOn)
                 Toggle("Anillo de acciones con ⌃⌥Espacio", isOn: $actionRing)
                 Toggle("Acciones al seleccionar texto", isOn: $selectionActions)
                 Toggle("Ajustar ventanas con ⌃⌥", isOn: $windowSnap)
+            } footer: {
                 Text("⌃⌥ + ← → ↑ ↓ mitades · U I J K cuartos · D F G tercios · E T dos tercios · ↩ maximizar · C centrar")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                LabeledContent("Tiempo") {
+            }
+            Section {
+                LabeledContent("Ciudad") {
                     HStack(spacing: 8) {
                         TextField("Ciudad", text: $cityQuery, prompt: Text(weatherCity.isEmpty ? String(localized: "Ciudad") : weatherCity))
-                            .frame(width: 160)
+                            .labelsHidden()
+                            .frame(width: 150)
                             .onSubmit(searchCity)
                         Button(citySearch == .searching ? "Buscando…" : "Buscar", action: searchCity)
                             .disabled(cityQuery.trimmingCharacters(in: .whitespaces).isEmpty || citySearch == .searching)
@@ -175,37 +217,67 @@ struct SettingsView: View {
                         }
                     }
                 }
+            } header: {
+                Text("Tiempo en el anillo")
+            } footer: {
                 Text(citySearch == .notFound
                      ? String(localized: "No encuentro esa ciudad.")
                      : String(localized: "El tiempo sale en el centro del anillo. Se pide a Open-Meteo solo con las coordenadas de la ciudad elegida."))
                     .font(.footnote)
                     .foregroundStyle(citySearch == .notFound ? AppColors.danger : .secondary)
             }
-
-            Section("Notch") {
-                Picker("Abrir al pasar el ratón", selection: $openDelay) {
-                    ForEach(SettingsKey.openDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
-                }
-                Picker("Cerrar al salir", selection: $closeDelay) {
-                    ForEach(SettingsKey.closeDelayOptions, id: \.self) { Text(Self.delayLabel($0)).tag($0) }
-                }
-            }
-
-            Section("General") {
-                Toggle("Mostrar en pantallas sin notch", isOn: $showWithoutNotch)
-                Toggle("Cesta al agitar el ratón arrastrando archivos", isOn: $basketOnShake)
-                Toggle("Ocultar en capturas de pantalla", isOn: $hideFromCaptures)
-                Toggle("Abrir al iniciar sesión", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, enabled in setLaunchAtLogin(enabled) }
-            }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 640)
-        .fixedSize(horizontal: false, vertical: true)
-        .tint(AppColors.accent)
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            access = ClipboardAccess.current
-            launchAtLogin = SMAppService.mainApp.status == .enabled
+    }
+
+    private var privacy: some View {
+        ScrollView {
+            VStack(spacing: 10) {
+                PermissionRow(
+                    title: "Calendario",
+                    detail: "Eventos y controles de reunión.",
+                    granted: calendar.access == .granted,
+                    actionTitle: calendar.access == .denied ? "Abrir Ajustes" : "Permitir",
+                    action: { calendar.access == .denied ? calendar.openPrivacySettings() : calendar.requestAccess() }
+                ) { AppBadge(image: AgentIcons.calendar, symbol: "calendar", color: .red) }
+                PermissionRow(
+                    title: "Recordatorios",
+                    detail: "Los pendientes de hoy en el calendario.",
+                    granted: calendar.remindersAccess == .granted,
+                    actionTitle: calendar.remindersAccess == .denied ? "Abrir Ajustes" : "Permitir",
+                    action: {
+                        if calendar.remindersAccess == .denied {
+                            SystemSettingsLink.open("com.apple.preference.security?Privacy_Reminders")
+                        } else {
+                            calendar.requestRemindersAccess()
+                        }
+                    }
+                ) { AppBadge(image: AgentIcons.icon("com.apple.reminders"), symbol: "checklist", color: .orange) }
+                if mailEnabled {
+                    PermissionRow(
+                        title: "Correo",
+                        detail: "Automatización de Mail u Outlook para ver los no leídos.",
+                        granted: mail.state == .ok,
+                        actionTitle: mail.state == .denied ? "Abrir Ajustes" : "Conectar",
+                        action: { mail.state == .denied ? mail.openPrivacySettings() : mail.launchSource() }
+                    ) { AppBadge(image: AgentIcons.mail(mail.source), symbol: "envelope.fill") }
+                }
+                PermissionRow(
+                    title: "Accesibilidad",
+                    detail: "Pegar, ajustar ventanas, texto seleccionado, reuniones y avisos que no tapan la barra.",
+                    granted: permissions.accessibility,
+                    actionTitle: "Permitir",
+                    action: { AXAccess.request(); AXAccess.openSettings() }
+                ) { AppBadge(symbol: "accessibility", color: .blue) }
+                PermissionRow(
+                    title: "Acceso total al disco",
+                    detail: "Notificaciones del sistema en el notch. Solo las nuevas; nada se guarda.",
+                    granted: permissions.fullDiskAccess,
+                    actionTitle: "Abrir Ajustes",
+                    action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
+                ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+            }
+            .padding(20)
         }
     }
 
@@ -241,18 +313,6 @@ struct SettingsView: View {
         case .allowed: return "Permitido"
         case .needsPermission: return "Pendiente: elige «Permitir siempre»"
         case .denied: return "Denegado"
-        }
-    }
-
-    private func setLaunchAtLogin(_ enabled: Bool) {
-        do {
-            if enabled {
-                try SMAppService.mainApp.register()
-            } else {
-                try SMAppService.mainApp.unregister()
-            }
-        } catch {
-            launchAtLogin = SMAppService.mainApp.status == .enabled
         }
     }
 }

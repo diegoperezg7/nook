@@ -15,6 +15,7 @@ final class NotchController {
     private let panel = NotchPanel()
     private let store: ItemStore
     private let hud: SystemHUD
+    private let menuBar = MenuBarSpace()
     private var monitors: [Any] = []
     private var pendingOpen: DispatchWorkItem?
     private var pendingClose: DispatchWorkItem?
@@ -39,6 +40,7 @@ final class NotchController {
             .environment(focus)
             .environment(mail)
             .environment(appVolume)
+            .environment(menuBar)
         // La vista SwiftUI va dentro de un contenedor con autoresizing: como
         // contentView directo, redimensionar la ventana provocaba un bucle de
         // "Update Constraints in Window" y AppKit abortaba la app.
@@ -110,6 +112,7 @@ final class NotchController {
         }
         let metrics = NotchMetrics.make(for: screen)
         if metrics != model.metrics { model.metrics = metrics }
+        menuBar.start(for: screen, notchWidth: metrics.notchWidth)
         panel.setFrame(metrics.openWindowFrame, display: true, animate: false)
         updateMouseInteraction()
         panel.orderFrontRegardless()
@@ -273,7 +276,7 @@ final class NotchController {
     #if DEBUG
     /// Abre el panel para capturas: `-NookOpen shelf|clipboard|screenshots|calendar|agents`.
     func applyDebugLaunchArguments() {
-        guard let value = UserDefaults.standard.string(forKey: "NookOpen") else { return }
+        guard let value = UserDefaults.standard.string(forKey: "NookOpen"), value != "settings" else { return }
         let tab: NotchViewModel.Tab = switch value {
         case "clipboard": .clipboard
         case "screenshots": .screenshots

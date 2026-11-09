@@ -11,6 +11,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var monitor: ClipboardMonitor?
     private var hotKey: HotKey?
     private var settingsWindow: NSWindow?
+    private var onboardingWindow: NSWindow?
+    private let permissions = PermissionState()
     private var defaultsObserver: NSObjectProtocol?
     private var services: ServiceProvider?
     private var screenshots: ScreenshotLibrary?
@@ -143,7 +145,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             store.clearHistory()
         }
         notch.applyDebugLaunchArguments()
+        if UserDefaults.standard.string(forKey: "NookOpen") == "settings" { showSettings(); return }
         #endif
+        if !UserDefaults.standard.bool(forKey: SettingsKey.onboardingDone) {
+            showOnboarding()
+        }
     }
 
     private func applySettings() {
@@ -236,10 +242,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showSettings() {
-        guard let calendar else { return }
+        guard let calendar, let mail else { return }
         notch?.model.close()
         if settingsWindow == nil {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(calendar: calendar, notifications: notificationFeed)))
+            let view = SettingsView(calendar: calendar, mail: mail, permissions: permissions) { [weak self] in
+                self?.showOnboarding()
+            }
+            let window = NSWindow(contentViewController: NSHostingController(rootView: view))
             window.title = String(localized: "Ajustes de Nook")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
@@ -248,6 +257,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         NSApp.activate()
         settingsWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    /// Introduccion del primer arranque (y "Ver de nuevo" en Ajustes).
+    private func showOnboarding() {
+        guard let calendar, let mail else { return }
+        notch?.model.close()
+        settingsWindow?.orderOut(nil)
+        if onboardingWindow == nil {
+            let view = OnboardingView(calendar: calendar, mail: mail, permissions: permissions) { [weak self] in
+                UserDefaults.standard.set(true, forKey: SettingsKey.onboardingDone)
+                self?.onboardingWindow?.close()
+            }
+            let window = NSWindow(contentViewController: NSHostingController(rootView: view))
+            window.styleMask = [.titled, .closable, .fullSizeContentView]
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = true
+            window.isReleasedWhenClosed = false
+            window.center()
+            onboardingWindow = window
+        }
+        NSApp.activate()
+        onboardingWindow?.makeKeyAndOrderFront(nil)
     }
 
     private static func makeContainer() -> ModelContainer {
