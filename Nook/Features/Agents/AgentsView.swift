@@ -98,21 +98,32 @@ private struct UsageWindow: View {
     let window: SubscriptionUsage.Window
 
     var body: some View {
-        let used = min(max(window.usedPercent, 0), 100)
-        let left = 100 - used
-        let color = left <= 10 ? AppColors.danger : left <= 30 ? AppColors.warning : AppColors.accent
-        HStack(spacing: 6) {
-            Text(verbatim: window.label)
-                .font(AppTypography.bodyStrong)
-                .foregroundStyle(AppColors.textSecondary)
-            ZStack(alignment: .leading) {
-                Capsule().fill(AppColors.controlTrack)
-                Capsule().fill(color).frame(width: max(3, 46 * used / 100))
-            }
-            .frame(width: 46, height: 5)
-            Text("quedan \(Int(left.rounded())) %")
+        // El snapshot solo se actualiza mientras hay una sesion abierta: si la ventana
+        // ya se reinicio desde entonces, el porcentaje guardado no vale.
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            let reset = window.resetsAt.map { $0 <= context.date } ?? false
+            let used = reset ? 0 : min(max(window.usedPercent, 0), 100)
+            let left = 100 - used
+            let color = left <= 10 ? AppColors.danger : left <= 30 ? AppColors.warning : AppColors.accent
+            HStack(spacing: 6) {
+                Text(verbatim: window.label)
+                    .font(AppTypography.bodyStrong)
+                    .foregroundStyle(AppColors.textSecondary)
+                ZStack(alignment: .leading) {
+                    Capsule().fill(AppColors.controlTrack)
+                    Capsule().fill(color).frame(width: max(3, 46 * used / 100))
+                }
+                .frame(width: 46, height: 5)
+                Group {
+                    if reset {
+                        Text("reiniciada")
+                    } else {
+                        Text("quedan \(Int(left.rounded())) %")
+                    }
+                }
                 .font(AppTypography.bodyStrong.monospacedDigit())
                 .foregroundStyle(left <= 30 ? color : AppColors.textPrimary)
+            }
         }
         .help(window.resetsAt.map { Text("Se reinicia \(AgeText.format($0, now: .now))") } ?? Text(verbatim: ""))
     }

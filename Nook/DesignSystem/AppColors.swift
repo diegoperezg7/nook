@@ -27,6 +27,8 @@ enum AppColors {
     static let accent = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF)
     static let accentSoft = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.16, darkAlpha: 0.22)
     static let onAccent = Color.white
+    /// Texto e iconos sobre el negro del notch (siempre negro, en claro y en oscuro).
+    static let notchText = Color.white
     /// Velo y borde azul de las zonas interactivas en reposo (caja de soltar, controles).
     static let accentWell = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.06, darkAlpha: 0.1)
     static let accentBorder = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.4, darkAlpha: 0.5)

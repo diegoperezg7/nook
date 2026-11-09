@@ -10,13 +10,17 @@ struct NotchRootView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
     @Environment(NowPlaying.self) private var nowPlaying
+    @Environment(SystemHUD.self) private var hud
 
     var body: some View {
         let metrics = model.metrics
         let open = metrics.openSize(searchRow: model.tab.hasToolbar)
-        // Con musica sonando, el notch cerrado se ensancha para la caratula y las barras.
-        let activity = nowPlaying.isPlaying && !model.isOpen
-        let closedWidth = metrics.closedSize.width + (activity ? NotchMetrics.activitySide * 2 : 0)
+        // Cerrado, el notch se ensancha para un aviso (volumen, bateria...) o, si no
+        // hay ninguno, para la musica que suena.
+        let notice = model.isOpen ? nil : hud.current
+        let activity = notice == nil && nowPlaying.isPlaying && !model.isOpen
+        let side = notice.map(HUDActivity.side(for:)) ?? (activity ? NotchMetrics.activitySide : 0)
+        let closedWidth = metrics.closedSize.width + side * 2
         let width = model.expandedWidth ? open.width : closedWidth
         let height = model.expandedHeight ? open.height : metrics.closedSize.height
         let shape = NotchShape(
@@ -27,6 +31,12 @@ struct NotchRootView: View {
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
                 NotchBackground(shape: shape)
+
+                if let notice {
+                    HUDActivity(kind: notice, metrics: metrics)
+                        .frame(width: closedWidth)
+                        .transition(.opacity.animation(.easeOut(duration: 0.15)))
+                }
 
                 if activity {
                     MusicActivity(nowPlaying: nowPlaying, metrics: metrics)
@@ -49,6 +59,7 @@ struct NotchRootView: View {
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
             .animation(AppMotion.open, value: activity)
+            .animation(AppMotion.open, value: notice == nil)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.
             .scaleEffect(model.isDropTargeted && model.isOpen && !AppMotion.reduceMotion ? 1.03 : 1, anchor: .top)
             .animation(AppMotion.snappy, value: model.isDropTargeted)

@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var screenshots: ScreenshotLibrary?
     private var nowPlaying: NowPlaying?
     private var agents: AgentMonitor?
+    private var hud: SystemHUD?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -32,7 +33,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let screenshots = ScreenshotLibrary()
         let nowPlaying = NowPlaying()
         let agents = AgentMonitor()
-        let notch = NotchController(store: store, container: container, screenshots: screenshots, nowPlaying: nowPlaying, agents: agents)
+        let hud = SystemHUD()
+        let notch = NotchController(store: store, container: container, screenshots: screenshots, nowPlaying: nowPlaying, agents: agents, hud: hud)
         let monitor = ClipboardMonitor(store: store)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
@@ -45,10 +47,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.screenshots = screenshots
         self.nowPlaying = nowPlaying
         self.agents = agents
+        self.hud = hud
 
         notch.start()
         monitor.start()
         nowPlaying.start()
+        hud.start()
         store.trimHistory()
         store.recognizeMissingText()
 

@@ -23,7 +23,7 @@ final class NotchController {
     /// opcion con el cursor fuera no debe cerrarlo antes de que la accion termine.
     private var isMenuOpen = false
 
-    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, nowPlaying: NowPlaying, agents: AgentMonitor) {
+    init(store: ItemStore, container: ModelContainer, screenshots: ScreenshotLibrary, nowPlaying: NowPlaying, agents: AgentMonitor, hud: SystemHUD) {
         self.store = store
         let screen = Self.targetScreen() ?? NSScreen.main ?? NSScreen.screens[0]
         model = NotchViewModel(metrics: NotchMetrics.make(for: screen))
@@ -34,6 +34,7 @@ final class NotchController {
             .environment(screenshots)
             .environment(nowPlaying)
             .environment(agents)
+            .environment(hud)
         // La vista SwiftUI va dentro de un contenedor con autoresizing: como
         // contentView directo, redimensionar la ventana provocaba un bucle de
         // "Update Constraints in Window" y AppKit abortaba la app.

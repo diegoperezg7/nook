@@ -251,6 +251,26 @@
         }
       }
     },
+    "Auriculares y altavoces Bluetooth": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth Headphones and Speakers"
+          }
+        }
+      }
+    },
+    "Avisos en el notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notch Alerts"
+          }
+        }
+      }
+    },
     "Añadir": {
       "localizations": {
         "en": {
@@ -287,6 +307,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shelf"
+          }
+        }
+      }
+    },
+    "Batería y cargador": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery and Charger"
           }
         }
       }
@@ -467,6 +497,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Denied"
+          }
+        }
+      }
+    },
+    "Descargas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
           }
         }
       }
@@ -1121,6 +1161,16 @@
         }
       }
     },
+    "Volumen": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume"
+          }
+        }
+      }
+    },
     "abre el historial desde cualquier app": {
       "localizations": {
         "en": {
@@ -1147,6 +1197,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld%% left"
+          }
+        }
+      }
+    },
+    "reiniciada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reset"
           }
         }
       }

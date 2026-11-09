@@ -8,6 +8,10 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.hotKeyEnabled) private var hotKeyEnabled = true
     @AppStorage(SettingsKey.showWithoutNotch) private var showWithoutNotch = true
     @AppStorage(SettingsKey.hideFromCaptures) private var hideFromCaptures = true
+    @AppStorage(SettingsKey.hudVolume) private var hudVolume = true
+    @AppStorage(SettingsKey.hudDevices) private var hudDevices = true
+    @AppStorage(SettingsKey.hudBattery) private var hudBattery = true
+    @AppStorage(SettingsKey.hudDownloads) private var hudDownloads = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
 
@@ -38,6 +42,13 @@ struct SettingsView: View {
                 Text("No se guarda lo que los gestores de contraseñas marcan como privado. El historial se queda en este Mac.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+            }
+
+            Section("Avisos en el notch") {
+                Toggle("Volumen", isOn: $hudVolume)
+                Toggle("Auriculares y altavoces Bluetooth", isOn: $hudDevices)
+                Toggle("Batería y cargador", isOn: $hudBattery)
+                Toggle("Descargas", isOn: $hudDownloads)
             }
 
             Section("General") {

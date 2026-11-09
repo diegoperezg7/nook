@@ -8,6 +8,11 @@ enum SettingsKey {
     static let showWithoutNotch = "showWithoutNotch"
     /// El panel no sale en capturas ni grabaciones de pantalla.
     static let hideFromCaptures = "hideFromCaptures"
+    /// Avisos que salen del notch cerrado.
+    static let hudVolume = "hudVolume"
+    static let hudDevices = "hudDevices"
+    static let hudBattery = "hudBattery"
+    static let hudDownloads = "hudDownloads"
 
     /// 0 = sin limite: el historial solo se borra cuando lo pide el usuario.
     static let unlimitedHistory = 0
@@ -20,6 +25,10 @@ enum SettingsKey {
             hotKeyEnabled: true,
             showWithoutNotch: true,
             hideFromCaptures: true,
+            hudVolume: true,
+            hudDevices: true,
+            hudBattery: true,
+            hudDownloads: true,
         ])
     }
 }
