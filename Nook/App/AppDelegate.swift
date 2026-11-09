@@ -35,6 +35,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Los tests usan la app como host: sin panel ni monitores.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
 
+        // Antes de abrir el almacen: decide (y si hace falta copia) donde estan los datos.
+        let migration = DataHome.prepare()
+        NSLog("Nook datos: %@", migration)
+        DataHome.exportDefaults()
         let container = Self.makeContainer()
         let store = ItemStore(
             context: container.mainContext,

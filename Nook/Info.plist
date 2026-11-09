@@ -40,5 +40,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>NookAppGroup</key>
+	<string>$(NOOK_APP_GROUP)</string>
 </dict>
 </plist>

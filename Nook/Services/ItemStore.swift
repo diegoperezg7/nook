@@ -29,10 +29,8 @@ final class ItemStore {
         try? FileManager.default.createDirectory(at: itemsDirectory, withIntermediateDirectories: true)
     }
 
-    static var supportDirectory: URL {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return base.appendingPathComponent("Nook", isDirectory: true)
-    }
+    /// App Group desde la 0.11 (ver DataHome); antes, el contenedor del sandbox.
+    static var supportDirectory: URL { DataHome.directory }
 
     // MARK: - Bandeja
 

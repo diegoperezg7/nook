@@ -78,11 +78,22 @@ enum FileActions {
     static func recognizeText(in url: URL) throws -> String {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
               let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { throw FileActionError.failed }
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = true
-        request.recognitionLanguages = ["es-ES", "en-US"]
-        try VNImageRequestHandler(cgImage: image).perform([request])
+        func run(_ level: VNRequestTextRecognitionLevel) throws -> VNRecognizeTextRequest {
+            let request = VNRecognizeTextRequest()
+            request.recognitionLevel = level
+            request.usesLanguageCorrection = true
+            request.recognitionLanguages = ["es-ES", "en-US"]
+            try VNImageRequestHandler(cgImage: image).perform([request])
+            return request
+        }
+        // El modelo preciso a veces no carga (error E5RT 13 del motor neuronal, visto
+        // en todo el sistema): entonces se usa el rapido, que no depende de el.
+        let request: VNRecognizeTextRequest
+        do {
+            request = try run(.accurate)
+        } catch {
+            request = try run(.fast)
+        }
         return (request.results ?? [])
             .compactMap { $0.topCandidates(1).first?.string }
             .joined(separator: "\n")
