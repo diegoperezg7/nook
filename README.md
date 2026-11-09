@@ -17,17 +17,17 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/animacion.gif" width="720" alt="Al acercar el ratón cuelga una gota de agua del notch y, al entrar, el panel brota de ella">
+  <img src="docs/images/animacion.gif" width="720" alt="Al acercar el ratón cuelga una gota de agua del notch y, al entrar, el panel sale del notch">
 </p>
 
 ---
 
-## Una gota que se convierte en panel
+## Sale del notch
 
 Acerca el ratón al notch y aparece una gota de agua de cristal colgando de él: refracta lo
 que hay detrás, tiene su reflejo y concentra la luz abajo, como una gota de verdad. Al entrar,
-el panel brota de la gota, el negro del notch se disuelve en Liquid Glass y un destello de luz
-lo recorre.
+el panel sale del propio notch, hacia abajo y a los lados a la vez, y el negro se disuelve en
+Liquid Glass. Todo es cristal: el panel, las pestañas, los botones y las tarjetas.
 
 <p align="center">
   <img src="docs/images/gota.png" width="300" alt="Gota de agua de cristal colgando del notch">
@@ -43,16 +43,18 @@ original, cierres la app o apagues el Mac.
   <img src="docs/images/bandeja.png" width="720" alt="Bandeja con un PDF, una foto, una imagen y un documento de texto">
 </p>
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/images/caja-soltar.png" alt="Bandeja vacía con la zona para soltar"></td>
-    <td width="50%">
-      <strong>Sin arrastrar, también</strong><br><br>
-      El botón <code>+</code> abre el selector de archivos, y en Finder tienes
-      <em>clic derecho &gt; Servicios &gt; Añadir a Nook</em>.
-    </td>
-  </tr>
-</table>
+**Sin arrastrar, también:** el botón <code>+</code> abre el selector de archivos, y en Finder
+tienes <em>clic derecho &gt; Servicios &gt; Añadir a Nook</em>.
+
+### Vista previa grande
+
+¿Dos PDF que se llaman casi igual? Pasa el ratón por una tarjeta y pulsa el ojo (o haz doble
+clic): se abre una vista grande con el tipo y el tamaño. Desde ahí la arrastras a cualquier
+app, la copias, la abres con Vista Rápida o la muestras en Finder.
+
+<p align="center">
+  <img src="docs/images/vista-previa.png" width="620" alt="Vista previa grande de un PDF con botones Copiar, Abrir y Finder">
+</p>
 
 ## Historial del portapapeles
 
@@ -67,6 +69,8 @@ app de la que salió. Filtra por tipo, busca y fija lo que no quieras perder.
   (Vision), así que buscar "factura" encuentra la imagen de la factura.
 - **<kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> desde cualquier app** abre el historial con el
   buscador listo; <kbd>↩</kbd> copia el primer resultado y vuelves a donde estabas para pegar.
+- **Sin contadores corriendo.** Cada tarjeta dice cuándo llegó: "hace 20 s" durante el primer
+  minuto y después "hace 5 min", "hace 2 h"...
 - **Nunca se borra solo.** No hay límite por defecto, y vaciar la bandeja o borrar el historial
   pide confirmación.
 - **Respeta lo privado.** Lo que los gestores de contraseñas marcan como confidencial no se guarda.

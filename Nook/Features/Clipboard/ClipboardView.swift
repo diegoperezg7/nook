@@ -35,7 +35,8 @@ struct ClipboardView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, NotchContentView.margin)
-            .padding(.bottom, 6)
+            .frame(height: NotchMetrics.searchRowHeight - 10)
+            .padding(.bottom, 10)
 
             if visibleItems.isEmpty {
                 emptyState
@@ -69,11 +70,10 @@ struct ClipboardView: View {
         .padding(.horizontal, 12)
         .frame(height: 32)
         .frame(maxWidth: .infinity)
-        .background(Capsule().fill(AppColors.controlTrack))
-        .overlay(
-            Capsule()
-                .strokeBorder(searchFocused ? AppColors.accent : AppColors.cardBorder, lineWidth: searchFocused ? 1.5 : 0.5)
-        )
+        .liquidGlass(in: Capsule())
+        .overlay {
+            if searchFocused { Capsule().strokeBorder(AppColors.accent, lineWidth: 1.5) }
+        }
         .contentShape(Capsule())
         .onTapGesture { searchFocused = true }
         .animation(AppMotion.snappy, value: searchFocused)
@@ -100,8 +100,7 @@ struct ClipboardView: View {
             }
         }
         .padding(3)
-        .background(Capsule().fill(AppColors.controlTrack))
-        .overlay(Capsule().strokeBorder(AppColors.cardBorder, lineWidth: 0.5))
+        .liquidGlass(in: Capsule())
         .fixedSize()
     }
 
@@ -148,8 +147,8 @@ struct ClipboardView: View {
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.bottom, NotchContentView.margin)
+        .frame(maxWidth: .infinity)
+        .frame(height: NotchMetrics.cardRowHeight)
         .transition(.opacity)
     }
 

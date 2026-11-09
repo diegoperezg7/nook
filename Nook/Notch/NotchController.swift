@@ -46,6 +46,7 @@ final class NotchController {
         // Durante el arrastre no llegan eventos: se programa ya la comprobacion,
         // que esperara a que se suelte el boton.
         model.onDragOutStarted = { [weak self] in self?.scheduleClose() }
+        model.onPreviewEnded = { [weak self] in self?.scheduleCloseIfMouseOutside() }
         model.onDropTargetChanged = { [weak self] targeted in
             if !targeted { self?.scheduleCloseIfMouseOutside() }
         }
@@ -160,7 +161,7 @@ final class NotchController {
     /// Solo la forma visible acepta raton; el resto de la ventana deja pasar los clics.
     private func updateMouseInteraction() {
         let point = NSEvent.mouseLocation
-        let hotRect = model.isOpen ? model.metrics.openHotRect : model.metrics.closedHotRect
+        let hotRect = model.isOpen ? model.openHotRect : model.metrics.closedHotRect
         let interactive = hotRect.contains(point)
         if panel.ignoresMouseEvents == interactive { panel.ignoresMouseEvents = !interactive }
     }
@@ -171,7 +172,7 @@ final class NotchController {
         let point = NSEvent.mouseLocation
         if model.isOpen {
             guard model.openReason == .hover || model.openReason == .drag else { return }
-            if model.metrics.openHotRect.contains(point) || model.isDropTargeted {
+            if model.openHotRect.contains(point) || model.isDropTargeted {
                 cancelClose()
             } else {
                 scheduleClose()
@@ -216,8 +217,9 @@ final class NotchController {
                 }
                 self.model.isDraggingOut = false
             }
-            if self.isMenuOpen { return }
-            if !self.model.metrics.openHotRect.contains(NSEvent.mouseLocation), !self.model.isDropTargeted {
+            // Con un menu o la vista previa abiertos el cursor suele estar fuera del panel.
+            if self.isMenuOpen || self.model.isPreviewing { return }
+            if !self.model.openHotRect.contains(NSEvent.mouseLocation), !self.model.isDropTargeted {
                 self.model.close()
             }
         }
@@ -227,7 +229,7 @@ final class NotchController {
 
     private func scheduleCloseIfMouseOutside() {
         guard model.isOpen, model.openReason == .hover || model.openReason == .drag else { return }
-        if !model.metrics.openHotRect.contains(NSEvent.mouseLocation) { scheduleClose() }
+        if !model.openHotRect.contains(NSEvent.mouseLocation) { scheduleClose() }
     }
 
     private func cancelClose() {

@@ -18,16 +18,11 @@ final class NotchViewModel {
     var metrics: NotchMetrics
     /// Abierto a efectos de logica (zonas de raton, contenido visible).
     private(set) var isOpen = false
-    /// La forma se anima en dos ejes con muelles distintos: primero se ensancha y
-    /// luego "gotea" hacia abajo (al cerrar, al reves). Es lo que da el efecto liquido.
+    /// La forma crece desde el notch, en ancho y alto a la vez.
     private(set) var expandedWidth = false
     private(set) var expandedHeight = false
     /// El raton se acerca al notch: se asoma un poco antes de abrirse.
     private(set) var isPeeking = false
-    /// Cuenta las aperturas: cada una dispara el brote del panel desde la gota.
-    private(set) var revealTrigger = 0
-    /// Cada incremento hace pasar un destello de luz por el cristal.
-    private(set) var glintTrigger = 0
     var tab: Tab = .shelf
     private(set) var openReason: OpenReason = .hover
     var isDropTargeted = false
@@ -38,6 +33,12 @@ final class NotchViewModel {
     /// Hay un arrastre que sale del panel: cerrarlo ahora retiraria la tarjeta de
     /// origen y el sistema cancelaria el arrastre.
     @ObservationIgnored var isDraggingOut = false
+    /// Vista previa grande de una tarjeta abierta (es otra ventana: el cursor sale
+    /// del panel y no por eso hay que cerrarlo).
+    @ObservationIgnored var isPreviewing = false {
+        didSet { if !isPreviewing, oldValue { onPreviewEnded?() } }
+    }
+    @ObservationIgnored var onPreviewEnded: (() -> Void)?
 
     @ObservationIgnored var onDidClose: (() -> Void)?
     @ObservationIgnored var onDropTargetChanged: ((Bool) -> Void)?
@@ -57,22 +58,17 @@ final class NotchViewModel {
         if reason == .hotKey { searchFocusRequest += 1 }
         guard !isOpen else { return }
         closeToken += 1
-        withAnimation(AppMotion.openWidth) {
+        withAnimation(AppMotion.open) {
             isOpen = true
-            expandedWidth = true
-        }
-        withAnimation(AppMotion.openHeight) {
             isPeeking = false
+            expandedWidth = true
             expandedHeight = true
         }
-        // El cristal del panel nace de la gota: un circulo que crece desde ella.
-        if !AppMotion.reduceMotion { revealTrigger += 1 }
-        if !AppMotion.reduceMotion {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
-                guard let self, self.isOpen else { return }
-                self.glintTrigger += 1
-            }
-        }
+    }
+
+    /// Zona del panel visible, segun la pestaña (la bandeja es mas baja).
+    var openHotRect: CGRect {
+        metrics.openHotRect(searchRow: tab == .clipboard)
     }
 
     func close() {
@@ -80,9 +76,9 @@ final class NotchViewModel {
         closeToken += 1
         let token = closeToken
         isOpen = false
-        withAnimation(AppMotion.closeHeight) { expandedHeight = false }
-        withAnimation(AppMotion.closeWidth) {
+        withAnimation(AppMotion.close) {
             expandedWidth = false
+            expandedHeight = false
         } completion: { [weak self] in
             guard let self, !self.isOpen, token == self.closeToken else { return }
             self.searchText = ""
@@ -94,12 +90,6 @@ final class NotchViewModel {
     func setPeeking(_ peeking: Bool) {
         guard !isOpen, peeking != isPeeking, !AppMotion.reduceMotion else { return }
         withAnimation(AppMotion.peek) { isPeeking = peeking }
-    }
-
-    /// Destello al guardar algo en la bandeja.
-    func celebrateDrop() {
-        guard !AppMotion.reduceMotion else { return }
-        glintTrigger += 1
     }
 
     /// Tras copiar un elemento: con el atajo el usuario quiere volver a pegar ya.

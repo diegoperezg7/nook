@@ -21,13 +21,15 @@ struct ShelfView: View {
                     model.close()
                     FileImporter.chooseFiles(into: store)
                 }
-                    .padding([.horizontal, .bottom], NotchContentView.margin)
+                    .frame(height: NotchMetrics.cardRowHeight)
+                    .padding(.horizontal, NotchContentView.margin)
             } else {
                 ItemStrip(items: items, store: store, model: model)
                     .overlay {
                         if model.isDropTargeted {
                             DropHint(isTargeted: true, overlay: true)
-                                .padding([.horizontal, .bottom], NotchContentView.margin)
+                                .frame(height: NotchMetrics.cardRowHeight)
+                                .padding(.horizontal, NotchContentView.margin)
                                 .transition(.opacity)
                         }
                     }
@@ -50,7 +52,8 @@ struct ItemStrip: View {
                     ItemCard(
                         item: item, store: store, index: index,
                         onCopied: model.didCopy,
-                        onDragStart: model.beginDragOut
+                        onDragStart: model.beginDragOut,
+                        onPreviewChange: { model.isPreviewing = $0 }
                     )
                     .transition(.scale(scale: 0.85).combined(with: .opacity))
                 }
@@ -59,7 +62,7 @@ struct ItemStrip: View {
             .padding(.horizontal, NotchContentView.margin)
             .padding(.vertical, 8)
         }
-        .frame(maxHeight: .infinity, alignment: .top)
+        .frame(height: NotchMetrics.cardRowHeight)
     }
 }
 
@@ -85,16 +88,16 @@ struct DropHint: View {
                 )
             )
             .overlay {
-                VStack(spacing: 10) {
+                VStack(spacing: 8) {
                     Image(systemName: isTargeted ? "arrow.down" : "tray.and.arrow.down.fill")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(AppColors.onAccent)
-                        .frame(width: 38, height: 38)
+                        .frame(width: 32, height: 32)
                         .background(Circle().fill(AppColors.accent))
                         .shadow(color: AppColors.accent.opacity(0.45), radius: 6, y: 2)
                         .contentTransition(.symbolEffect(.replace))
                         .scaleEffect(isTargeted && !AppMotion.reduceMotion ? 1.12 : 1)
-                    VStack(spacing: 4) {
+                    VStack(spacing: 3) {
                         Text(isTargeted ? "Suelta para guardar" : "Arrastra aquí archivos, imágenes o texto")
                             .font(AppTypography.title)
                             .foregroundStyle(isTargeted ? AppColors.accent : AppColors.textPrimary)
@@ -111,7 +114,7 @@ struct DropHint: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(16)
+                .padding(12)
             }
             .animation(AppMotion.snappy, value: isTargeted)
     }

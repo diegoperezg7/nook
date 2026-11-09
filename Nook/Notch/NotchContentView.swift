@@ -6,12 +6,9 @@ import SwiftUI
 struct NotchContentView: View {
     @Bindable var model: NotchViewModel
     let store: ItemStore
-    @Namespace private var tabNamespace
 
-    /// Margen interior uniforme entre el borde visible del panel y su contenido.
-    static let margin: CGFloat = 16
-    /// Espacio entre bloques (cabecera, buscador, contenido).
-    static let spacing: CGFloat = 10
+    /// Margen interior entre el borde visible del panel y su contenido.
+    static let margin = NotchMetrics.sideMargin
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,7 +21,7 @@ struct NotchContentView: View {
                     ClipboardView(model: model, store: store)
                 }
             }
-            .padding(.top, Self.spacing)
+            .padding(.top, NotchMetrics.topSpacing)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
@@ -53,38 +50,22 @@ struct NotchContentView: View {
             .animation(AppMotion.snappy, value: model.tab)
         }
         .padding(.horizontal, Self.margin)
-        .padding(.top, 6)
+        .padding(.top, 4)
         .frame(height: model.metrics.headerHeight)
     }
 
-    /// Control segmentado al estilo del Centro de control: carril translucido y la
-    /// pestaña activa rellena con el acento, que se desliza al cambiar.
+    /// Pestañas: dos capsulas de cristal; la activa, tintada con el acento.
     private var tabs: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 6) {
             tabButton(.shelf, title: "Bandeja", icon: "tray.full.fill")
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
         }
-        .padding(2)
-        .background(Capsule().fill(AppColors.controlTrack))
-        .overlay(Capsule().strokeBorder(AppColors.cardBorder, lineWidth: 0.5))
     }
 
     private func tabButton(_ tab: NotchViewModel.Tab, title: LocalizedStringKey, icon: String) -> some View {
-        TabButton(
-            title: title, icon: icon, selected: model.tab == tab,
-            selection: selectionPill
-        ) {
+        TabButton(title: title, icon: icon, selected: model.tab == tab) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
         }
-    }
-
-    /// Un cristal tintado aqui se compone encima del icono y, sobre el panel de
-    /// cristal, pierde el color: la seleccion es una capsula solida que se desliza.
-    private var selectionPill: some View {
-        Capsule()
-            .fill(AppColors.accent)
-            .shadow(color: AppColors.accent.opacity(0.45), radius: 4, y: 1)
-            .matchedGeometryEffect(id: "tab", in: tabNamespace)
     }
 
     private var menu: some View {
@@ -152,12 +133,27 @@ struct NotchContentView: View {
     }
 }
 
-/// Pestaña del control segmentado: la activa en azul; las demas se iluminan al pasar.
-private struct TabButton<Selection: View>: View {
+/// Activa: capsula azul solida (un cristal tintado sobre el panel de cristal pierde
+/// el color). Las demas, de cristal.
+private struct TabSurface: ViewModifier {
+    let selected: Bool
+
+    func body(content: Content) -> some View {
+        if selected {
+            content
+                .background(Capsule().fill(AppColors.accent))
+                .shadow(color: AppColors.accent.opacity(0.4), radius: 5, y: 1)
+        } else {
+            content.liquidGlass(in: Capsule(), interactive: true)
+        }
+    }
+}
+
+/// Pestaña: la activa en azul; las demas de cristal y su icono se tiñe al pasar.
+private struct TabButton: View {
     let title: LocalizedStringKey
     let icon: String
     let selected: Bool
-    let selection: Selection
     let action: () -> Void
     @State private var hovering = false
 
@@ -165,26 +161,21 @@ private struct TabButton<Selection: View>: View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(selected ? AppColors.onAccent : (hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.8)))
-                .frame(width: 38, height: 26)
-                .background {
-                    if selected {
-                        selection
-                    } else if hovering {
-                        Capsule().fill(AppColors.accentWell)
-                    }
-                }
+                .foregroundStyle(selected ? AppColors.onAccent : (hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85)))
+                .frame(width: 42, height: 28)
+                .modifier(TabSurface(selected: selected))
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
         .animation(AppMotion.snappy, value: hovering)
+        .animation(AppMotion.snappy, value: selected)
         .help(Text(title))
         .accessibilityLabel(Text(title))
     }
 }
 
-/// Boton redondo de la cabecera: se tiñe de azul al pasar el raton.
+/// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
 private struct CircleIconLabel: View {
     let icon: String
     @State private var hovering = false
@@ -192,10 +183,9 @@ private struct CircleIconLabel: View {
     var body: some View {
         Image(systemName: icon)
             .font(.system(size: 13, weight: .bold))
-            .foregroundStyle(hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.8))
+            .foregroundStyle(hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
             .frame(width: 30, height: 30)
-            .background(Circle().fill(hovering ? AppColors.accentWell : AppColors.controlTrack))
-            .overlay(Circle().strokeBorder(hovering ? AppColors.accentBorder : AppColors.cardBorder, lineWidth: hovering ? 1 : 0.5))
+            .liquidGlass(in: Circle(), interactive: true)
             .contentShape(Circle())
             .onHover { hovering = $0 }
             .animation(AppMotion.snappy, value: hovering)

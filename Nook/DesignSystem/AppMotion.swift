@@ -8,33 +8,14 @@ enum AppMotion {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
 
-    /// Apertura: muelle con un rebote apenas perceptible.
+    /// Apertura: el panel sale del notch hacia abajo con un rebote suave.
     static var open: Animation {
-        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.42, dampingFraction: 0.8)
+        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.46, dampingFraction: 0.78)
     }
 
     /// Cierre: mas rapido y sin rebote, para que no "tiemble" al recogerse.
     static var close: Animation {
         reduceMotion ? .easeInOut(duration: 0.12) : .spring(response: 0.3, dampingFraction: 0.95)
-    }
-
-    /// Apertura liquida: el ancho se abre rapido y con rebote...
-    static var openWidth: Animation {
-        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.34, dampingFraction: 0.68)
-    }
-
-    /// ...y el alto le sigue, mas lento, como una gota que cae.
-    static var openHeight: Animation {
-        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.5, dampingFraction: 0.72).delay(0.05)
-    }
-
-    /// Cierre: primero se recoge el alto y despues el ancho, sin rebote.
-    static var closeHeight: Animation {
-        reduceMotion ? .easeInOut(duration: 0.12) : .spring(response: 0.28, dampingFraction: 0.92)
-    }
-
-    static var closeWidth: Animation {
-        reduceMotion ? .easeInOut(duration: 0.12) : .spring(response: 0.32, dampingFraction: 0.9).delay(0.06)
     }
 
     /// Asomarse al acercar el raton.

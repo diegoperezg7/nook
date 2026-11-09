@@ -10,11 +10,14 @@ struct ItemCard: View {
     let index: Int
     var onCopied: () -> Void = {}
     var onDragStart: () -> Void = {}
+    /// Avisa de que la vista previa grande se abre o se cierra.
+    var onPreviewChange: (Bool) -> Void = { _ in }
 
     @State private var hovering = false
     @State private var appeared = false
     @State private var feedback: Feedback?
     @State private var thumbnail: NSImage?
+    @State private var showPeek = false
 
     static let size = CGSize(width: 108, height: 120)
     private static let previewHeight: CGFloat = 76
@@ -53,6 +56,21 @@ struct ItemCard: View {
                 .frame(width: Self.size.width - 12, height: Self.previewHeight)
                 .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                 .overlay(alignment: .bottomTrailing) { typeBadge }
+                .overlay {
+                    if hovering {
+                        Button { showPeek = true } label: {
+                            Image(systemName: "eye.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(AppColors.textPrimary)
+                                .frame(width: 30, height: 30)
+                                .liquidGlass(in: Circle(), interactive: true)
+                                .contentShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(Text("Vista previa"))
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                    }
+                }
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
@@ -67,7 +85,7 @@ struct ItemCard: View {
                             .frame(width: 12, height: 12)
                             .help(Text(verbatim: AppIcons.name(for: item.sourceBundleID) ?? ""))
                     }
-                    Text(item.createdAt, style: .relative)
+                    AgeText(date: item.createdAt)
                         .font(AppTypography.cardCaption)
                         .foregroundStyle(AppColors.textSecondary)
                         .lineLimit(1)
@@ -77,14 +95,13 @@ struct ItemCard: View {
         }
         .padding(6)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .top)
-        .background(
-            RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
-                .fill(hovering ? AppColors.cardHover : AppColors.card)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
-                .strokeBorder(hovering ? AppColors.accent : AppColors.cardBorder, lineWidth: hovering ? 1.5 : 0.5)
-        )
+        .liquidGlass(in: RoundedRectangle(cornerRadius: Self.corner, style: .continuous))
+        .overlay {
+            if hovering {
+                RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
+                    .strokeBorder(AppColors.accent, lineWidth: 1.5)
+            }
+        }
         .overlay(alignment: .topLeading) {
             if item.isPinned {
                 Image(systemName: "pin.fill")
@@ -121,7 +138,7 @@ struct ItemCard: View {
         .contentShape(RoundedRectangle(cornerRadius: Self.corner, style: .continuous))
         .onHover { inside in withAnimation(AppMotion.snappy) { hovering = inside } }
         .onTapGesture(perform: copy)
-        .simultaneousGesture(TapGesture(count: 2).onEnded(openPreview))
+        .simultaneousGesture(TapGesture(count: 2).onEnded { showPeek = true })
         .onDrag {
             onDragStart()
             return store.itemProvider(for: item)
@@ -129,6 +146,10 @@ struct ItemCard: View {
             dragPreview
         }
         .contextMenu { menu }
+        .popover(isPresented: $showPeek, arrowEdge: .bottom) {
+            ItemPeek(item: item, store: store, onCopy: copy, onDragStart: onDragStart)
+        }
+        .onChange(of: showPeek) { _, shown in onPreviewChange(shown) }
         .onAppear {
             withAnimation(AppMotion.stagger(index)) { appeared = true }
         }
@@ -141,9 +162,7 @@ struct ItemCard: View {
     @ViewBuilder
     private var menu: some View {
         Button("Copiar", systemImage: "doc.on.doc", action: copy)
-        if item.kind != .text {
-            Button("Vista previa", systemImage: "eye", action: openPreview)
-        }
+        Button("Vista previa", systemImage: "eye") { showPeek = true }
         share
         if let url = fileURL {
             Button("Mostrar en Finder", systemImage: "folder") {
@@ -291,11 +310,6 @@ struct ItemCard: View {
     private func copy() {
         store.copyToPasteboard(item)
         show(.copied) { onCopied() }
-    }
-
-    private func openPreview() {
-        guard let url = fileURL else { return }
-        QuickLookPresenter.shared.show(url)
     }
 
     private func recognizeText(_ url: URL) {

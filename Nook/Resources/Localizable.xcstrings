@@ -1,6 +1,26 @@
 {
   "sourceLanguage": "es",
   "strings": {
+    "%lld caracteres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld characters"
+          }
+        }
+      }
+    },
+    "Abrir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        }
+      }
+    },
     "Abrir Ajustes del Sistema": {
       "localizations": {
         "en": {
@@ -97,6 +117,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drag files, images or text here"
+          }
+        }
+      }
+    },
+    "Arrastra para usarlo en otra app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to use it in another app"
           }
         }
       }
@@ -327,6 +357,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pin"
+          }
+        }
+      }
+    },
+    "Finder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder"
           }
         }
       }
