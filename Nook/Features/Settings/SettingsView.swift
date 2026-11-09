@@ -21,6 +21,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.hudMail) private var hudMail = true
     @AppStorage(SettingsKey.mailEnabled) private var mailEnabled = true
     @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
+    @AppStorage(SettingsKey.basketOnShake) private var basketOnShake = true
     let calendar: CalendarService
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var access = ClipboardAccess.current
@@ -117,6 +118,7 @@ struct SettingsView: View {
 
             Section("General") {
                 Toggle("Mostrar en pantallas sin notch", isOn: $showWithoutNotch)
+                Toggle("Cesta al agitar el ratón arrastrando archivos", isOn: $basketOnShake)
                 Toggle("Ocultar en capturas de pantalla", isOn: $hideFromCaptures)
                 Toggle("Abrir al iniciar sesión", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, enabled in setLaunchAtLogin(enabled) }

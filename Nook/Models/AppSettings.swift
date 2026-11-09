@@ -28,6 +28,8 @@ enum SettingsKey {
     static let mailSource = "mailSource"
     /// Calendarios que el usuario ha quitado (identificadores de EventKit).
     static let hiddenCalendars = "hiddenCalendars"
+    /// Cesta flotante al agitar el raton arrastrando archivos.
+    static let basketOnShake = "basketOnShake"
 
     /// 0 = sin limite: el historial solo se borra cuando lo pide el usuario.
     static let unlimitedHistory = 0
@@ -53,6 +55,7 @@ enum SettingsKey {
             hudMail: true,
             mailEnabled: true,
             mailSource: "mail",
+            basketOnShake: true,
         ])
     }
 }

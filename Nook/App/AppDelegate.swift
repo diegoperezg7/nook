@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var calendar: CalendarService?
     private var focus: FocusTimer?
     private var mail: MailService?
+    private var basket: BasketController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         SettingsKey.registerDefaults()
@@ -46,6 +47,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hud.calendar = calendar
         let notch = NotchController(store: store, container: container, screenshots: screenshots, agents: agents, hud: hud, calendar: calendar, focus: focus, mail: mail)
         let monitor = ClipboardMonitor(store: store)
+        let basket = BasketController(store: store, container: container)
 
         notch.model.onOpenSettings = { [weak self] in self?.showSettings() }
         monitor.onAccessChange = { [weak notch] access in notch?.model.clipboardAccess = access }
@@ -60,12 +62,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.calendar = calendar
         self.focus = focus
         self.mail = mail
+        self.basket = basket
 
         notch.start()
         monitor.start()
         hud.start()
         calendar.start()
         mail.start()
+        basket.start()
         store.trimHistory()
         store.recognizeMissingText()
 
@@ -103,6 +107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch?.refreshScreen()
         notch?.setHiddenFromCaptures(UserDefaults.standard.bool(forKey: SettingsKey.hideFromCaptures))
         store?.trimHistory()
+        basket?.apply()
     }
 
     private func showSettings() {

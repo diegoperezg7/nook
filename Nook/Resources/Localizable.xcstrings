@@ -571,6 +571,46 @@
         }
       }
     },
+    "Cerrar la cesta (lo soltado sigue en la bandeja)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close the basket (dropped items stay on the shelf)"
+          }
+        }
+      }
+    },
+    "Cesta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basket"
+          }
+        }
+      }
+    },
+    "Cesta al agitar el ratón arrastrando archivos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basket when shaking the pointer while dragging files"
+          }
+        }
+      }
+    },
+    "Cesta · %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basket · %lld"
+          }
+        }
+      }
+    },
     "Compartir": {
       "localizations": {
         "en": {
@@ -587,6 +627,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Compress to .zip"
+          }
+        }
+      }
+    },
+    "Comprimir vídeo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compress Video"
           }
         }
       }
@@ -647,6 +697,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Convert to"
+          }
+        }
+      }
+    },
+    "Convertir a GIF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert to GIF"
+          }
+        }
+      }
+    },
+    "Convertir a PDF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert to PDF"
           }
         }
       }
@@ -771,6 +841,16 @@
         }
       }
     },
+    "Documentos unidos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merged Documents"
+          }
+        }
+      }
+    },
     "Elegir carpeta…": {
       "localizations": {
         "en": {
@@ -847,6 +927,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Links"
+          }
+        }
+      }
+    },
+    "Enviar por AirDrop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send via AirDrop"
+          }
+        }
+      }
+    },
+    "Enviar por correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send via Mail"
+          }
+        }
+      }
+    },
+    "Enviar todo por AirDrop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send All via AirDrop"
+          }
+        }
+      }
+    },
+    "Enviar todo por correo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send All via Mail"
           }
         }
       }
@@ -1431,6 +1551,16 @@
         }
       }
     },
+    "Quitar fondo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Background"
+          }
+        }
+      }
+    },
     "Quitar selección": {
       "localizations": {
         "en": {
@@ -1601,6 +1731,16 @@
         }
       }
     },
+    "Suelta aquí": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop here"
+          }
+        }
+      }
+    },
     "Suelta para guardar": {
       "localizations": {
         "en": {
@@ -1727,6 +1867,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your events at a glance"
+          }
+        }
+      }
+    },
+    "Unir en un PDF (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge into a PDF (%lld)"
           }
         }
       }
