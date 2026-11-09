@@ -20,8 +20,11 @@ struct MailView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            Image(systemName: "tray.full.fill")
-                .foregroundStyle(AppColors.accent)
+            if let logo = AgentIcons.mail(mail.source) {
+                Image(nsImage: logo).resizable().frame(width: 18, height: 18)
+            } else {
+                Image(systemName: "tray.full.fill").foregroundStyle(AppColors.accent)
+            }
             Text(mail.source == .mail ? "Mail" : "Outlook")
                 .font(AppTypography.bodyStrong)
                 .foregroundStyle(AppColors.textPrimary)

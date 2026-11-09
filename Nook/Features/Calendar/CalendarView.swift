@@ -100,11 +100,15 @@ struct CalendarView: View {
             .overlay(shape.strokeBorder(AppColors.accentBorder, style: StrokeStyle(lineWidth: 1.25, dash: [6, 5])))
             .overlay {
                 VStack(spacing: 8) {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(AppColors.onAccent)
-                        .frame(width: 32, height: 32)
-                        .background(Circle().fill(AppColors.accent))
+                    if let logo = AgentIcons.calendar {
+                        Image(nsImage: logo).resizable().frame(width: 36, height: 36)
+                    } else {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(AppColors.onAccent)
+                            .frame(width: 32, height: 32)
+                            .background(Circle().fill(AppColors.accent))
+                    }
                     Text("Tus eventos, a un vistazo")
                         .font(AppTypography.title)
                         .foregroundStyle(AppColors.textPrimary)

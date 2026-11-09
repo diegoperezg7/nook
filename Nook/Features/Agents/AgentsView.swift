@@ -51,9 +51,18 @@ struct AgentsView: View {
 
 /// Logos oficiales: los iconos de las propias apps instaladas en el Mac.
 enum AgentIcons {
-    static var claude: NSImage? { icon("com.anthropic.claudefordesktop") }
-    static var codex: NSImage? { icon("com.openai.codex") }
-    static var vscode: NSImage? { icon("com.microsoft.VSCode") }
+    static let claude: NSImage? = icon("com.anthropic.claudefordesktop")
+    static let codex: NSImage? = icon("com.openai.codex")
+    static let vscode: NSImage? = icon("com.microsoft.VSCode")
+
+    // Apps del sistema para las demas secciones (iconos oficiales instalados).
+    static let calendar: NSImage? = icon("com.apple.iCal")
+    static let clock: NSImage? = icon("com.apple.clock")
+    static let screenshot: NSImage? = icon("com.apple.screenshot.launcher")
+    /// Mail u Outlook, segun de donde se lea la bandeja (Mail si no esta Outlook).
+    static func mail(_ source: MailService.Source) -> NSImage? {
+        icon(source.bundleID) ?? icon(MailService.Source.mail.bundleID)
+    }
 
     static func icon(_ bundleID: String) -> NSImage? {
         NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID).map { NSWorkspace.shared.icon(forFile: $0.path) }

@@ -64,15 +64,15 @@ struct HUDActivity: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(online ? AppColors.success : AppColors.danger)
         case .timerDone:
-            Image(systemName: "timer").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.clock)
+            Self.logo(AgentIcons.clock, fallback: "timer")
                 .symbolEffect(.bounce, options: .repeat(3))
         case .mail:
-            Image(systemName: "envelope.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
+            Self.logo(AgentIcons.mail(MailService.Source(rawValue: UserDefaults.standard.string(forKey: SettingsKey.mailSource) ?? "") ?? .mail), fallback: "envelope.fill")
         case .alarm:
-            Image(systemName: "alarm.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(AppColors.clock)
+            Self.logo(AgentIcons.clock, fallback: "alarm.fill")
                 .symbolEffect(.pulse)
         case .meeting:
-            Image(systemName: "video.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(AppColors.accent)
+            Self.logo(AgentIcons.calendar, fallback: "video.fill")
         case let .timer(end, total):
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 let left = max(0, end.timeIntervalSince(context.date))
@@ -150,6 +150,16 @@ struct HUDActivity: View {
             } else {
                 Image(systemName: "infinity").font(.system(size: 12, weight: .bold))
             }
+        }
+    }
+
+    /// Icono oficial de la app (Reloj, Mail, Calendario) o el simbolo si no esta.
+    @ViewBuilder
+    private static func logo(_ image: NSImage?, fallback: String) -> some View {
+        if let image {
+            Image(nsImage: image).resizable().frame(width: 18, height: 18)
+        } else {
+            Image(systemName: fallback).font(.system(size: 13, weight: .semibold))
         }
     }
 

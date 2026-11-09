@@ -79,8 +79,8 @@ struct NotchContentView: View {
         HStack(spacing: 2) {
             tabButton(.shelf, title: "Bandeja", icon: "tray.full.fill")
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
-            tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder")
-            tabButton(.calendar, title: "Calendario", icon: "calendar")
+            tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder", logo: AgentIcons.screenshot)
+            tabButton(.calendar, title: "Calendario", icon: "calendar", logo: AgentIcons.calendar)
             tabButton(.agents, title: "Agentes de IA", icon: "brain", logo: AgentIcons.claude)
         }
         .padding(3)
@@ -99,7 +99,7 @@ struct NotchContentView: View {
         Button {
             withAnimation(AppMotion.snappy) { model.tab = model.tab == .mail ? .shelf : .mail }
         } label: {
-            CircleIconLabel(icon: model.tab == .mail ? "envelope.open.fill" : "envelope", active: model.tab == .mail)
+            CircleIconLabel(icon: "envelope", logo: AgentIcons.mail(mail.source), active: model.tab == .mail)
                 .overlay(alignment: .topTrailing) {
                     if !mail.messages.isEmpty {
                         Text(verbatim: mail.messages.count > 40 ? "40+" : "\(mail.messages.count)")
@@ -160,6 +160,7 @@ struct NotchContentView: View {
         } label: {
             CircleIconLabel(
                 icon: focus.isRunning ? "timer" : !focus.alarms.isEmpty ? "alarm.fill" : focus.isAwake ? "cup.and.saucer.fill" : "timer",
+                logo: AgentIcons.clock,
                 active: focus.isRunning || focus.isAwake || !focus.alarms.isEmpty,
                 activeColor: focus.isRunning || !focus.alarms.isEmpty ? AppColors.clock : AppColors.accent
             )
@@ -307,17 +308,30 @@ private struct TabButton: View {
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
 private struct CircleIconLabel: View {
     let icon: String
+    /// Icono oficial de una app (Reloj, Mail...) en lugar del simbolo.
+    var logo: NSImage?
     /// Algo en marcha (temporizador...): icono en color fijo.
     var active = false
     var activeColor = AppColors.accent
     @State private var hovering = false
 
     var body: some View {
-        Image(systemName: icon)
-            .font(.system(size: 13, weight: .bold))
-            .foregroundStyle(active ? activeColor : hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
+        Group {
+            if let logo {
+                Image(nsImage: logo)
+                    .resizable()
+                    .frame(width: 22, height: 22)
+                    .scaleEffect(hovering && !AppMotion.reduceMotion ? 1.08 : 1)
+            } else {
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(active ? activeColor : hovering ? AppColors.accent : AppColors.textPrimary.opacity(0.85))
+            }
+        }
             .frame(width: 30, height: 30)
             .liquidGlass(in: Circle(), interactive: true)
+            // Con logo, lo que esta en marcha se marca con un aro de color.
+            .overlay { if logo != nil, active { Circle().strokeBorder(activeColor, lineWidth: 2) } }
             .contentShape(Circle())
             .onHover { hovering = $0 }
             .animation(AppMotion.snappy, value: hovering)
