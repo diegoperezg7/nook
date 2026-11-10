@@ -113,7 +113,7 @@ struct MailView: View {
             notice(icon: "envelope", title: mail.source == .mail ? "Mail no está abierto" : "Outlook no está abierto",
                    action: (String(localized: "Abrir en segundo plano"), mail.launchSource))
         case .denied:
-            notice(icon: "lock.fill", title: "Nook necesita permiso para leer la bandeja",
+            notice(icon: "lock.fill", title: "Visor necesita permiso para leer la bandeja",
                    action: (String(localized: "Permitir en Ajustes del Sistema…"), mail.openPrivacySettings))
         case .unsupported:
             notice(icon: "exclamationmark.triangle.fill",

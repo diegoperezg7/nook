@@ -501,14 +501,29 @@ final class DownloadsMonitor {
     private let onChange: (String, Bool) -> Void
     private var watcher: DispatchSourceFileSystemObject?
     private var known: Set<String> = []
+    /// Hasta leer la carpeta no se sabe que es nuevo.
+    private var ready = false
     let folder: URL
     private static let partial = ["download", "crdownload", "part", "partial"]
 
     init(onChange: @escaping (String, Bool) -> Void) {
         self.onChange = onChange
         folder = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0].resolvingSymlinksInPath()
-        known = names()
-        let descriptor = open(folder.path, O_EVTONLY)
+        // Fuera del hilo principal: si macOS pide permiso para Descargas, la lectura
+        // espera la respuesta y no debe congelar el arranque.
+        let folder = folder
+        Task { [weak self] in
+            let (names, descriptor) = await Task.detached(priority: .utility) {
+                (Self.names(in: folder), open(folder.path, O_EVTONLY))
+            }.value
+            guard let self else { if descriptor >= 0 { close(descriptor) }; return }
+            self.known = names
+            self.ready = true
+            self.watch(descriptor)
+        }
+    }
+
+    private func watch(_ descriptor: Int32) {
         guard descriptor >= 0 else { return }
         let source = DispatchSource.makeFileSystemObjectSource(fileDescriptor: descriptor, eventMask: [.write, .rename], queue: .main)
         source.setEventHandler { [weak self] in MainActor.assumeIsolated { self?.changed() } }
@@ -517,12 +532,13 @@ final class DownloadsMonitor {
         watcher = source
     }
 
-    private func names() -> Set<String> {
+    nonisolated private static func names(in folder: URL) -> Set<String> {
         Set((try? FileManager.default.contentsOfDirectory(atPath: folder.path))?.filter { !$0.hasPrefix(".") } ?? [])
     }
 
     private func changed() {
-        let now = names()
+        guard ready else { return }
+        let now = Self.names(in: folder)
         let added = now.subtracting(known)
         known = now
         for name in added {

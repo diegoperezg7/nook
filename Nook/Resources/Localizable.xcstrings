@@ -251,22 +251,12 @@
         }
       }
     },
-    "Abrir en %@": {
+    "Abrir Visor al iniciar sesión": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open in %@"
-          }
-        }
-      }
-    },
-    "Abrir Nook al iniciar sesión": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Nook at login"
+            "value": "Open Visor at login"
           }
         }
       }
@@ -327,6 +317,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open history with ⌃⌘V"
+          }
+        }
+      }
+    },
+    "Abrir en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in %@"
           }
         }
       }
@@ -461,6 +461,16 @@
         }
       }
     },
+    "Activar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on"
+          }
+        }
+      }
+    },
     "Activar sonido": {
       "localizations": {
         "en": {
@@ -571,12 +581,12 @@
         }
       }
     },
-    "Ajustes de Nook": {
+    "Ajustes de Visor": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nook Settings"
+            "value": "Visor Settings"
           }
         }
       }
@@ -821,6 +831,16 @@
         }
       }
     },
+    "Avisos que se abren": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerts that open up"
+          }
+        }
+      }
+    },
     "Añade un evento: «Café con Ana mañana a las 10»": {
       "localizations": {
         "en": {
@@ -921,12 +941,12 @@
         }
       }
     },
-    "Bienvenido a Nook": {
+    "Bienvenido a Visor": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Welcome to Nook"
+            "value": "Welcome to Visor"
           }
         }
       }
@@ -1131,12 +1151,42 @@
         }
       }
     },
+    "Capturas al instante": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instant screenshots"
+          }
+        }
+      }
+    },
+    "Capturas y agentes de IA": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots and AI agents"
+          }
+        }
+      }
+    },
     "Cargar imágenes": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Load images"
+          }
+        }
+      }
+    },
+    "Carpeta de capturas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots folder"
           }
         }
       }
@@ -1271,12 +1321,32 @@
         }
       }
     },
+    "Concentración": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus"
+          }
+        }
+      }
+    },
     "Conectado": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Online"
+          }
+        }
+      }
+    },
+    "Conectado: el % de 5 h y de la semana aparece al usar Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected: the 5-hour and weekly % show up when you use Claude Code."
           }
         }
       }
@@ -1521,6 +1591,16 @@
         }
       }
     },
+    "Cuentagotas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eyedropper"
+          }
+        }
+      }
+    },
     "Cuentas de Internet": {
       "localizations": {
         "en": {
@@ -1537,6 +1617,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Internet Accounts…"
+          }
+        }
+      }
+    },
+    "Código QR del texto copiado, cuentagotas en el menú ⋯, texto de una captura y «Copiar como».": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR code of copied text, an eyedropper in the ⋯ menu, text from a screenshot and “Copy as”."
           }
         }
       }
@@ -1631,6 +1721,16 @@
         }
       }
     },
+    "Despierto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake"
+          }
+        }
+      }
+    },
     "Detener temporizador": {
       "localizations": {
         "en": {
@@ -1667,6 +1767,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Merged Documents"
+          }
+        }
+      }
+    },
+    "Dos ajustes de un clic para que las capturas y el consumo de Claude aparezcan solos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two one-click settings so your screenshots and Claude usage show up on their own."
+          }
+        }
+      }
+    },
+    "El % gastado de 5 h y de la semana, con la hora a la que se reinicia, y aviso al pasar del 80 % y del 95 %.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The % used in the 5-hour and weekly windows, with the time each one resets, and an alert past 80 % and 95 %."
           }
         }
       }
@@ -1761,12 +1881,12 @@
         }
       }
     },
-    "En Ajustes del Sistema, activa Nook en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Nook.": {
+    "En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In System Settings, turn on Nook in the list (or add it with +). When you come back, the status updates by itself; disk access may require reopening Nook."
+            "value": "In System Settings, turn on Visor in the list (or add it with +). When you come back, the status updates by itself; disk access may require reopening Visor."
           }
         }
       }
@@ -1887,6 +2007,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Error"
+          }
+        }
+      }
+    },
+    "Escanéalo con la cámara del móvil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan it with your phone's camera"
           }
         }
       }
@@ -2181,12 +2311,32 @@
         }
       }
     },
+    "Instala en Claude Code la barra de estado claude-hud y vuelve aquí para conectarla.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install the claude-hud status line in Claude Code and come back here to connect it."
+          }
+        }
+      }
+    },
     "Instala y abre una vez Nook 0.11 para que copie tu bandeja y tu historial; después vuelve a esta versión. No se ha borrado nada.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Install and open Nook 0.11 once so it copies your shelf and history, then come back to this version. Nothing has been deleted."
+          }
+        }
+      }
+    },
+    "Instalar claude-hud": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install claude-hud"
           }
         }
       }
@@ -2297,6 +2447,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Launcher: apps, files and math"
+          }
+        }
+      }
+    },
+    "Las sesiones de Claude Code y Codex se ven solas en la pestaña de agentes. El consumo lo escribe la barra de estado claude-hud cada vez que usas Claude Code.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code and Codex sessions show up on their own in the agents tab. Usage is written by the claude-hud status line every time you use Claude Code."
           }
         }
       }
@@ -2521,6 +2681,16 @@
         }
       }
     },
+    "Mostrar código QR": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show QR code"
+          }
+        }
+      }
+    },
     "Mostrar en Finder": {
       "localizations": {
         "en": {
@@ -2741,42 +2911,12 @@
         }
       }
     },
-    "Nook busca versiones nuevas una vez al día y se actualiza solo. También desde el menú ⋯ > Buscar actualizaciones.": {
+    "Nombres, direcciones o dominios separados por comas. Vacío: avisa de todos los correos nuevos.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nook checks for new versions once a day and updates itself. You can also use the ⋯ menu > Check for Updates."
-          }
-        }
-      }
-    },
-    "Nook necesita permiso para leer la bandeja": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nook needs permission to read your inbox"
-          }
-        }
-      }
-    },
-    "Nook no tiene acceso al portapapeles": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nook can't access the clipboard"
-          }
-        }
-      }
-    },
-    "Nook no tiene permiso para la cámara": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nook doesn't have camera access"
+            "value": "Names, addresses or domains separated by commas. Empty: alerts for all new mail."
           }
         }
       }
@@ -2821,12 +2961,12 @@
         }
       }
     },
-    "Novedades de Nook %@": {
+    "Novedades de Visor %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What's new in Nook %@"
+            "value": "What's new in Visor %@"
           }
         }
       }
@@ -2941,12 +3081,12 @@
         }
       }
     },
-    "Para leer las notificaciones que entrega macOS. Añade Nook en la lista y vuelve a abrirla. Solo se leen las nuevas; nada se guarda.": {
+    "Para leer las notificaciones que entrega macOS. Añade Visor en la lista y vuelve a abrirla. Solo se leen las nuevas; nada se guarda.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To read the notifications macOS delivers. Add Nook to the list and reopen it. Only new ones are read; nothing is stored."
+            "value": "To read the notifications macOS delivers. Add Visor to the list and reopen it. Only new ones are read; nothing is stored."
           }
         }
       }
@@ -2981,12 +3121,12 @@
         }
       }
     },
-    "Pasa el ratón por el notch para abrir Nook. Los ajustes están en el menú ⋯ del panel.": {
+    "Pasa el ratón por el notch para abrir Visor. Los ajustes están en el menú ⋯ del panel.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hover over the notch to open Nook. Settings are in the panel's ⋯ menu."
+            "value": "Hover over the notch to open Visor. Settings are in the panel's ⋯ menu."
           }
         }
       }
@@ -3171,12 +3311,42 @@
         }
       }
     },
+    "Pulsa un aviso del notch para ver una vista previa y un botón para ir al correo, la sesión, la descarga o la reunión.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click an alert in the notch to see a preview and a button to go to the mail, the session, the download or the meeting."
+          }
+        }
+      }
+    },
+    "Quita la miniatura flotante de macOS, que retrasa unos 5 segundos cada captura.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turns off the macOS floating thumbnail, which delays every screenshot by about 5 seconds."
+          }
+        }
+      }
+    },
     "Quitar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Remove"
+          }
+        }
+      }
+    },
+    "Quitar alarma": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove alarm"
           }
         }
       }
@@ -3241,6 +3411,26 @@
         }
       }
     },
+    "Reloj": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clock"
+          }
+        }
+      }
+    },
+    "Reloj nuevo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New clock"
+          }
+        }
+      }
+    },
     "Responder": {
       "localizations": {
         "en": {
@@ -3271,12 +3461,22 @@
         }
       }
     },
-    "Salir de Nook": {
+    "Reunión de equipo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quit Nook"
+            "value": "Team meeting"
+          }
+        }
+      }
+    },
+    "Salir de Visor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit Visor"
           }
         }
       }
@@ -3431,6 +3631,16 @@
         }
       }
     },
+    "Sin alarmas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No alarms"
+          }
+        }
+      }
+    },
     "Sin conexión": {
       "localizations": {
         "en": {
@@ -3541,12 +3751,12 @@
         }
       }
     },
-    "Son opcionales: cada uno desbloquea algo concreto. Nook no envía nada fuera de tu Mac.": {
+    "Son opcionales: cada uno desbloquea algo concreto. Visor no envía nada fuera de tu Mac.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "They're optional: each one unlocks something specific. Nook sends nothing off your Mac."
+            "value": "They're optional: each one unlocks something specific. Visor sends nothing off your Mac."
           }
         }
       }
@@ -3607,6 +3817,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Timer"
+          }
+        }
+      }
+    },
+    "Temporizador con pausa y duración libre, alarmas y mantener despierto, en un panel como el de la app Reloj.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A timer with pause and any duration, alarms and keep awake, in a panel like the Clock app."
           }
         }
       }
@@ -3761,6 +3981,16 @@
         }
       }
     },
+    "Todos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everyone"
+          }
+        }
+      }
+    },
     "Traducir": {
       "localizations": {
         "en": {
@@ -3861,6 +4091,16 @@
         }
       }
     },
+    "Usar esa carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use that folder"
+          }
+        }
+      }
+    },
     "Usar esta carpeta": {
       "localizations": {
         "en": {
@@ -3941,6 +4181,66 @@
         }
       }
     },
+    "Ves también los leídos, respondes desde el notch y eliges de quién quieres aviso.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You also see read mail, reply from the notch and choose who you get alerts from."
+          }
+        }
+      }
+    },
+    "Visor busca versiones nuevas una vez al día y se actualiza solo. También desde el menú ⋯ > Buscar actualizaciones.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visor checks for new versions once a day and updates itself. You can also use the ⋯ menu > Check for Updates."
+          }
+        }
+      }
+    },
+    "Visor muestra las capturas que macOS guarda en %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visor shows the screenshots macOS saves to %@."
+          }
+        }
+      }
+    },
+    "Visor necesita permiso para leer la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visor needs permission to read your inbox"
+          }
+        }
+      }
+    },
+    "Visor no tiene acceso al portapapeles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visor can't access the clipboard"
+          }
+        }
+      }
+    },
+    "Visor no tiene permiso para la cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visor doesn't have camera access"
+          }
+        }
+      }
+    },
     "Vista previa": {
       "localizations": {
         "en": {
@@ -3987,6 +4287,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "opens the history from any app"
+          }
+        }
+      }
+    },
+    "claude-hud está instalado: falta que guarde el consumo para Visor.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "claude-hud is installed: it just needs to save usage for Visor."
           }
         }
       }
@@ -4071,12 +4381,12 @@
         }
       }
     },
-    "¿Outlook, Google o Exchange? Añade la cuenta en Cuentas de Internet y sus calendarios aparecen en Nook.": {
+    "¿Outlook, Google o Exchange? Añade la cuenta en Cuentas de Internet y sus calendarios aparecen en Visor.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Outlook, Google or Exchange? Add the account in Internet Accounts and its calendars show up in Nook."
+            "value": "Outlook, Google or Exchange? Add the account in Internet Accounts and its calendars show up in Visor."
           }
         }
       }

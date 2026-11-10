@@ -333,7 +333,7 @@ struct NotchContentView: View {
                 }
             }
             Divider()
-            Button("Salir de Nook", systemImage: "power") { NSApp.terminate(nil) }
+            Button("Salir de Visor", systemImage: "power") { NSApp.terminate(nil) }
         } label: {
             CircleIconLabel(icon: "ellipsis")
         }

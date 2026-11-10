@@ -19,21 +19,21 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Nook muestra en el notch la batería de tus AirPods, teclado y ratón.</string>
+	<string>Visor muestra en el notch la batería de tus AirPods, teclado y ratón.</string>
 	<key>NSFocusStatusUsageDescription</key>
-	<string>Nook avisa en el notch cuando activas o quitas No molestar o un modo de Concentración.</string>
+	<string>Visor avisa en el notch cuando activas o quitas No molestar o un modo de Concentración.</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Añadir a Nook</string>
+				<string>Añadir a Visor</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>addToNook</string>
 			<key>NSPortName</key>
-			<string>Nook</string>
+			<string>Visor</string>
 			<key>NSRequiredContext</key>
 			<dict/>
 			<key>NSSendFileTypes</key>
@@ -47,7 +47,7 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://github.com/diegoperezg7/nook/releases/latest/download/appcast.xml</string>
+	<string>https://github.com/diegoperezg7/visor/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>tnW3xBsF18kFnVEQl6EUZHRgEoatYiXYfNmvIVmMMS0=</string>
 	<key>SUScheduledCheckInterval</key>

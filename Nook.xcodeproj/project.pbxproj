@@ -159,7 +159,7 @@
 		649398E11B2755299D34B4F9 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		68FF8528E1C5508B42E2CB2E /* AgentMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentMonitor.swift; sourceTree = "<group>"; };
 		6A12C3AA2DAA0A446029D112 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
-		6AF31C476DBDFF1170647A72 /* Nook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AF31C476DBDFF1170647A72 /* Visor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Visor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FB19E6110AF66A80F95871F /* NotificationFeedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFeedTests.swift; sourceTree = "<group>"; };
 		72F8E211D30A2B434D0F5173 /* NotificationFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFeed.swift; sourceTree = "<group>"; };
 		7AD3CAE2AA017E82652A1978 /* Carousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Carousel.swift; sourceTree = "<group>"; };
@@ -488,7 +488,7 @@
 		EF799ADDBCF3DE03D240F860 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6AF31C476DBDFF1170647A72 /* Nook.app */,
+				6AF31C476DBDFF1170647A72 /* Visor.app */,
 				CD921CC11A139E1721BD0361 /* NookTests.xctest */,
 			);
 			name = Products;
@@ -545,7 +545,7 @@
 				321028EC0FB1A80BF6BD907A /* Sparkle */,
 			);
 			productName = Nook;
-			productReference = 6AF31C476DBDFF1170647A72 /* Nook.app */;
+			productReference = 6AF31C476DBDFF1170647A72 /* Visor.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A2BDB367E2CB3D493D1E5329 /* NookTests */ = {
@@ -763,9 +763,9 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.visor.tests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Nook.app/Contents/MacOS/Nook";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Visor.app/Contents/MacOS/Visor";
 			};
 			name = Release;
 		};
@@ -841,9 +841,9 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.visor.tests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Nook.app/Contents/MacOS/Nook";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Visor.app/Contents/MacOS/Visor";
 			};
 			name = Debug;
 		};
@@ -922,28 +922,29 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Nook;
+				INFOPLIST_KEY_CFBundleDisplayName = Visor;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Nook muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
-				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo.";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Nook enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Visor enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Diego Pérez García";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Nook usa el micrófono solo mientras dictas, para pasar tu voz a texto.";
-				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Nook muestra tus recordatorios pendientes junto al calendario y te deja marcarlos como hechos o crear uno escribiendo.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Nook convierte lo que dictas en texto y lo copia al portapapeles.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Visor usa el micrófono solo mientras dictas, para pasar tu voz a texto.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Visor muestra tus recordatorios pendientes junto al calendario y te deja marcarlos como hechos o crear uno escribiendo.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Visor convierte lo que dictas en texto y lo copia al portapapeles.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.21.0;
+				MARKETING_VERSION = 0.22.0;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook;
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook;
-				PRODUCT_NAME = Nook;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.visor;
+				PRODUCT_MODULE_NAME = Nook;
+				PRODUCT_NAME = Visor;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -955,28 +956,29 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Nook;
+				INFOPLIST_KEY_CFBundleDisplayName = Visor;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Nook muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
-				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "Nook muestra tus eventos en el notch y te deja añadir uno escribiendo.";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Nook enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Visor enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Diego Pérez García";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Nook usa el micrófono solo mientras dictas, para pasar tu voz a texto.";
-				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Nook muestra tus recordatorios pendientes junto al calendario y te deja marcarlos como hechos o crear uno escribiendo.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Nook convierte lo que dictas en texto y lo copia al portapapeles.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Visor usa el micrófono solo mientras dictas, para pasar tu voz a texto.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Visor muestra tus recordatorios pendientes junto al calendario y te deja marcarlos como hechos o crear uno escribiendo.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Visor convierte lo que dictas en texto y lo copia al portapapeles.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.21.0;
+				MARKETING_VERSION = 0.22.0;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook.debug;
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.nook.debug;
-				PRODUCT_NAME = Nook;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.visor.debug;
+				PRODUCT_MODULE_NAME = Nook;
+				PRODUCT_NAME = Visor;
 				SDKROOT = macosx;
 			};
 			name = Debug;

@@ -27,7 +27,7 @@ enum LegacyImport {
                 try importStore(at: storeURL, itemsDirectory: folder.appendingPathComponent("Items"), into: store)
             } catch {
                 // Sin marcar como hecho: se reintenta en el proximo arranque.
-                NSLog("Nook: no se pudieron importar los datos de \(source.name): \(error)")
+                NSLog("Visor: no se pudieron importar los datos de \(source.name): \(error)")
                 return
             }
         }

@@ -36,4 +36,20 @@ final class ToolsTests: XCTestCase {
         timer.stop()
         XCTAssertFalse(timer.isRunning || timer.isPaused)
     }
+
+    func testSettingsAreImportedFromNookOnceWithoutOnboarding() throws {
+        let old = "com.diegoperez.nook.import-test", new = "com.diegoperez.visor.import-test"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: new))
+        defer {
+            defaults.removePersistentDomain(forName: new)
+            defaults.removePersistentDomain(forName: old)
+        }
+        defaults.setPersistentDomain([SettingsKey.mailSource: "outlook", SettingsKey.onboardingDone: true], forName: old)
+        SettingsKey.importFromNook(defaults, bundleID: new)
+        XCTAssertEqual(defaults.string(forKey: SettingsKey.mailSource), "outlook")
+        XCTAssertNil(defaults.object(forKey: SettingsKey.onboardingDone))
+        defaults.set("mail", forKey: SettingsKey.mailSource)
+        SettingsKey.importFromNook(defaults, bundleID: new)
+        XCTAssertEqual(defaults.string(forKey: SettingsKey.mailSource), "mail", "solo la primera vez")
+    }
 }

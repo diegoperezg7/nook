@@ -5,6 +5,7 @@
 # Uso:
 #   ./scripts/release.sh                                  # DMG firmado, sin notarizar
 #   NOTARY_PROFILE=<perfil-de-notarytool> ./scripts/release.sh    # firmado + notarizado
+#   DEVELOPER_ID_PROFILE=<ruta .provisionprofile> ...   # con el aviso de Concentracion
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -13,8 +14,8 @@ IDENTITY="${SIGN_IDENTITY:-Developer ID Application}"
 VERSION=$(grep 'MARKETING_VERSION' project.yml | head -1 | sed -E 's/.*"(.*)".*/\1/')
 DERIVED=build/dd
 OUT=dist
-APP="$OUT/Nook.app"
-DMG="$OUT/Nook-$VERSION.dmg"
+APP="$OUT/Visor.app"
+DMG="$OUT/Visor-$VERSION.dmg"
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
@@ -23,15 +24,25 @@ xcodegen generate --quiet
 xcodebuild -project Nook.xcodeproj -scheme Nook -configuration Release \
   -destination "generic/platform=macOS" -derivedDataPath "$DERIVED" build -quiet
 
-ditto "$DERIVED/Build/Products/Release/Nook.app" "$APP"
+ditto "$DERIVED/Build/Products/Release/Visor.app" "$APP"
 
 # Firma explicita con Developer ID: la de Xcode es la de desarrollo.
 # Los entitlements se toman de la build ya firmada por Xcode, con las variables
 # ($(NOOK_APP_GROUP)...) sustituidas; el archivo del repo las lleva sin sustituir.
-ENTITLEMENTS="$OUT/Nook.entitlements"
+ENTITLEMENTS="$OUT/Visor.entitlements"
 codesign -d --entitlements "$ENTITLEMENTS" --xml "$APP" 2>/dev/null
 # La firma de desarrollo de Xcode añade get-task-allow (depuracion): la notarizacion lo rechaza.
 /usr/libexec/PlistBuddy -c "Delete :com.apple.security.get-task-allow" "$ENTITLEMENTS" 2>/dev/null || true
+# Concentracion (com.apple.developer.usernotifications.communication) es un permiso
+# restringido: con Developer ID solo arranca si va dentro un perfil que lo incluya.
+# Sin DEVELOPER_ID_PROFILE se quita y Visor funciona sin ese aviso.
+if [ -n "${DEVELOPER_ID_PROFILE:-}" ]; then
+  cp "$DEVELOPER_ID_PROFILE" "$APP/Contents/embedded.provisionprofile"
+else
+  /usr/libexec/PlistBuddy -c "Delete :com.apple.developer.usernotifications.communication" "$ENTITLEMENTS" 2>/dev/null || true
+  rm -f "$APP/Contents/embedded.provisionprofile"
+  echo "Sin DEVELOPER_ID_PROFILE: la release va sin el aviso de Concentración."
+fi
 if grep -q '\$(' "$ENTITLEMENTS"; then
   echo "Entitlements con variables sin sustituir" >&2
   exit 1
@@ -54,16 +65,16 @@ codesign -d --entitlements - --xml "$APP" 2>/dev/null | grep -q "<string>$GROUP<
 }
 codesign --verify --strict --verbose=2 "$APP"
 
-# DMG con fondo (flecha de Nook a Aplicaciones). Finder coloca fondo e iconos en un
+# DMG con fondo (flecha de Visor a Aplicaciones). Finder coloca fondo e iconos en un
 # DMG editable, que luego se comprime.
 STAGING=$(mktemp -d)
-ditto "$APP" "$STAGING/Nook.app"
+ditto "$APP" "$STAGING/Visor.app"
 ln -s /Applications "$STAGING/Applications"
 mkdir "$STAGING/.background"
 cp "$(dirname "$0")/dmg/background.tiff" "$STAGING/.background/background.tiff"
-RW="$OUT/Nook-rw.dmg"
+RW="$OUT/Visor-rw.dmg"
 rm -f "$RW"
-hdiutil create -volname Nook -fs HFS+ -srcfolder "$STAGING" -ov -format UDRW "$RW" -quiet
+hdiutil create -volname Visor -fs HFS+ -srcfolder "$STAGING" -ov -format UDRW "$RW" -quiet
 rm -rf "$STAGING"
 MOUNT=$(hdiutil attach "$RW" -readwrite -noverify -noautoopen | awk -F'\t' '/\/Volumes\//{print $NF}')
 VOLUME=$(basename "$MOUNT")
@@ -80,7 +91,7 @@ tell application "Finder"
     set icon size of opts to 104
     set text size of opts to 13
     set background picture of opts to file ".background:background.tiff"
-    set position of item "Nook.app" of container window to {160, 160}
+    set position of item "Visor.app" of container window to {160, 160}
     set position of item "Applications" of container window to {480, 160}
     update without registering applications
     delay 1
@@ -88,7 +99,7 @@ tell application "Finder"
   end tell
 end tell
 APPLESCRIPT
-# El disco con el icono de Nook. Despues de Finder: al guardar la vista quita el
+# El disco con el icono de Visor. Despues de Finder: al guardar la vista quita el
 # icono propio del volumen.
 cp "$APP/Contents/Resources/AppIcon.icns" "$MOUNT/.VolumeIcon.icns"
 xcrun SetFile -a C "$MOUNT"
@@ -115,14 +126,14 @@ cat > "$OUT/appcast.xml" <<APPCAST
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Nook</title>
+    <title>Visor</title>
     <item>
-      <title>Nook $VERSION</title>
+      <title>Visor $VERSION</title>
       <pubDate>$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
       <sparkle:version>$BUILD</sparkle:version>
       <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.2</sparkle:minimumSystemVersion>
-      <enclosure url="https://github.com/diegoperezg7/nook/releases/download/v$VERSION/Nook-$VERSION.dmg" $SIGNATURE type="application/octet-stream"/>
+      <enclosure url="https://github.com/diegoperezg7/visor/releases/download/v$VERSION/Visor-$VERSION.dmg" $SIGNATURE type="application/octet-stream"/>
     </item>
   </channel>
 </rss>

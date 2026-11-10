@@ -103,12 +103,8 @@ struct ScreenshotsView: View {
         Placeholder(
             icon: "camera.viewfinder",
             title: "Tus capturas de pantalla, a mano",
-            subtitle: "Elige la carpeta donde se guardan (normalmente el Escritorio)",
-            action: ("Elegir carpeta…", {
-                // El notch esta por encima de todo: se cierra para no tapar el dialogo.
-                model.close()
-                library.chooseFolder()
-            })
+            subtitle: "Visor las lee de la carpeta donde las guarda macOS: \(ScreenshotLibrary.systemFolder.lastPathComponent)",
+            action: ("Usar esa carpeta", { library.useSystemFolder() })
         )
         .padding(.top, NotchMetrics.searchRowHeight)
     }

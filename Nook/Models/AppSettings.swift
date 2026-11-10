@@ -62,6 +62,22 @@ enum SettingsKey {
     static let shelfExpiryDays = "shelfExpiryDays"
     static let shelfExpiryOptions = [0, 1, 7, 30]
 
+    /// La app se llamaba Nook (com.diegoperez.nook): sus ajustes se copian una vez a
+    /// Visor. La introduccion no se copia: con el identificador nuevo hay que volver a
+    /// dar los permisos, y es ahi donde se piden.
+    static func importFromNook(_ defaults: UserDefaults = .standard, bundleID: String? = Bundle.main.bundleIdentifier) {
+        let marker = "importedFromNook"
+        guard !defaults.bool(forKey: marker), let bundleID else { return }
+        defaults.set(true, forKey: marker)
+        let oldID = bundleID.replacingOccurrences(of: "com.diegoperez.visor", with: "com.diegoperez.nook")
+        guard oldID != bundleID, let old = defaults.persistentDomain(forName: oldID) else { return }
+        // Solo lo que el usuario cambio aqui (no los valores por defecto registrados).
+        let own = defaults.persistentDomain(forName: bundleID) ?? [:]
+        for (key, value) in old where key != onboardingDone && own[key] == nil {
+            defaults.set(value, forKey: key)
+        }
+    }
+
     static func registerDefaults(_ defaults: UserDefaults = .standard) {
         defaults.register(defaults: [
             captureClipboard: true,

@@ -56,6 +56,37 @@ final class ScreenshotLibrary {
         use(url)
     }
 
+    /// Donde guarda macOS las capturas (Captura de pantalla > Opciones); por defecto, el Escritorio.
+    static var systemFolder: URL {
+        if let path = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location"), !path.isEmpty {
+            return URL(fileURLWithPath: (path as NSString).expandingTildeInPath, isDirectory: true)
+        }
+        return realHome.appendingPathComponent("Desktop", isDirectory: true)
+    }
+
+    /// Usa la carpeta de macOS sin dialogo (Nook no esta en sandbox).
+    func useSystemFolder() {
+        let url = Self.systemFolder
+        if let bookmark = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
+            defaults.set(bookmark, forKey: Self.bookmarkKey)
+        }
+        use(url)
+    }
+
+    /// La miniatura flotante de macOS retiene cada captura unos 5 s antes de guardarla:
+    /// sin ella, la captura llega al momento a la carpeta y a Nook.
+    static var instantCaptures: Bool {
+        UserDefaults(suiteName: "com.apple.screencapture")?.object(forKey: "show-thumbnail") as? Bool == false
+    }
+
+    static func setInstantCaptures(_ on: Bool) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+        process.arguments = ["write", "com.apple.screencapture", "show-thumbnail", "-bool", on ? "false" : "true"]
+        try? process.run()
+        process.waitUntilExit()
+    }
+
     func showFolderInFinder() {
         guard let folder else { return }
         NSWorkspace.shared.activateFileViewerSelecting([folder])
@@ -87,8 +118,18 @@ final class ScreenshotLibrary {
 
     private func watch(_ url: URL) {
         watcher?.cancel()
-        let descriptor = open(url.path, O_EVTONLY)
-        guard descriptor >= 0 else { return }
+        watcher = nil
+        // Fuera del hilo principal: si macOS pide permiso para la carpeta, open()
+        // espera la respuesta y congelaría el arranque.
+        Task {
+            let descriptor = await Task.detached(priority: .utility) { open(url.path, O_EVTONLY) }.value
+            guard descriptor >= 0 else { return }
+            guard folder == url else { close(descriptor); return }
+            attach(descriptor)
+        }
+    }
+
+    private func attach(_ descriptor: Int32) {
         let source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: descriptor, eventMask: [.write, .rename, .delete], queue: .main
         )
@@ -109,10 +150,17 @@ final class ScreenshotLibrary {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: work)
     }
 
+    /// Se lee fuera del hilo principal: si macOS pide permiso para la carpeta
+    /// (Escritorio, Documentos), la lectura espera a la respuesta y no debe congelar
+    /// el arranque ni el notch.
     func reload() {
         guard let folder else { shots = []; return }
-        shots = Self.screenshots(in: folder)
-        selection.formIntersection(shots.map(\.url))
+        Task {
+            let found = await Task.detached(priority: .utility) { Self.screenshots(in: folder) }.value
+            guard self.folder == folder else { return }
+            shots = found
+            selection.formIntersection(found.map(\.url))
+        }
     }
 
     nonisolated static func screenshots(in folder: URL) -> [Shot] {

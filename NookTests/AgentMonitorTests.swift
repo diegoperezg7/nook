@@ -225,4 +225,27 @@ final class AgentMonitorTests: XCTestCase {
         XCTAssertEqual(SubscriptionUsage.Window(label: "5 h", usedPercent: 120, resetsAt: nil).usedRounded, 100)
         XCTAssertEqual(SubscriptionUsage.Window(label: "5 h", usedPercent: -3, resetsAt: nil).usedRounded, 0)
     }
+
+    func testUsageSetupStatesAndConnectKeepsOtherSettings() throws {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: home) }
+        try FileManager.default.createDirectory(at: home, withIntermediateDirectories: true)
+        XCTAssertEqual(ClaudeUsageSetup.state(home: home), .noClaude)
+
+        try FileManager.default.createDirectory(at: home.appendingPathComponent(".claude"), withIntermediateDirectories: true)
+        XCTAssertEqual(ClaudeUsageSetup.state(home: home), .noPlugin)
+
+        let config = ClaudeUsageSetup.config(home: home)
+        try FileManager.default.createDirectory(at: config.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try #"{"display":{"showUsage":true},"theme":"dark"}"#.write(to: config, atomically: true, encoding: .utf8)
+        XCTAssertEqual(ClaudeUsageSetup.state(home: home), .needsConnection)
+
+        try ClaudeUsageSetup.connect(home: home)
+        XCTAssertEqual(ClaudeUsageSetup.state(home: home), .connected)
+        let root = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: config)) as? [String: Any])
+        let display = try XCTUnwrap(root["display"] as? [String: Any])
+        XCTAssertEqual(display["showUsage"] as? Bool, true)
+        XCTAssertEqual(root["theme"] as? String, "dark")
+        XCTAssertEqual(display["externalUsageWritePath"] as? String, ClaudeUsageSetup.snapshot(home: home).path)
+    }
 }

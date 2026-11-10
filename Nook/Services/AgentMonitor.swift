@@ -208,6 +208,51 @@ enum UsageAlert {
     }
 }
 
+/// Conectar el consumo de Claude: la barra de estado claude-hud escribe el snapshot
+/// que lee Nook si su config tiene `display.externalUsageWritePath`.
+enum ClaudeUsageSetup {
+    enum State: Equatable {
+        /// Ya hay snapshot o la ruta esta configurada.
+        case connected
+        /// claude-hud instalado pero sin escribir el snapshot: se arregla con un clic.
+        case needsConnection
+        /// Claude Code sin claude-hud.
+        case noPlugin
+        /// Sin Claude Code en este Mac.
+        case noClaude
+    }
+
+    static let pluginURL = URL(string: "https://github.com/jarrodwatts/claude-hud")!
+
+    static func config(home: URL) -> URL { home.appendingPathComponent(".claude/plugins/claude-hud/config.json") }
+    static func snapshot(home: URL) -> URL { home.appendingPathComponent(AgentMonitor.claudeUsageSnapshot) }
+
+    static func state(home: URL = AgentMonitor.realHome) -> State {
+        let files = FileManager.default
+        if files.fileExists(atPath: snapshot(home: home).path) { return .connected }
+        guard files.fileExists(atPath: home.appendingPathComponent(".claude").path) else { return .noClaude }
+        let installed = files.fileExists(atPath: home.appendingPathComponent(".claude/plugins/cache/claude-hud").path)
+            || files.fileExists(atPath: config(home: home).path)
+        guard installed else { return .noPlugin }
+        let current = (try? Data(contentsOf: config(home: home)))
+            .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+            .flatMap { $0["display"] as? [String: Any] }?["externalUsageWritePath"] as? String
+        return current == snapshot(home: home).path ? .connected : .needsConnection
+    }
+
+    /// Añade la ruta del snapshot a la config de claude-hud sin tocar el resto.
+    static func connect(home: URL = AgentMonitor.realHome) throws {
+        let url = config(home: home)
+        var root = (try? Data(contentsOf: url))
+            .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] } ?? [:]
+        var display = root["display"] as? [String: Any] ?? [:]
+        display["externalUsageWritePath"] = snapshot(home: home).path
+        root["display"] = display
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONSerialization.data(withJSONObject: root, options: [.prettyPrinted, .sortedKeys]).write(to: url, options: .atomic)
+    }
+}
+
 /// Lectura de las fuentes. Funciones puras sobre una carpeta personal para poder
 /// probarlas con datos simulados.
 enum AgentSources {

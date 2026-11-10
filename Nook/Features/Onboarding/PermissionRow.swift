@@ -68,7 +68,8 @@ struct PermissionRow<Icon: View>: View {
                 Label("Listo", systemImage: "checkmark.circle.fill")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(AppColors.success)
-                    .transition(.scale.combined(with: .opacity))
+                    .symbolEffect(.bounce, options: .nonRepeating, value: granted)
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
             } else {
                 Button(action: action) {
                     Text(actionTitle).font(.system(size: 12, weight: .semibold))
@@ -80,7 +81,8 @@ struct PermissionRow<Icon: View>: View {
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(AppColors.card))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AppColors.cardBorder, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .strokeBorder(granted ? AppColors.success.opacity(0.45) : AppColors.cardBorder, lineWidth: 1))
         .animation(AppMotion.snappy, value: granted)
     }
 }

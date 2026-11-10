@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/icon.png" width="128" alt="Nook icon">
+  <img src="docs/images/icon.png" width="128" alt="Visor icon">
 </p>
 
-<h1 align="center">Nook</h1>
+<h1 align="center">Visor</h1>
 
 <p align="center">
   <strong>Your Mac's notch, turned into a useful place.</strong><br>
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/shelf.png" width="760" alt="Nook open under the notch with four files on the shelf">
+  <img src="docs/images/shelf.png" width="760" alt="Visor open under the notch with four files on the shelf">
 </p>
 
 ---
@@ -37,9 +37,13 @@ restart.
   <img src="docs/images/clipboard.png" width="760" alt="Clipboard history with a link, a meeting note, a command and an address">
 </p>
 
-Everything you copy is kept: text, links, images and files. Find what you copied yesterday
-(even the text inside a screenshot) and paste it with <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd>
-from any app. Passwords are never saved.
+Everything you copy is kept: text, links, images and files. Search it, pin what you reuse
+and paste it with <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> from any app, or pick a card with
+the arrow keys and press <kbd>Return</kbd>. Passwords are never saved.
+
+- **Copy as:** plain text, uppercase, lowercase, title case, one line or pretty JSON.
+- **QR code** of any text or link, to open it on your phone.
+- **Text from an image or a screenshot**, recognized on your Mac.
 
 ## Your day at a glance
 
@@ -47,27 +51,34 @@ from any app. Passwords are never saved.
   countdown in the notch when it's about to start.
 - **Reminders** you haven't done yet, to check off without opening anything.
 - **Just type it:** "Coffee with Ana tomorrow at 10" creates the event.
-- **Mail:** who wrote to you and what it's about. Open it and read it right in the notch,
-  reply or mark it as read. Works with Mail and Outlook.
+- **Mail:** your latest messages, read and unread. Open one, read it and **reply** right in
+  the notch, or mark it as read. Choose which senders get an alert. Works with Mail and the
+  classic Outlook.
 
 ## Keep an eye on your AI agents
 
 <p align="center">
-  <img src="docs/images/agents.png" width="760" alt="Claude Code sessions running and the subscription usage left">
+  <img src="docs/images/agents.png" width="760" alt="Claude Code sessions and the subscription usage">
 </p>
 
-If you work with coding agents, Nook tells you **when one finishes or is waiting for your
-answer**. Click its card and you're in its terminal. You also see how much of your
-subscription is left before you run out.
+If you work with Claude Code or Codex, Visor tells you **when an agent finishes or is waiting
+for your answer**. Click its card and you're in its terminal or VS Code. You also see **how much
+of your Claude plan you've used** in the 5-hour and weekly windows, and **when each one
+resets**, with an alert at 80 % and 95 %.
 
 ## Alerts that stay out of the way
 
-Volume, battery, AirPods connected, finished downloads, meetings, new mail, calls,
+Volume, battery, AirPods, finished downloads, meetings, new mail, agents, Focus,
 notifications… they show up beside the notch for a moment and go away. They never cover
 your menu bar icons: if one side has no room, they use the other.
 
-With your **AirPods** in, you'll see their battery as a ring; click it to see each earbud
-and the case.
+**Click an alert** and the notch opens a little to show a preview, with a button to go
+straight to the mail, the session, the download or the meeting.
+
+## A clock in the notch
+
+A timer with pause and any duration, alarms, and *keep awake*, laid out like the Clock app.
+The time left shows as a ring around the button.
 
 ## And a few shortcuts
 
@@ -75,24 +86,27 @@ and the case.
 |---|---|
 | <kbd>⌥</kbd> <kbd>Space</kbd> | Open apps and files, do math and convert units. |
 | <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>V</kbd> | History of everything you copied. |
+| <kbd>⌘</kbd> <kbd>1</kbd> … <kbd>6</kbd> | Switch tabs while the panel is open. |
 | <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>Space</kbd> | Action ring next to the pointer. |
 | <kbd>⌃</kbd> <kbd>⌥</kbd> + arrows | Snap the window to a half, a quarter, full screen… |
 | Select text | Copy it, search it, translate it or save it in one click. |
+| ⋯ menu > Eyedropper | Copy the color of any pixel as HEX. |
 
 ## Sets itself up, step by step
 
-The first time you open it, Nook walks you through it: what it does, how to connect your
-calendar and mail (Apple or Outlook), which permissions unlock what, and which shortcuts you
-want. Everything is optional and can be changed later.
+The first time you open it, Visor walks you through it: what it does, how to connect your
+calendar and mail, where your screenshots are, how to see your Claude usage, which
+permissions unlock what, and which shortcuts you want. Everything is optional and can be
+changed later.
 
 <table>
   <tr>
-    <td><img src="docs/images/welcome.png" alt="Welcome to Nook"></td>
+    <td><img src="docs/images/welcome.png" alt="Welcome to Visor"></td>
     <td><img src="docs/images/calendar-mail.png" alt="Connect calendar, reminders and mail"></td>
   </tr>
   <tr>
+    <td><img src="docs/images/captures-agents.png" alt="Screenshots folder, instant screenshots and Claude usage"></td>
     <td><img src="docs/images/permissions.png" alt="Optional permissions and what each one is for"></td>
-    <td><img src="docs/images/shortcuts-alerts.png" alt="Choose shortcuts and alerts"></td>
   </tr>
 </table>
 
@@ -104,11 +118,15 @@ want. Everything is optional and can be changed later.
 
 ## Install
 
-1. Download the latest `Nook-x.y.z.dmg` from [Releases](../../releases/latest).
-2. Drag Nook to **Applications** and open it.
+1. Download the latest `Visor-x.y.z.dmg` from [Releases](../../releases/latest).
+2. Drag Visor to **Applications** and open it.
 
 Works on any Mac with macOS 14.2 or later; on Macs without a notch it shows up as a small
 pill at the top center of the screen.
+
+> **Coming from Nook?** Visor is the same app with a new name. It keeps your shelf, history
+> and settings. macOS asks for the permissions again because it's a new app, and you can
+> delete Nook afterwards.
 
 <details>
 <summary><strong>For developers</strong></summary>
@@ -118,12 +136,18 @@ Built in Swift with SwiftUI and AppKit. Requires Xcode 26 and
 
 ```bash
 xcodegen generate
-xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd build
+xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd \
+  -allowProvisioningUpdates -allowProvisioningDeviceRegistration build
 xcodebuild -project Nook.xcodeproj -scheme Nook -derivedDataPath build/dd test
 ```
 
-The development build uses its own data, so it never touches the installed app's.
-To distribute: `NOTARY_PROFILE=<notarytool-profile> ./scripts/release.sh`.
+The project and module are still called `Nook` inside; the app is `Visor.app`. Sign with
+your own team: the Focus alert needs a paid developer account and a registered Mac. The
+development build uses its own data, so it never touches the installed app's.
+
+To distribute: `NOTARY_PROFILE=<notarytool-profile> ./scripts/release.sh`. Add
+`DEVELOPER_ID_PROFILE=<path>` with a Developer ID profile that includes Communication
+Notifications to keep the Focus alert; without it, the release ships without that alert.
 
 </details>
 

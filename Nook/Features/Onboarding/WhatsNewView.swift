@@ -11,14 +11,16 @@ enum WhatsNew {
     }
 
     static let notes: [Note] = [
-        Note(icon: "arrow.down.circle.fill", title: "Actualizaciones automáticas",
-             detail: "Nook busca versiones nuevas una vez al día y se actualiza solo. También desde el menú ⋯ > Buscar actualizaciones."),
-        Note(icon: "person.crop.square.fill", title: "Espejo",
-             detail: "Mírate antes de una llamada con el botón de la cámara del notch. Solo se enciende mientras lo tienes abierto."),
-        Note(icon: "square.stack.3d.up.fill", title: "Arrastrar todo",
-             detail: "Con varios archivos en la bandeja, arrastra la primera tarjeta y salen todos a la vez."),
-        Note(icon: "pin.fill", title: "Fijados y bandeja que se ordena sola",
-             detail: "Filtra el historial por lo que tienes fijado. En Ajustes puedes hacer que la bandeja quite lo antiguo."),
+        Note(icon: "hand.tap.fill", title: "Avisos que se abren",
+             detail: "Pulsa un aviso del notch para ver una vista previa y un botón para ir al correo, la sesión, la descarga o la reunión."),
+        Note(icon: "timer", title: "Reloj nuevo",
+             detail: "Temporizador con pausa y duración libre, alarmas y mantener despierto, en un panel como el de la app Reloj."),
+        Note(icon: "gauge.with.dots.needle.67percent", title: "Consumo de Claude",
+             detail: "El % gastado de 5 h y de la semana, con la hora a la que se reinicia, y aviso al pasar del 80 % y del 95 %."),
+        Note(icon: "envelope.fill", title: "Correo",
+             detail: "Ves también los leídos, respondes desde el notch y eliges de quién quieres aviso."),
+        Note(icon: "qrcode", title: "Herramientas",
+             detail: "Código QR del texto copiado, cuentagotas en el menú ⋯, texto de una captura y «Copiar como»."),
     ]
 
     static var version: String {
@@ -45,7 +47,7 @@ struct WhatsNewView: View {
                 Image(nsImage: AppIcon.image)
                     .resizable()
                     .frame(width: 72, height: 72)
-                Text("Novedades de Nook \(WhatsNew.version)")
+                Text("Novedades de Visor \(WhatsNew.version)")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(AppColors.textPrimary)
             }

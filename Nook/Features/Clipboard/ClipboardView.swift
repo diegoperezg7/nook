@@ -120,7 +120,7 @@ struct ClipboardView: View {
         case .allowed:
             return nil
         case .needsPermission, .denied:
-            return AnyView(NoticePill(text: "Sin acceso", detail: "Nook no tiene acceso al portapapeles", action: "Permitir…") {
+            return AnyView(NoticePill(text: "Sin acceso", detail: "Visor no tiene acceso al portapapeles", action: "Permitir…") {
                 NSWorkspace.shared.open(ClipboardAccess.settingsURL)
             })
         }

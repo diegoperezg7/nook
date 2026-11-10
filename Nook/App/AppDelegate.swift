@@ -36,6 +36,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var launcherHotKey: HotKey?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        SettingsKey.importFromNook()
         SettingsKey.registerDefaults()
         // Los tests usan la app como host: sin panel ni monitores.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
@@ -51,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DataHome.importDefaultsIfNeeded()
         // Antes de abrir el almacen: decide (y si hace falta copia) donde estan los datos.
         let migration = DataHome.prepare()
-        NSLog("Nook datos: %@", migration)
+        NSLog("Visor datos: %@", migration)
         DataHome.exportDefaults()
         let container = Self.makeContainer()
         let store = ItemStore(
@@ -336,7 +337,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.showOnboarding()
             }
             let window = NSWindow(contentViewController: NSHostingController(rootView: view))
-            window.title = String(localized: "Ajustes de Nook")
+            window.title = String(localized: "Ajustes de Visor")
             window.styleMask = [.titled, .closable]
             window.isReleasedWhenClosed = false
             window.center()
@@ -348,11 +349,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Introduccion del primer arranque (y "Ver de nuevo" en Ajustes).
     private func showOnboarding() {
-        guard let calendar, let mail else { return }
+        guard let calendar, let mail, let screenshots else { return }
         notch?.model.close()
         settingsWindow?.orderOut(nil)
         if onboardingWindow == nil {
-            let view = OnboardingView(calendar: calendar, mail: mail, permissions: permissions) { [weak self] in
+            let view = OnboardingView(calendar: calendar, mail: mail, screenshots: screenshots, permissions: permissions) { [weak self] in
                 UserDefaults.standard.set(true, forKey: SettingsKey.onboardingDone)
                 self?.onboardingWindow?.close()
             }

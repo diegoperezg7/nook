@@ -15,7 +15,7 @@ struct MirrorView: View {
             case .starting:
                 ProgressView().controlSize(.small)
             case .denied:
-                message(icon: "video.slash.fill", text: "Nook no tiene permiso para la cámara") {
+                message(icon: "video.slash.fill", text: "Visor no tiene permiso para la cámara") {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
                         NSWorkspace.shared.open(url)
                     }

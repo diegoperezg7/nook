@@ -85,9 +85,7 @@ private struct UsageChip: View {
                     UsageWindow(window: window)
                 }
             } else {
-                Text("Consumo no disponible")
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textSecondary)
+                UsageSetupHint()
             }
         }
         .lineLimit(1)
@@ -98,6 +96,44 @@ private struct UsageChip: View {
         .liquidGlass(in: Capsule())
     }
 
+}
+
+/// Sin dato de consumo: dice por que y lo arregla si se puede con un clic.
+private struct UsageSetupHint: View {
+    @State private var state = ClaudeUsageSetup.state()
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(message)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+            switch state {
+            case .needsConnection:
+                Button("Conectar") {
+                    try? ClaudeUsageSetup.connect()
+                    state = ClaudeUsageSetup.state()
+                }
+                .buttonStyle(.plain)
+                .font(AppTypography.bodyStrong)
+                .foregroundStyle(AppColors.accent)
+            case .noPlugin:
+                Link("Instalar claude-hud", destination: ClaudeUsageSetup.pluginURL)
+                    .font(AppTypography.bodyStrong)
+                    .foregroundStyle(AppColors.accent)
+            case .connected, .noClaude:
+                EmptyView()
+            }
+        }
+    }
+
+    private var message: LocalizedStringKey {
+        switch state {
+        case .connected: return "El consumo aparece al usar Claude Code"
+        case .needsConnection: return "Consumo sin conectar"
+        case .noPlugin: return "Para ver el consumo hace falta la barra de estado claude-hud"
+        case .noClaude: return "Consumo no disponible"
+        }
+    }
 }
 
 /// Una ventana de uso (5 h, semanal): barra con lo gastado y lo que queda.

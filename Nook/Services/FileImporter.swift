@@ -30,7 +30,7 @@ enum FileImporter {
     }
 }
 
-/// Servicio de macOS "Añadir a Nook": aparece al hacer clic derecho en Finder.
+/// Servicio de macOS "Añadir a Visor": aparece al hacer clic derecho en Finder.
 final class ServiceProvider: NSObject {
     private let store: ItemStore
 

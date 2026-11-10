@@ -1,15 +1,17 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Primer arranque: que es Nook, conectar calendario y correo, permisos avanzados y
 /// que atajos y avisos activar. Todo se puede saltar y cambiar luego en Ajustes.
 struct OnboardingView: View {
     let calendar: CalendarService
     let mail: MailService
+    let screenshots: ScreenshotLibrary
     let permissions: PermissionState
     let finish: () -> Void
 
-    enum Step: Int, CaseIterable { case welcome, accounts, permissions, shortcuts, done }
+    enum Step: Int, CaseIterable { case welcome, accounts, extras, permissions, shortcuts, done }
     @State private var step: Step = Self.initialStep
     @State private var forward = true
 
@@ -18,9 +20,11 @@ struct OnboardingView: View {
             ZStack {
                 page(step)
                     .id(step)
+                    // El contenido nuevo entra escalonado (`rise`); la pagina que sale
+                    // solo se desliza un poco y se funde.
                     .transition(.asymmetric(
-                        insertion: .move(edge: forward ? .trailing : .leading).combined(with: .opacity),
-                        removal: .move(edge: forward ? .leading : .trailing).combined(with: .opacity)
+                        insertion: .opacity,
+                        removal: .offset(x: AppMotion.reduceMotion ? 0 : (forward ? -36 : 36)).combined(with: .opacity)
                     ))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -41,6 +45,7 @@ struct OnboardingView: View {
         switch step {
         case .welcome: WelcomePage()
         case .accounts: AccountsPage(calendar: calendar, mail: mail)
+        case .extras: ExtrasPage(screenshots: screenshots)
         case .permissions: PermissionsPage(permissions: permissions)
         case .shortcuts: ShortcutsPage()
         case .done: DonePage()
@@ -70,6 +75,7 @@ struct OnboardingView: View {
             Button(action: { step == .done ? finish() : go(1) }) {
                 Text(step == .done ? "Empezar" : step == .welcome ? "Configurar" : "Siguiente")
                     .frame(minWidth: 90)
+                    .contentTransition(.opacity)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
@@ -88,7 +94,7 @@ struct OnboardingView: View {
     private func go(_ delta: Int) {
         guard let next = Step(rawValue: step.rawValue + delta) else { return }
         forward = delta > 0
-        withAnimation(AppMotion.reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.88)) { step = next }
+        withAnimation(AppMotion.reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.38, dampingFraction: 0.9)) { step = next }
     }
 }
 
@@ -107,7 +113,33 @@ private struct PageHeader: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: 480)
+        .rise(0)
     }
+}
+
+/// Entrada escalonada de cada bloque de un paso: sube 14 pt, se enfoca y aparece.
+/// Con "Reducir movimiento", solo un fundido.
+private struct Rise: ViewModifier {
+    let order: Int
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        let still = shown || AppMotion.reduceMotion
+        content
+            .opacity(shown ? 1 : 0)
+            .offset(y: still ? 0 : 14)
+            .blur(radius: still ? 0 : 4)
+            .onAppear {
+                let animation: Animation = AppMotion.reduceMotion
+                    ? .easeOut(duration: 0.2)
+                    : .spring(response: 0.5, dampingFraction: 0.86).delay(0.06 + Double(order) * 0.07)
+                withAnimation(animation) { shown = true }
+            }
+    }
+}
+
+private extension View {
+    func rise(_ order: Int) -> some View { modifier(Rise(order: order)) }
 }
 
 // MARK: - Bienvenida
@@ -116,8 +148,9 @@ private struct WelcomePage: View {
     var body: some View {
         VStack(spacing: 22) {
             NotchDemo()
+                .rise(0)
             PageHeader(
-                title: "Bienvenido a Nook",
+                title: "Bienvenido a Visor",
                 subtitle: "Tu notch se convierte en un sitio útil: deja archivos, recupera lo que copiaste, mira tu agenda y tus correos, y recibe avisos sin que nada te tape la pantalla."
             )
             HStack(spacing: 10) {
@@ -125,6 +158,7 @@ private struct WelcomePage: View {
                 Hint(symbol: "hand.draw", text: "Arrastra archivos encima")
                 Hint(symbol: "command", text: "⌥Espacio para el lanzador")
             }
+            .rise(2)
         }
         .padding(.horizontal, 32)
     }
@@ -152,46 +186,169 @@ private struct Hint: View {
 
 /// Una barra de menus en miniatura cuyo notch se abre y se cierra solo.
 private struct NotchDemo: View {
+    /// Lo que enseña el panel de muestra: las mismas pestañas e iconos que el de verdad.
+    private enum Scene: Int, CaseIterable { case shelf, clipboard, calendar }
+
     @State private var open = false
+    /// El contenido se va antes de que el notch se recoja, para que no se quede
+    /// flotando mientras encoge.
+    @State private var items = false
+    @State private var scene = Scene.shelf
+
+    private var shape: NotchShape { NotchShape(topRadius: open ? 8 : 4, bottomRadius: open ? 18 : 6) }
 
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(LinearGradient(colors: [Color(red: 0.16, green: 0.22, blue: 0.52), Color(red: 0.33, green: 0.2, blue: 0.5)], startPoint: .topLeading, endPoint: .bottomTrailing))
             Rectangle().fill(.white.opacity(0.18)).frame(height: 16)
-            NotchShape(topRadius: open ? 8 : 4, bottomRadius: open ? 16 : 6)
+            shape
                 .fill(.black)
-                .frame(width: open ? 250 : 64, height: open ? 92 : 16)
+                .frame(width: open ? 316 : 64, height: open ? 124 : 16)
                 .overlay(alignment: .top) {
-                    if open {
-                        HStack(spacing: 8) {
-                            ForEach(0..<4, id: \.self) { index in
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .fill(.white.opacity(0.14))
-                                    .frame(width: 46, height: 46)
-                                    .transition(.scale.combined(with: .opacity).animation(AppMotion.stagger(index)))
-                            }
+                    if items {
+                        VStack(spacing: 10) {
+                            tabs
+                            content
+                                .frame(height: 58)
+                                .id(scene)
+                                .transition(.asymmetric(
+                                    insertion: .opacity.combined(with: .offset(y: 6)).animation(AppMotion.snappy),
+                                    removal: .opacity.animation(.easeOut(duration: 0.1))
+                                ))
                         }
-                        .padding(.top, 30)
+                        .padding(.top, 24)
+                        .transition(.asymmetric(
+                            insertion: .scale(scale: 0.92, anchor: .top).combined(with: .opacity).animation(AppMotion.snappy),
+                            removal: .opacity.animation(.easeOut(duration: 0.12))
+                        ))
                     }
                 }
+                // Nada se sale de la forma mientras crece o encoge.
+                .clipShape(shape)
             Image(systemName: "cursorarrow")
                 .font(.system(size: 15, weight: .bold))
                 .foregroundStyle(.white)
                 .shadow(radius: 2)
-                .offset(x: open ? 6 : 60, y: open ? 6 : 50)
+                .offset(x: cursorX, y: open ? 36 : 56)
+                .animation(AppMotion.snappy, value: scene)
         }
-        .frame(width: 340, height: 130)
+        .frame(width: 380, height: 150)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .task {
-            guard !AppMotion.reduceMotion else { open = true; return }
+            guard !AppMotion.reduceMotion else { open = true; items = true; return }
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1.4))
+                scene = .shelf
+                try? await Task.sleep(for: .seconds(1.2))
                 withAnimation(AppMotion.open) { open = true }
-                try? await Task.sleep(for: .seconds(2.4))
+                // El contenido entra cuando la forma ya casi ha crecido.
+                try? await Task.sleep(for: .seconds(0.18))
+                items = true
+                for next in Scene.allCases.dropFirst() {
+                    try? await Task.sleep(for: .seconds(1.6))
+                    withAnimation(AppMotion.snappy) { scene = next }
+                }
+                try? await Task.sleep(for: .seconds(1.8))
+                items = false
+                try? await Task.sleep(for: .seconds(0.14))
                 withAnimation(AppMotion.close) { open = false }
             }
         }
+    }
+
+    /// El cursor va a la pestaña que se abre.
+    private var cursorX: CGFloat {
+        guard open else { return 60 }
+        return [-54, -28, 24][scene.rawValue]
+    }
+
+    private var tabs: some View {
+        HStack(spacing: 6) {
+            HStack(spacing: 2) {
+                tab("tray.full.fill", selected: scene == .shelf)
+                tab("list.clipboard.fill", selected: scene == .clipboard)
+                tab("camera.viewfinder", logo: AgentIcons.screenshot)
+                tab("calendar", logo: AgentIcons.calendar, selected: scene == .calendar)
+                tab("envelope", logo: AgentIcons.mail(.mail))
+            }
+            .padding(2)
+            .background(Capsule().fill(.white.opacity(0.1)))
+            Group {
+                if let claude = AgentIcons.claude {
+                    Image(nsImage: claude).resizable().frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "brain").font(.system(size: 9, weight: .semibold)).foregroundStyle(.white)
+                }
+            }
+                .frame(width: 22, height: 22)
+                .background(Circle().fill(.white.opacity(0.1)))
+        }
+    }
+
+    private func tab(_ symbol: String, logo: NSImage? = nil, selected: Bool = false) -> some View {
+        Group {
+            if let logo {
+                Image(nsImage: logo).resizable().frame(width: 13, height: 13)
+            } else {
+                Image(systemName: symbol).font(.system(size: 9, weight: .semibold))
+            }
+        }
+        .foregroundStyle(.white.opacity(0.9))
+        .frame(width: 24, height: 18)
+        .background { if selected { Capsule().fill(AppColors.accent) } }
+    }
+
+    @ViewBuilder private var content: some View {
+        switch scene {
+        case .shelf:
+            HStack(spacing: 10) {
+                ForEach(Array(["pdf", "png", "key", "zip"].enumerated()), id: \.offset) { index, ext in
+                    VStack(spacing: 3) {
+                        Image(nsImage: NSWorkspace.shared.icon(for: UTType(filenameExtension: ext) ?? .data))
+                            .resizable()
+                            .frame(width: 36, height: 36)
+                        Text(verbatim: ["Q3.pdf", "logo.png", "Pitch.key", "assets.zip"][index])
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.75))
+                    }
+                    .transition(.scale(scale: 0.7).combined(with: .opacity).animation(AppMotion.stagger(index)))
+                }
+            }
+        case .clipboard:
+            HStack(spacing: 6) {
+                clip(symbol: "link", text: "github.com/visor")
+                clip(symbol: "terminal", text: "git push")
+                clip(symbol: "paintpalette", text: "#4C7DFF")
+            }
+        case .calendar:
+            HStack(spacing: 8) {
+                RoundedRectangle(cornerRadius: 2).fill(.red).frame(width: 3, height: 32)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Reunión de equipo").font(.system(size: 11, weight: .semibold))
+                    Text(verbatim: "10:00 · 30 min").font(.system(size: 9)).foregroundStyle(.white.opacity(0.65))
+                }
+                Spacer(minLength: 10)
+                Label("Unirse", systemImage: "video.fill")
+                    .font(.system(size: 9, weight: .semibold))
+                    .padding(.horizontal, 8).padding(.vertical, 4)
+                    .background(Capsule().fill(AppColors.accent))
+            }
+            .foregroundStyle(.white)
+            .padding(10)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.white.opacity(0.08)))
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private func clip(symbol: String, text: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Image(systemName: symbol).font(.system(size: 9, weight: .semibold)).foregroundStyle(AppColors.accent)
+            Text(verbatim: text).font(.system(size: 9, weight: .medium)).lineLimit(1).minimumScaleFactor(0.8)
+        }
+        .foregroundStyle(.white.opacity(0.9))
+        .frame(width: 76, height: 46, alignment: .topLeading)
+        .padding(.horizontal, 8).padding(.top, 8)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.white.opacity(0.08)))
     }
 }
 
@@ -236,7 +393,7 @@ private struct AccountsPage: View {
                 HStack(spacing: 8) {
                     Image(systemName: "info.circle")
                         .foregroundStyle(AppColors.textSecondary)
-                    Text("¿Outlook, Google o Exchange? Añade la cuenta en Cuentas de Internet y sus calendarios aparecen en Nook.")
+                    Text("¿Outlook, Google o Exchange? Añade la cuenta en Cuentas de Internet y sus calendarios aparecen en Visor.")
                         .font(.system(size: 11))
                         .foregroundStyle(AppColors.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -247,6 +404,7 @@ private struct AccountsPage: View {
                 }
                 .padding(.horizontal, 4)
             }
+            .rise(1)
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("Correo sin leer").font(.system(size: 13, weight: .semibold))
@@ -281,6 +439,7 @@ private struct AccountsPage: View {
                     .padding(.horizontal, 4)
                 }
             }
+            .rise(2)
         }
         .padding(.horizontal, 40)
     }
@@ -334,6 +493,89 @@ private struct MailChoice: View {
     }
 }
 
+// MARK: - Capturas y agentes
+
+/// Lo que en un Mac nuevo no funciona solo: la carpeta de capturas, la miniatura de
+/// macOS que las retrasa y el consumo de Claude (claude-hud).
+private struct ExtrasPage: View {
+    let screenshots: ScreenshotLibrary
+    @State private var instant = ScreenshotLibrary.instantCaptures
+    @State private var usage = ClaudeUsageSetup.state()
+
+    var body: some View {
+        VStack(spacing: 18) {
+            PageHeader(
+                title: "Capturas y agentes de IA",
+                subtitle: "Dos ajustes de un clic para que las capturas y el consumo de Claude aparezcan solos."
+            )
+
+            VStack(spacing: 10) {
+                PermissionRow(
+                    title: "Carpeta de capturas",
+                    detail: "Visor muestra las capturas que macOS guarda en \(ScreenshotLibrary.systemFolder.lastPathComponent).",
+                    granted: screenshots.folder != nil,
+                    actionTitle: "Usar esa carpeta",
+                    action: screenshots.useSystemFolder
+                ) { AppBadge(image: AgentIcons.screenshot, symbol: "camera.viewfinder", color: .gray) }
+
+                PermissionRow(
+                    title: "Capturas al instante",
+                    detail: "Quita la miniatura flotante de macOS, que retrasa unos 5 segundos cada captura.",
+                    granted: instant,
+                    actionTitle: "Activar",
+                    action: {
+                        ScreenshotLibrary.setInstantCaptures(true)
+                        instant = ScreenshotLibrary.instantCaptures
+                    }
+                ) { AppBadge(symbol: "bolt.fill", color: .yellow) }
+
+                if usage != .noClaude {
+                    PermissionRow(
+                        title: "Consumo de Claude",
+                        detail: usageDetail,
+                        granted: usage == .connected,
+                        actionTitle: usage == .noPlugin ? "Instalar claude-hud" : "Conectar",
+                        action: {
+                            if usage == .noPlugin {
+                                NSWorkspace.shared.open(ClaudeUsageSetup.pluginURL)
+                            } else {
+                                try? ClaudeUsageSetup.connect()
+                                usage = ClaudeUsageSetup.state()
+                            }
+                        }
+                    ) { AppBadge(image: AgentIcons.claude, symbol: "gauge.with.dots.needle.67percent", color: .orange) }
+                }
+            }
+            .rise(1)
+
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "lightbulb")
+                    .foregroundStyle(AppColors.warning)
+                Text("Las sesiones de Claude Code y Codex se ven solas en la pestaña de agentes. El consumo lo escribe la barra de estado claude-hud cada vez que usas Claude Code.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(AppColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 4)
+            .rise(2)
+        }
+        .padding(.horizontal, 40)
+        // Al volver de instalar claude-hud en el navegador.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            usage = ClaudeUsageSetup.state()
+            instant = ScreenshotLibrary.instantCaptures
+        }
+    }
+
+    private var usageDetail: LocalizedStringKey {
+        switch usage {
+        case .connected: return "Conectado: el % de 5 h y de la semana aparece al usar Claude Code."
+        case .needsConnection: return "claude-hud está instalado: falta que guarde el consumo para Visor."
+        case .noPlugin, .noClaude: return "Instala en Claude Code la barra de estado claude-hud y vuelve aquí para conectarla."
+        }
+    }
+}
+
 // MARK: - Permisos avanzados
 
 private struct PermissionsPage: View {
@@ -343,7 +585,7 @@ private struct PermissionsPage: View {
         VStack(spacing: 18) {
             PageHeader(
                 title: "Permisos avanzados",
-                subtitle: "Son opcionales: cada uno desbloquea algo concreto. Nook no envía nada fuera de tu Mac."
+                subtitle: "Son opcionales: cada uno desbloquea algo concreto. Visor no envía nada fuera de tu Mac."
             )
 
             VStack(spacing: 10) {
@@ -363,16 +605,18 @@ private struct PermissionsPage: View {
                     action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
                 ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
             }
+            .rise(1)
 
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "lightbulb")
                     .foregroundStyle(AppColors.warning)
-                Text("En Ajustes del Sistema, activa Nook en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Nook.")
+                Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.")
                     .font(.system(size: 11))
                     .foregroundStyle(AppColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 4)
+            .rise(2)
         }
         .padding(.horizontal, 40)
     }
@@ -410,8 +654,10 @@ private struct ShortcutsPage: View {
             }
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(AppColors.card))
             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AppColors.cardBorder, lineWidth: 1))
+            .rise(1)
 
             NoticeGrid()
+                .rise(2)
         }
         .padding(.horizontal, 40)
     }
@@ -511,17 +757,19 @@ private struct DonePage: View {
             Image(nsImage: AppIcon.image)
                 .resizable()
                 .frame(width: 96, height: 96)
+                .rise(0)
             PageHeader(
                 title: "Todo listo",
-                subtitle: "Pasa el ratón por el notch para abrir Nook. Los ajustes están en el menú ⋯ del panel."
+                subtitle: "Pasa el ratón por el notch para abrir Visor. Los ajustes están en el menú ⋯ del panel."
             )
-            Toggle("Abrir Nook al iniciar sesión", isOn: $launchAtLogin)
+            Toggle("Abrir Visor al iniciar sesión", isOn: $launchAtLogin)
                 .toggleStyle(.switch)
                 .onChange(of: launchAtLogin) { _, on in launchAtLogin = LoginItem.set(on) }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(AppColors.card))
                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AppColors.cardBorder, lineWidth: 1))
+                .rise(2)
         }
         .padding(.horizontal, 40)
     }

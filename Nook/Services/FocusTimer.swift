@@ -145,7 +145,7 @@ final class FocusTimer {
     /// hasta que se pare si es nil.
     func stayAwake(minutes: Int?) {
         stopAwake()
-        let reason = "Nook: mantener despierto" as CFString
+        let reason = "Visor: mantener despierto" as CFString
         guard IOPMAssertionCreateWithName(
             kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
             IOPMAssertionLevel(kIOPMAssertionLevelOn), reason, &assertion
