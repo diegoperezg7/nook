@@ -20,6 +20,8 @@ struct ItemCard: View {
     @State private var showPeek = false
 
     static let size = CGSize(width: 120, height: 120)
+    /// La X sobresale de la esquina; mas el crecimiento de la tarjeta con el zoom.
+    private var hoverOffset: CGFloat { 5 + (AppMotion.reduceMotion ? 0 : Self.size.width * 0.045 / 2) }
     private static let previewHeight: CGFloat = 76
     private static let corner: CGFloat = 14
 
@@ -113,23 +115,6 @@ struct ItemCard: View {
                     .transition(.scale.combined(with: .opacity))
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if hovering {
-                Button { withAnimation(AppMotion.snappy) { store.delete(item) } } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .frame(width: 18, height: 18)
-                        .background(Circle().fill(.thickMaterial))
-                        .overlay(Circle().strokeBorder(AppColors.cardBorder))
-                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
-                }
-                .buttonStyle(.plain)
-                .offset(x: 5, y: -5)
-                .help(Text("Eliminar"))
-                .transition(.scale(scale: 0.5).combined(with: .opacity))
-            }
-        }
         .overlay { if let feedback { badge(feedback) } }
         .shadow(color: .black.opacity(hovering ? 0.22 : 0), radius: 8, y: 4)
         .scaleEffect(hovering && !AppMotion.reduceMotion ? 1.045 : 1)
@@ -146,6 +131,26 @@ struct ItemCard: View {
             dragPreview
         }
         .contextMenu { menu }
+        // Fuera de los gestos de la tarjeta: dentro, el de arrastrar se queda con el
+        // clic y la X no hace nada. Compensa el zoom de la tarjeta al pasar el raton.
+        .overlay(alignment: .topTrailing) {
+            if hovering {
+                Button { withAnimation(AppMotion.snappy) { store.delete(item) } } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .frame(width: 18, height: 18)
+                        .background(Circle().fill(.thickMaterial))
+                        .overlay(Circle().strokeBorder(AppColors.cardBorder))
+                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                }
+                .buttonStyle(.plain)
+                .offset(x: hoverOffset, y: -hoverOffset)
+                .help(Text("Eliminar"))
+                .transition(.scale(scale: 0.5).combined(with: .opacity))
+                .onHover { if $0 { hovering = true } }
+            }
+        }
         .popover(isPresented: $showPeek, arrowEdge: .bottom) {
             ItemPeek(item: item, store: store, onCopy: copy, onDragStart: onDragStart)
         }

@@ -222,9 +222,6 @@ final class ItemStore {
 
     /// Pone el elemento en el portapapeles. Un elemento del historial sube arriba.
     func copyToPasteboard(_ item: NotchItem, pasteboard: NSPasteboard = .general) {
-        // El clic en la X de la tarjeta tambien llega a su gesto de copiar: sin esto,
-        // copiar un elemento recien borrado lo vuelve a guardar y no se borra.
-        guard item.modelContext != nil, !item.isDeleted else { return }
         pasteboard.clearContents()
         switch item.kind {
         case .text:
