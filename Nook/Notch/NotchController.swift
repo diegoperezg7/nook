@@ -67,6 +67,7 @@ final class NotchController {
     func start() {
         refreshScreen()
         installMouseMonitors()
+        observeHUD()
         observers.append(NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -218,6 +219,25 @@ final class NotchController {
         let free = menuBar.free
         let sides = HUDSides.make(desired: HUDActivity.side(for: notice), leftFree: free.left, rightFree: free.right)
         return model.metrics.closedNoticeRect(sides: sides)
+    }
+
+    /// Al salir o irse un aviso (o su tarjeta) la zona que acepta raton cambia: se
+    /// recalcula ya, sin esperar a que se mueva el raton (si no, el primer clic sobre
+    /// un ala recien aparecida atravesaria el panel).
+    private func observeHUD() {
+        withObservationTracking {
+            _ = hud.current
+            _ = hud.activated
+            _ = hud.ambient
+        } onChange: { [weak self] in
+            // onChange llega antes del cambio: se mira en la siguiente vuelta.
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    self?.updateMouseInteraction()
+                    self?.observeHUD()
+                }
+            }
+        }
     }
 
     private func handleMouse() {
