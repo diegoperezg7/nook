@@ -208,4 +208,21 @@ final class AgentMonitorTests: XCTestCase {
         let session = AgentSources.claudeSession(from: ["sessionId": "x", "status": "busy", "entrypoint": "cli", "pid": 4242])
         XCTAssertEqual(session?.pid, 4242)
     }
+
+    func testResetLabelShowsTimeTodayAndWeekdayLater() {
+        let now = Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: .now)!
+        let today = SubscriptionUsage.Window(label: "5 h", usedPercent: 40, resetsAt: now.addingTimeInterval(3 * 3600))
+        XCTAssertEqual(today.resetLabel(now: now), now.addingTimeInterval(3 * 3600).formatted(date: .omitted, time: .shortened))
+        let later = now.addingTimeInterval(3 * 86400)
+        let week = SubscriptionUsage.Window(label: "Semana", usedPercent: 40, resetsAt: later)
+        XCTAssertEqual(week.resetLabel(now: now), later.formatted(.dateTime.weekday(.abbreviated).hour().minute()))
+        let past = SubscriptionUsage.Window(label: "5 h", usedPercent: 40, resetsAt: now.addingTimeInterval(-60))
+        XCTAssertNil(past.resetLabel(now: now))
+    }
+
+    func testUsedRoundedShowsConsumedPercentClamped() {
+        XCTAssertEqual(SubscriptionUsage.Window(label: "5 h", usedPercent: 36.6, resetsAt: nil).usedRounded, 37)
+        XCTAssertEqual(SubscriptionUsage.Window(label: "5 h", usedPercent: 120, resetsAt: nil).usedRounded, 100)
+        XCTAssertEqual(SubscriptionUsage.Window(label: "5 h", usedPercent: -3, resetsAt: nil).usedRounded, 0)
+    }
 }

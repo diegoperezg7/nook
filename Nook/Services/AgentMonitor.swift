@@ -180,6 +180,19 @@ struct SubscriptionUsage: Equatable, Sendable {
     let updatedAt: Date?
 }
 
+extension SubscriptionUsage.Window {
+    /// Porcentaje consumido, redondeado y entre 0 y 100.
+    var usedRounded: Int { Int(min(max(usedPercent, 0), 100).rounded()) }
+
+    /// Cuando se reinicia: "16:40" si es hoy, "vie 09:00" si es otro dia.
+    func resetLabel(now: Date = .now) -> String? {
+        guard let resetsAt, resetsAt > now else { return nil }
+        return Calendar.current.isDate(resetsAt, inSameDayAs: now)
+            ? resetsAt.formatted(date: .omitted, time: .shortened)
+            : resetsAt.formatted(.dateTime.weekday(.abbreviated).hour().minute())
+    }
+}
+
 /// Cuando avisar del consumo de la suscripcion.
 enum UsageAlert {
     /// Ventanas que suben por encima de algun umbral desde la lectura anterior. Sin

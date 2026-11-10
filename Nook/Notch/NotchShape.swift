@@ -6,6 +6,8 @@ import SwiftUI
 struct NotchShape: Shape {
     var topRadius: CGFloat
     var bottomRadius: CGFloat
+    /// false: sin el tramo recto de arriba (el que queda bajo el notch fisico).
+    var closesTop = true
 
     var animatableData: AnimatablePair<CGFloat, CGFloat> {
         get { AnimatablePair(topRadius, bottomRadius) }
@@ -40,7 +42,7 @@ struct NotchShape: Shape {
             to: CGPoint(x: rect.maxX, y: rect.minY),
             control: CGPoint(x: rect.maxX - top, y: rect.minY)
         )
-        path.closeSubpath()
+        if closesTop { path.closeSubpath() }
         return path
     }
 }

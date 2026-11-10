@@ -18,7 +18,6 @@ struct AgentsView: View {
                     )
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
                 }
-                Spacer(minLength: 0)
             }
             .animation(AppMotion.snappy, value: monitor.activeFamilies)
             .padding(.horizontal, NotchContentView.margin)
@@ -78,9 +77,9 @@ private struct UsageChip: View {
     let usage: SubscriptionUsage?
 
     var body: some View {
-        HStack(spacing: 7) {
+        HStack(spacing: 14) {
             Logo(image: icon, size: 18)
-            Text(verbatim: name).font(AppTypography.bodyStrong).foregroundStyle(AppColors.textPrimary)
+                .help(Text(verbatim: name))
             if let usage {
                 ForEach(usage.windows, id: \.label) { window in
                     UsageWindow(window: window)
@@ -91,7 +90,10 @@ private struct UsageChip: View {
                     .foregroundStyle(AppColors.textSecondary)
             }
         }
+        .lineLimit(1)
         .padding(.horizontal, 10)
+        // Todo el ancho: las barras se estiran y el texto nunca se corta.
+        .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: 28)
         .liquidGlass(in: Capsule())
     }
@@ -108,29 +110,42 @@ private struct UsageWindow: View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
             let reset = window.resetsAt.map { $0 <= context.date } ?? false
             let used = reset ? 0 : min(max(window.usedPercent, 0), 100)
-            let left = 100 - used
-            let color = left <= 10 ? AppColors.danger : left <= 30 ? AppColors.warning : AppColors.accent
+            let color = used >= 90 ? AppColors.danger : used >= 70 ? AppColors.warning : AppColors.accent
             HStack(spacing: 6) {
                 Text(verbatim: window.label)
                     .font(AppTypography.bodyStrong)
                     .foregroundStyle(AppColors.textSecondary)
-                ZStack(alignment: .leading) {
-                    Capsule().fill(AppColors.controlTrack)
-                    Capsule().fill(color).frame(width: max(3, 46 * used / 100))
+                    .fixedSize()
+                GeometryReader { proxy in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(AppColors.controlTrack)
+                        Capsule().fill(color).frame(width: max(3, proxy.size.width * used / 100))
+                    }
                 }
-                .frame(width: 46, height: 5)
+                .frame(minWidth: 46, maxWidth: .infinity)
+                .frame(height: 5)
                 Group {
                     if reset {
                         Text("reiniciada")
                     } else {
-                        Text("quedan \(Int(left.rounded())) %")
+                        Text(verbatim: "\(window.usedRounded) %")
                     }
                 }
                 .font(AppTypography.bodyStrong.monospacedDigit())
-                .foregroundStyle(left <= 30 ? color : AppColors.textPrimary)
+                .foregroundStyle(used >= 70 ? color : AppColors.textPrimary)
+                .fixedSize()
+                if !reset, let time = window.resetLabel(now: context.date) {
+                    HStack(spacing: 2) {
+                        Image(systemName: "arrow.clockwise").font(.system(size: 9, weight: .bold))
+                        Text(verbatim: time)
+                    }
+                    .font(AppTypography.body.monospacedDigit())
+                    .foregroundStyle(AppColors.textSecondary)
+                    .fixedSize()
+                }
             }
         }
-        .help(window.resetsAt.map { Text("Se reinicia \(AgeText.format($0, now: .now))") } ?? Text(verbatim: ""))
+        .help(Text("Consumido \(window.usedRounded) %") + (window.resetsAt.map { Text(verbatim: " · ") + Text("Se reinicia \(AgeText.format($0, now: .now))") } ?? Text(verbatim: "")))
     }
 }
 

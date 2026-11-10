@@ -145,8 +145,9 @@ private struct DropGlow: View {
     let shape: NotchShape
 
     var body: some View {
-        shape
-            .stroke(AppColors.accent, lineWidth: 2)
+        // Solo los lados y el fondo: arriba el borde se cortaba con el notch real.
+        NotchShape(topRadius: shape.topRadius, bottomRadius: shape.bottomRadius, closesTop: false)
+            .stroke(AppColors.accent, style: StrokeStyle(lineWidth: 2, lineCap: .round))
             .shadow(color: AppColors.accent.opacity(0.8), radius: 8)
             .phaseAnimator([0.45, 1]) { content, opacity in
                 content.opacity(opacity)

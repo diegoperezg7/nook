@@ -122,14 +122,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         monitor.onAccessChange = { [weak notch] access in notch?.model.clipboardAccess = access }
         agents.onUsageAlert = { [weak hud, weak notch] window, usage in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudUsage) else { return }
-            let percent = Int(window.usedPercent.rounded())
+            let percent = window.usedRounded
             // Una linea por ventana: porcentaje y hora a la que se reinicia.
             let lines = usage.windows.map { item in
-                let used = Int(item.usedPercent.rounded())
-                guard let reset = item.resetsAt else { return String(localized: "\(item.label): \(used) %") }
-                let time = Calendar.current.isDateInToday(reset)
-                    ? reset.formatted(date: .omitted, time: .shortened)
-                    : reset.formatted(.dateTime.weekday(.abbreviated).hour().minute())
+                let used = item.usedRounded
+                guard let time = item.resetLabel() else { return String(localized: "\(item.label): \(used) %") }
                 return String(localized: "\(item.label): \(used) %, se reinicia \(time)")
             }
             let preview = SystemHUD.Preview(

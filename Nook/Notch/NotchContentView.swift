@@ -221,7 +221,9 @@ struct NotchContentView: View {
 
     private var usageHelp: Text {
         guard let window = fiveHour else { return Text("Agentes de IA") }
-        return Text("Agentes de IA · \(window.label): \(Int(window.usedPercent.rounded())) %")
+        let used = window.usedRounded
+        guard let time = window.resetLabel() else { return Text("Agentes de IA · \(window.label): \(used) %") }
+        return Text("Agentes de IA · \(window.label): \(used) %, se reinicia \(time)")
     }
 
     /// Numero de correos sin leer sobre la pestaña de correo.
