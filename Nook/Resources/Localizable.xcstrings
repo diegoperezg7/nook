@@ -231,6 +231,16 @@
         }
       }
     },
+    "Abrir en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in %@"
+          }
+        }
+      }
+    },
     "Abrir Nook al iniciar sesión": {
       "localizations": {
         "en": {
@@ -1781,6 +1791,26 @@
         }
       }
     },
+    "Enviar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        }
+      }
+    },
+    "Enviar (⌘↩)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send (⌘↩)"
+          }
+        }
+      }
+    },
     "Enviar por AirDrop": {
       "localizations": {
         "en": {
@@ -2651,6 +2681,16 @@
         }
       }
     },
+    "No se ha podido confirmar el envío. Mira en Enviados antes de reintentar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't confirm it was sent. Check Sent before trying again."
+          }
+        }
+      }
+    },
     "No se pudo guardar": {
       "localizations": {
         "en": {
@@ -2847,6 +2887,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Panel"
+          }
+        }
+      }
+    },
+    "Para adjuntar o dar formato": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To attach files or format"
           }
         }
       }
@@ -3157,6 +3207,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reply"
+          }
+        }
+      }
+    },
+    "Respuesta enviada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reply sent"
           }
         }
       }

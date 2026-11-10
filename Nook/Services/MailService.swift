@@ -322,12 +322,75 @@ final class MailService {
         queue.async { _ = Self.run(script) }
     }
 
-    /// `message id` de Mail va entre comillas (se escapan); el de Outlook es un numero.
+    /// Responde al remitente con `text` y la envia sin abrir ventana. Si sale bien,
+    /// el correo queda como leido. false si no se pudo confirmar el envio.
+    func send(_ text: String, inReplyTo message: Message) async -> Bool {
+        let script = Self.limited(Self.replyScript(for: source, id: message.id, text: text), seconds: 20)
+        let sent = await withCheckedContinuation { continuation in
+            queue.async {
+                // `send` de Mail devuelve false si no lo pudo enviar; el de Outlook, nada.
+                guard case let .ok(output) = Self.run(script) else { return continuation.resume(returning: false) }
+                continuation.resume(returning: output != "false")
+            }
+        }
+        if sent { markRead(message) }
+        return sent
+    }
+
+    /// Respuesta al remitente con `text` delante de la cita (si la app la incluye).
+    /// Mail guarda texto plano; Outlook, HTML.
+    nonisolated static func replyScript(for source: Source, id: String, text: String) -> String {
+        let body: String
+        switch source {
+        case .mail:
+            body = """
+            set r to reply m without opening window
+            set q to content of r
+            if q is missing value then set q to ""
+            set content of r to \(literal(text)) & return & return & q
+            send r
+            """
+        case .outlook:
+            body = """
+            set r to reply to m without opening window
+            set q to content of r
+            if q is missing value then set q to ""
+            set content of r to \(literal(html(text))) & q
+            send r
+            """
+        }
+        return actionScript(for: source, id: id, action: body)
+    }
+
+    /// Texto como literal de AppleScript, entre comillas: escapa barras y comillas y
+    /// pasa los saltos de linea a `\n` para que el codigo no se rompa.
+    nonisolated static func literal(_ text: String) -> String {
+        let escaped = text
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "\\n")
+        return "\"\(escaped)\""
+    }
+
+    /// Texto plano como HTML para Outlook (sin esto se pierden los saltos de linea).
+    nonisolated static func html(_ text: String) -> String {
+        let escaped = text
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+            .replacingOccurrences(of: "\n", with: "<br>")
+        return "<div>\(escaped)</div><br>"
+    }
+
+    /// `message id` de Mail va como literal escapado; el de Outlook es un numero.
     nonisolated private static func target(_ source: Source, id: String) -> String {
         switch source {
         case .mail:
-            let escaped = id.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
-            return "first message of inbox whose message id is \"\(escaped)\""
+            return "first message of inbox whose message id is \(literal(id))"
         case .outlook:
             return "message id \(id.filter(\.isNumber))"
         }
@@ -339,8 +402,8 @@ final class MailService {
 
     /// Un correo que Mail aun no ha descargado puede tardar minutos: se deja de
     /// esperar a los 8 s y el lector ofrece abrirlo en su app.
-    nonisolated static func limited(_ script: String) -> String {
-        "with timeout of 8 seconds\n\(script)\nend timeout"
+    nonisolated static func limited(_ script: String, seconds: Int = 8) -> String {
+        "with timeout of \(seconds) seconds\n\(script)\nend timeout"
     }
 
     nonisolated private static func detailScript(for source: Source, id: String) -> String {
