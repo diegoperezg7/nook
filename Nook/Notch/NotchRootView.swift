@@ -12,6 +12,8 @@ struct NotchRootView: View {
     @Environment(SystemHUD.self) private var hud
     @Environment(FocusTimer.self) private var focus
     @Environment(MenuBarSpace.self) private var menuBar
+    /// Lados del aviso en el ultimo cambio: deciden si la forma crece o se recoge.
+    @State private var lastSides = HUDSides(left: 0, right: 0, merged: false)
 
     var body: some View {
         let metrics = model.metrics
@@ -45,7 +47,7 @@ struct NotchRootView: View {
                         .frame(width: closedWidth)
                         .contentShape(Rectangle())
                         .onTapGesture { hud.activate() }
-                        .transition(.opacity.animation(.easeOut(duration: 0.15)))
+                        .transition(noticeTransition)
                 }
 
                 if let preview {
@@ -75,7 +77,9 @@ struct NotchRootView: View {
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
-            .animation(AppMotion.open, value: sides)
+            // Crece con muelle; al recogerse, sin rebote.
+            .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
+            .onChange(of: sides) { _, new in lastSides = new }
             .animation(AppMotion.open, value: preview != nil)
             // Abrir el notch silencia la alarma que esta sonando y cierra la tarjeta.
             .onChange(of: model.isOpen) { _, open in
@@ -103,15 +107,25 @@ struct NotchRootView: View {
     }
 
     /// El contenido entra cuando el panel ya ha salido, con un leve zoom desde arriba
-    /// y desenfoque; sale con un fundido rapido para no estorbar al cierre.
+    /// y un desenfoque ligero; sale con un fundido rapido para no estorbar al cierre.
     private var contentTransition: AnyTransition {
         if AppMotion.reduceMotion { return .opacity }
         return .asymmetric(
             insertion: .modifier(
                 active: RevealModifier(progress: 0),
                 identity: RevealModifier(progress: 1)
-            ).animation(.spring(response: 0.42, dampingFraction: 0.86).delay(0.1)),
+            ).animation(.spring(response: 0.42, dampingFraction: 0.86).delay(0.06)),
             removal: .opacity.animation(.easeOut(duration: 0.1))
+        )
+    }
+
+    /// Aviso del notch cerrado: entra con fundido cuando la forma ya ha crecido algo y
+    /// sale con fundido y leve escala mientras la forma se recoge.
+    private var noticeTransition: AnyTransition {
+        .asymmetric(
+            insertion: .opacity.animation(AppMotion.noticeIn),
+            removal: (AppMotion.reduceMotion ? AnyTransition.opacity : .opacity.combined(with: .scale(scale: 0.94)))
+                .animation(AppMotion.noticeOut)
         )
     }
 }
@@ -181,7 +195,7 @@ private struct RevealModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .opacity(progress)
-            .blur(radius: (1 - progress) * 6)
+            .blur(radius: (1 - progress) * 2)
             .scaleEffect(0.86 + 0.14 * progress, anchor: .center)
     }
 }

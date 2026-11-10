@@ -29,6 +29,18 @@ enum AppMotion {
         reduceMotion ? .easeInOut(duration: 0.1) : .spring(response: 0.28, dampingFraction: 0.82)
     }
 
+    /// Entrada del texto de un aviso del notch cerrado: fundido algo retrasado para
+    /// no verse recortado mientras la forma aun crece.
+    static var noticeIn: Animation {
+        reduceMotion ? .easeInOut(duration: 0.12) : .easeOut(duration: 0.2).delay(0.08)
+    }
+
+    /// Salida del texto de un aviso: dura lo que tarda la forma en recogerse con
+    /// `close`, para que las alas no se queden vacias.
+    static var noticeOut: Animation {
+        reduceMotion ? .easeInOut(duration: 0.1) : .easeOut(duration: 0.25)
+    }
+
     /// Retardo escalonado de entrada de las tarjetas al abrir.
     static func stagger(_ index: Int) -> Animation {
         reduceMotion ? .easeInOut(duration: 0.12) : snappy.delay(Double(min(index, 8)) * 0.03 + 0.06)
