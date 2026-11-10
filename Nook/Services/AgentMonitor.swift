@@ -43,6 +43,10 @@ final class AgentMonitor {
     @ObservationIgnored private var timer: Timer?
     /// Un agente termina o se queda esperando al usuario (para el aviso del notch).
     @ObservationIgnored var onChange: ((AgentSession, AgentEvent) -> Void)?
+    /// Una ventana de consumo cruza el 80 % o el 95 % (para el aviso del notch).
+    @ObservationIgnored var onUsageAlert: ((SubscriptionUsage.Window, SubscriptionUsage) -> Void)?
+    /// Ultima lectura valida del consumo: un snapshot a medio escribir no rearma los avisos.
+    @ObservationIgnored private var lastUsage: SubscriptionUsage?
 
     /// Lee las sesiones cada pocos segundos (son ficheros pequeños) para avisar.
     func start() {
@@ -95,6 +99,10 @@ final class AgentMonitor {
         hasLoaded = true
         if sorted != allSessions { allSessions = sorted }
         if snapshot.1 != claudeUsage { claudeUsage = snapshot.1 }
+        if let usage = snapshot.1 {
+            for window in UsageAlert.crossings(old: lastUsage, new: usage) { onUsageAlert?(window, usage) }
+            lastUsage = usage
+        }
     }
 
     /// Carpeta personal real: dentro del sandbox `NSHomeDirectory()` es el contenedor.
@@ -170,6 +178,21 @@ struct SubscriptionUsage: Equatable, Sendable {
 
     let windows: [Window]
     let updatedAt: Date?
+}
+
+/// Cuando avisar del consumo de la suscripcion.
+enum UsageAlert {
+    /// Ventanas que suben por encima de algun umbral desde la lectura anterior. Sin
+    /// lectura anterior (arranque) no se avisa: solo se fija el estado. Al reiniciarse
+    /// la ventana el porcentaje baja y el umbral vuelve a quedar armado.
+    static func crossings(old: SubscriptionUsage?, new: SubscriptionUsage,
+                          thresholds: [Double] = [80, 95]) -> [SubscriptionUsage.Window] {
+        guard let old else { return [] }
+        return new.windows.filter { window in
+            guard let before = old.windows.first(where: { $0.label == window.label }) else { return false }
+            return thresholds.contains { before.usedPercent < $0 && window.usedPercent >= $0 }
+        }
+    }
 }
 
 /// Lectura de las fuentes. Funciones puras sobre una carpeta personal para poder

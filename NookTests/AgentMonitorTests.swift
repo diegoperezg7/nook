@@ -179,6 +179,31 @@ final class AgentMonitorTests: XCTestCase {
         XCTAssertEqual(events.map(\.1), [.finished, .waiting])
     }
 
+    // MARK: Avisos de consumo
+
+    private func usage(_ fiveHour: Double, _ week: Double) -> SubscriptionUsage {
+        SubscriptionUsage(windows: [.init(label: "5 h", usedPercent: fiveHour, resetsAt: nil),
+                                    .init(label: "Semana", usedPercent: week, resetsAt: nil)], updatedAt: nil)
+    }
+
+    func testUsageAlertOnlyWhenCrossingUp() {
+        XCTAssertEqual(UsageAlert.crossings(old: usage(70, 50), new: usage(81, 50)).map(\.label), ["5 h"])
+        XCTAssertEqual(UsageAlert.crossings(old: usage(90, 79), new: usage(96, 80)).map(\.label), ["5 h", "Semana"])
+        // Un salto del 70 al 99 cruza los dos umbrales pero avisa una vez.
+        XCTAssertEqual(UsageAlert.crossings(old: usage(70, 0), new: usage(99, 0)).count, 1)
+        // Sigue por encima: no se repite.
+        XCTAssertTrue(UsageAlert.crossings(old: usage(85, 0), new: usage(90, 0)).isEmpty)
+    }
+
+    func testUsageAlertFirstReadOnlySetsState() {
+        XCTAssertTrue(UsageAlert.crossings(old: nil, new: usage(97, 97)).isEmpty)
+    }
+
+    func testUsageAlertRearmsAfterReset() {
+        XCTAssertTrue(UsageAlert.crossings(old: usage(97, 0), new: usage(3, 0)).isEmpty)
+        XCTAssertEqual(UsageAlert.crossings(old: usage(3, 0), new: usage(80, 0)).map(\.label), ["5 h"])
+    }
+
     func testPidIsRead() {
         let session = AgentSources.claudeSession(from: ["sessionId": "x", "status": "busy", "entrypoint": "cli", "pid": 4242])
         XCTAssertEqual(session?.pid, 4242)

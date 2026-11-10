@@ -11,6 +11,26 @@
         }
       }
     },
+    "%@: %lld %%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$lld%%"
+          }
+        }
+      }
+    },
+    "%@: %lld %%, se reinicia %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$lld%%, resets %3$@"
+          }
+        }
+      }
+    },
     "%lld archivos": {
       "localizations": {
         "en": {
@@ -1301,6 +1321,16 @@
         }
       }
     },
+    "Consumo de Claude": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude usage"
+          }
+        }
+      }
+    },
     "Consumo no disponible": {
       "localizations": {
         "en": {
@@ -2317,6 +2347,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calls"
+          }
+        }
+      }
+    },
+    "Llevas el %lld %% de %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You've used %1$lld%% of %2$@"
           }
         }
       }
@@ -3857,6 +3897,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empty Shelf…"
+          }
+        }
+      }
+    },
+    "Ver agentes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View agents"
           }
         }
       }

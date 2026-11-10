@@ -32,6 +32,8 @@ final class SystemHUD {
         case notification(bundleID: String, title: String, body: String)
         /// Un agente termino o te espera.
         case agent(project: String?, waiting: Bool)
+        /// Consumo de la suscripcion de Claude al cruzar un umbral ("5 h", "Semana").
+        case usage(percent: Int, window: String)
         // Actividades que duran.
         case meeting(title: String, start: Date)
         case timer(end: Date, total: TimeInterval)
