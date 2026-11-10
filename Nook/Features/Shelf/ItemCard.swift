@@ -167,6 +167,15 @@ struct ItemCard: View {
     @ViewBuilder
     private var menu: some View {
         Button("Copiar", systemImage: "doc.on.doc", action: copy)
+        if item.kind == .text, let text = item.text {
+            Menu("Copiar como", systemImage: "textformat") {
+                ForEach(TextTransform.allCases) { transform in
+                    let result = transform.apply(text)
+                    Button(label(transform)) { copy(result ?? "") }
+                        .disabled(result == nil)
+                }
+            }
+        }
         Button("Vista previa", systemImage: "eye") { showPeek = true }
         share
         Button("Enviar por AirDrop", systemImage: "dot.radiowaves.left.and.right") { QuickShare.send(shareItems, via: .sendViaAirDrop) }
@@ -330,6 +339,26 @@ struct ItemCard: View {
     private func copy() {
         store.copyToPasteboard(item)
         show(.copied) { onCopied() }
+    }
+
+    /// Sin ownChangeCount: el monitor lo guarda como elemento nuevo (es otro contenido)
+    /// o sube el existente si ya estaba.
+    private func copy(_ text: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        show(.copied) { onCopied() }
+    }
+
+    private func label(_ transform: TextTransform) -> LocalizedStringKey {
+        switch transform {
+        case .plain: return "Texto plano"
+        case .uppercase: return "MAYÚSCULAS"
+        case .lowercase: return "minúsculas"
+        case .titleCase: return "Tipo Título"
+        case .prettyJSON: return "JSON formateado"
+        case .singleLine: return "Una sola línea"
+        }
     }
 
     private func recognizeText(_ url: URL) {
