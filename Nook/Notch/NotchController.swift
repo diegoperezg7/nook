@@ -179,6 +179,21 @@ final class NotchController {
         }) {
             monitors.append(local)
         }
+        // Un clic en otra app cierra el panel. Hace falta aparte del cierre por perder
+        // el foco: con la vista previa abierta el foco ya lo tiene su ventana, y al
+        // pulsar fuera el panel no vuelve a perderlo.
+        if let outside = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown], handler: { [weak self] _ in
+            MainActor.assumeIsolated { self?.closeOnOutsideClick() }
+        }) {
+            monitors.append(outside)
+        }
+    }
+
+    private func closeOnOutsideClick() {
+        guard model.isOpen, model.openReason != .pinned, !model.isDraggingOut,
+              !model.openHotRect.contains(NSEvent.mouseLocation) else { return }
+        model.isPreviewing = false
+        model.close()
     }
 
     /// Solo la forma visible acepta raton; el resto de la ventana deja pasar los clics.

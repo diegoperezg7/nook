@@ -2501,12 +2501,12 @@
         }
       }
     },
-    "No he podido leer este correo": {
+    "No he podido leer este correo a tiempo. Ábrelo en su app con el botón de la flecha.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't read this email"
+            "value": "Couldn't read this email in time. Open it in its app with the arrow button."
           }
         }
       }

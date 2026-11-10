@@ -254,22 +254,6 @@ private struct ScreenshotCard: View {
             }
         }
         .overlay(alignment: .topLeading) { checkmark }
-        .overlay(alignment: .topTrailing) {
-            if hovering {
-                Button(action: onTrash) {
-                    Image(systemName: "trash")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .frame(width: 22, height: 22)
-                        .liquidGlass(in: Circle(), interactive: true)
-                        .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .padding(10)
-                .help(Text("A la Papelera"))
-                .transition(.scale(scale: 0.5).combined(with: .opacity))
-            }
-        }
         .shadow(color: .black.opacity(hovering ? 0.22 : 0), radius: 8, y: 4)
         .scaleEffect(hovering && !AppMotion.reduceMotion ? 1.04 : 1)
         .contentShape(shape)
@@ -290,6 +274,26 @@ private struct ScreenshotCard: View {
             }
             Divider()
             Button("A la Papelera", systemImage: "trash", role: .destructive, action: onTrash)
+        }
+        // Fuera de los gestos de la tarjeta: dentro, el clic seleccionaba la captura.
+        .overlay(alignment: .topTrailing) {
+            if hovering {
+                Button(action: onTrash) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .frame(width: 22, height: 22)
+                        .liquidGlass(in: Circle(), interactive: true)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+                .help(Text("A la Papelera"))
+                .transition(.scale(scale: 0.5).combined(with: .opacity))
+                // Sigue la esquina de la tarjeta, que crece un 4 % con el raton encima.
+                .offset(x: AppMotion.reduceMotion ? 0 : Self.size.width * 0.02, y: AppMotion.reduceMotion ? 0 : -Self.size.height * 0.02)
+                .onHover { if $0 { hovering = true } }
+            }
         }
         .help(Text(verbatim: shot.url.lastPathComponent))
         .task(id: shot.url) {

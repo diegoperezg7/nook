@@ -59,6 +59,9 @@ final class MailService {
     @ObservationIgnored private var seen: Set<String>?
     @ObservationIgnored private var loading = false
     @ObservationIgnored private let queue = DispatchQueue(label: "com.diegoperez.nook.mail")
+    /// Leer un correo entero puede tardar segundos: va aparte para no frenar la lista
+    /// ni las acciones (marcar, borrar, responder).
+    @ObservationIgnored private let readQueue = DispatchQueue(label: "com.diegoperez.nook.mail.read")
     @ObservationIgnored private var trashWork: DispatchWorkItem?
     @ObservationIgnored private var trashSource: Source = .mail
     @ObservationIgnored private var trashIndex = 0
@@ -245,9 +248,9 @@ final class MailService {
 
     /// El correo entero (remitente, direccion, fecha y texto plano).
     func detail(of message: Message) async -> Detail? {
-        let script = Self.detailScript(for: source, id: message.id)
+        let script = Self.limited(Self.detailScript(for: source, id: message.id))
         return await withCheckedContinuation { continuation in
-            queue.async {
+            readQueue.async {
                 guard case let .ok(text) = Self.run(script) else { return continuation.resume(returning: nil) }
                 continuation.resume(returning: Self.parseDetail(text))
             }
@@ -258,9 +261,9 @@ final class MailService {
     /// solo tiene texto.
     func html(of message: Message) async -> String? {
         let source = source
-        let script = Self.actionScript(for: source, id: message.id, action: source == .mail ? "return source of m" : "return content of m")
+        let script = Self.limited(Self.actionScript(for: source, id: message.id, action: source == .mail ? "return source of m" : "return content of m"))
         return await withCheckedContinuation { continuation in
-            queue.async {
+            readQueue.async {
                 guard case let .ok(text) = Self.run(script), !text.isEmpty else { return continuation.resume(returning: nil) }
                 switch source {
                 case .mail: continuation.resume(returning: MIME.html(fromSource: text))
@@ -332,6 +335,12 @@ final class MailService {
 
     nonisolated private static func actionScript(for source: Source, id: String, action: String) -> String {
         "tell application \"\(source.appName)\"\nset m to \(target(source, id: id))\n\(action)\nend tell"
+    }
+
+    /// Un correo que Mail aun no ha descargado puede tardar minutos: se deja de
+    /// esperar a los 8 s y el lector ofrece abrirlo en su app.
+    nonisolated static func limited(_ script: String) -> String {
+        "with timeout of 8 seconds\n\(script)\nend timeout"
     }
 
     nonisolated private static func detailScript(for source: Source, id: String) -> String {

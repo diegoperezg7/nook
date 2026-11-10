@@ -300,7 +300,7 @@ private struct MailReader: View {
                             .padding(12)
                     }
                 } else if failed {
-                    Text("No he podido leer este correo")
+                    Text("No he podido leer este correo a tiempo. Ábrelo en su app con el botón de la flecha.")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.textSecondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
