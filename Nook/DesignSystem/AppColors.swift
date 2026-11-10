@@ -46,6 +46,11 @@ enum AppColors {
 
     static let shadow = Color.black.opacity(0.28)
 
+    /// Borde luminoso de la tarjeta de un aviso pulsado (estilo Apple Intelligence):
+    /// azul, morado, rosa y naranja; repite el primero para cerrar el degradado.
+    static let glow: [Color] = [0x3B82F6, 0x8B5CF6, 0xEC4899, 0xF97316, 0x3B82F6]
+        .map { Color(nsColor: NSColor(hex: $0, alpha: 1)) }
+
     private static func dynamic(light: UInt32, dark: UInt32, lightAlpha: CGFloat = 1, darkAlpha: CGFloat = 1) -> Color {
         Color(nsColor: NSColor(name: nil) { appearance in
             let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua

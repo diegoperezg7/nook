@@ -77,4 +77,35 @@ final class NotchMetricsTests: XCTestCase {
         XCTAssertTrue(metrics.closedHotRect.contains(CGPoint(x: frame.midX, y: frame.maxY - 2)))
         XCTAssertFalse(metrics.closedHotRect.contains(CGPoint(x: 735, y: frame.maxY - 2)))
     }
+
+    /// La zona clicable del aviso coincide con la forma: crece por cada lado lo suyo
+    /// y el notch fisico no se mueve (tambien con todo el aviso a un lado).
+    func testClosedNoticeRectFollowsSides() {
+        let metrics = NotchMetrics(hasNotch: true, screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956), notchWidth: 190, notchHeight: 32)
+        let closed = metrics.closedWindowFrame
+        XCTAssertEqual(metrics.closedNoticeRect(sides: HUDSides(left: 0, right: 0, merged: false)), closed)
+        let both = metrics.closedNoticeRect(sides: HUDSides(left: 58, right: 58, merged: false))
+        XCTAssertEqual(both, CGRect(x: closed.minX - 58, y: closed.minY, width: closed.width + 116, height: closed.height))
+        XCTAssertEqual(both.midX, closed.midX)
+        let merged = metrics.closedNoticeRect(sides: HUDSides(left: 224, right: 0, merged: true))
+        XCTAssertEqual(merged.maxX, closed.maxX)
+        XCTAssertEqual(merged.minX, closed.minX - 224)
+        // Mismo ancho y centro que NotchRootView: closedWidth centrado y desplazado `shift`.
+        let sides = HUDSides(left: 0, right: 150, merged: true)
+        let width = metrics.closedSize.width + sides.left + sides.right
+        let center = closed.midX + (sides.right - sides.left) / 2
+        let rect = metrics.closedNoticeRect(sides: sides)
+        XCTAssertEqual(rect.width, width)
+        XCTAssertEqual(rect.midX, center)
+    }
+
+    /// La tarjeta de un aviso pulsado es mas alta que el notch y mas baja que el panel.
+    func testPreviewCardSitsBetweenNoticeAndPanel() {
+        let metrics = NotchMetrics(hasNotch: true, screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956), notchWidth: 190, notchHeight: 32)
+        XCTAssertGreaterThan(metrics.previewSize.height, metrics.closedSize.height)
+        XCTAssertLessThan(metrics.previewSize.height, metrics.openSize(searchRow: false).height)
+        XCTAssertEqual(metrics.previewHotRect.midX, 735)
+        XCTAssertEqual(metrics.previewHotRect.maxY, 956 + 8)
+        XCTAssertTrue(metrics.previewHotRect.contains(metrics.closedNoticeRect(sides: HUDSides(left: 150, right: 150, merged: false))))
+    }
 }

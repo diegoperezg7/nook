@@ -40,7 +40,24 @@ final class SystemHUD {
         case alarm(time: Date)
     }
 
+    /// Lo que enseña la tarjeta al pulsar un aviso y su boton principal (ir al
+    /// origen). Lleva los datos que no caben en `Kind`.
+    struct Preview {
+        var symbol: String
+        /// Icono de la app (notificacion, VS Code) o archivo para la miniatura (descarga).
+        var appIcon: NSImage?
+        var file: URL?
+        var title: String
+        var subtitle: String
+        var body = ""
+        var actionTitle: String
+        var action: () -> Void
+    }
+
     private(set) var current: Kind?
+    /// Tarjeta abierta al pulsar un aviso; se cierra con su boton, al pulsar fuera
+    /// o al sacar el raton.
+    private(set) var activated: Preview?
     private(set) var micInUse = false
     private(set) var cameraInUse = false
     /// Reloj para las actividades que dependen de la hora (la reunion).
@@ -72,6 +89,7 @@ final class SystemHUD {
         return nil
     }
     @ObservationIgnored private var hideWork: DispatchWorkItem?
+    @ObservationIgnored private var pendingPreview: Preview?
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var volume: VolumeMonitor?
     @ObservationIgnored private var battery: BatteryMonitor?
@@ -103,7 +121,15 @@ final class SystemHUD {
             guard let self, self.defaults.bool(forKey: SettingsKey.hudDownloads) else { return }
             // Mientras descarga se queda (como mucho un minuto, por si se cancela);
             // al terminar, el check dura un poco.
-            self.show(.download(name: name, done: done), for: done ? 2.5 : 60)
+            // Terminada, el clic la enseña con su miniatura y la muestra en Finder.
+            var preview: Preview?
+            if done, let file = self.downloads?.folder.appendingPathComponent(name) {
+                preview = Preview(
+                    symbol: "arrow.down.circle.fill", file: file, title: name,
+                    subtitle: String(localized: "Descarga terminada"), actionTitle: String(localized: "Mostrar en Finder")
+                ) { NSWorkspace.shared.activateFileViewerSelecting([file]) }
+            }
+            self.show(.download(name: name, done: done), for: done ? 2.5 : 60, preview: preview)
         }
         focus?.onFinish = { [weak self] in self?.show(.timerDone, for: 4) }
         capsLockOn = Self.capsLockState()
@@ -200,14 +226,67 @@ final class SystemHUD {
         show(.network(online: online, vpn: vpn), for: 2.5)
     }
 
-    /// Muestra un aviso; `duration` nil lo deja hasta el siguiente.
-    func show(_ kind: Kind, for duration: TimeInterval? = 1.5) {
+    /// Muestra un aviso; `duration` nil lo deja hasta el siguiente. `preview` es la
+    /// tarjeta que abre el clic en el aviso; se descarta al irse el aviso.
+    func show(_ kind: Kind, for duration: TimeInterval? = 1.5, preview: Preview? = nil) {
         current = kind
+        pendingPreview = preview
         hideWork?.cancel()
         guard let duration else { return }
-        let work = DispatchWorkItem { [weak self] in self?.current = nil }
+        let work = DispatchWorkItem { [weak self] in
+            self?.current = nil
+            self?.pendingPreview = nil
+        }
         hideWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: work)
+    }
+
+    /// Si el aviso visible hace algo al pulsarlo (y por tanto debe aceptar el clic).
+    var isActionable: Bool {
+        if current != nil { return pendingPreview != nil }
+        switch ambient {
+        case .meeting, .alarm: return true
+        default: return false
+        }
+    }
+
+    /// Clic en el aviso: lo quita y abre su tarjeta (no ejecuta aun la accion). Las
+    /// actividades de fondo no pasan por `show`: la reunion arma aqui su tarjeta y la
+    /// alarma se silencia sin mas.
+    func activate() {
+        if current != nil {
+            guard let preview = pendingPreview else { return }
+            hideWork?.cancel()
+            current = nil
+            pendingPreview = nil
+            activated = preview
+            return
+        }
+        switch ambient {
+        case .meeting:
+            guard let calendar, let meeting = calendar.imminentMeeting(at: now) else { return }
+            let link = meeting.meetingURL.map { String(localized: "Enlace: \($0.host() ?? $0.absoluteString)") }
+            activated = Preview(
+                symbol: "video.fill", title: meeting.title,
+                subtitle: meeting.start.formatted(date: .omitted, time: .shortened),
+                body: link ?? String(localized: "Sin enlace"), actionTitle: String(localized: "Unirse")
+            ) { calendar.join(meeting) }
+        case .alarm:
+            focus?.silence()
+        default:
+            break
+        }
+    }
+
+    /// Boton principal de la tarjeta: va al origen y la cierra.
+    func performActivated() {
+        let preview = activated
+        activated = nil
+        preview?.action()
+    }
+
+    func dismissActivated() {
+        if activated != nil { activated = nil }
     }
 }
 
@@ -379,7 +458,7 @@ final class DownloadsMonitor {
     private let onChange: (String, Bool) -> Void
     private var watcher: DispatchSourceFileSystemObject?
     private var known: Set<String> = []
-    private let folder: URL
+    let folder: URL
     private static let partial = ["download", "crdownload", "part", "partial"]
 
     init(onChange: @escaping (String, Bool) -> Void) {

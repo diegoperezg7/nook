@@ -18,19 +18,22 @@ struct NotchRootView: View {
         let open = metrics.openSize(searchRow: model.tab.hasToolbar, extra: model.tab.extraHeight)
         // Cerrado, el notch se ensancha para un aviso breve (volumen, bateria...) o,
         // si no hay ninguno, para lo que este en marcha (reunion, temporizador...).
-        let notice = model.isOpen || model.isCollapsing ? nil : (hud.current ?? hud.ambient)
+        // Al pulsar un aviso, en su lugar sale su tarjeta (mas alta que el aviso).
+        let preview = model.isOpen || model.isCollapsing ? nil : hud.activated
+        let notice = model.isOpen || model.isCollapsing || preview != nil ? nil : (hud.current ?? hud.ambient)
+        let card = metrics.previewSize
         // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
         let free = menuBar.free
         let sides = HUDSides.make(desired: notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
         let closedWidth = metrics.closedSize.width + sides.left + sides.right
-        let width = model.expandedWidth ? open.width : closedWidth
+        let width = model.expandedWidth ? open.width : preview != nil ? card.width : closedWidth
         // Si un lado crece mas que el otro, la forma se desplaza para que el notch
         // fisico siga en su sitio.
-        let shift = model.expandedWidth ? 0 : (sides.right - sides.left) / 2
-        let height = model.expandedHeight ? open.height : metrics.closedSize.height
+        let shift = model.expandedWidth || preview != nil ? 0 : (sides.right - sides.left) / 2
+        let height = model.expandedHeight ? open.height : preview != nil ? card.height : metrics.closedSize.height
         let shape = NotchShape(
-            topRadius: model.expandedWidth ? NotchMetrics.openEar : NotchMetrics.closedEar,
-            bottomRadius: model.expandedHeight ? NotchMetrics.openBottomRadius : metrics.closedBottomRadius
+            topRadius: model.expandedWidth || preview != nil ? NotchMetrics.openEar : NotchMetrics.closedEar,
+            bottomRadius: model.expandedHeight || preview != nil ? NotchMetrics.openBottomRadius : metrics.closedBottomRadius
         )
 
         ZStack(alignment: .top) {
@@ -40,7 +43,15 @@ struct NotchRootView: View {
                 if let notice {
                     HUDActivity(kind: notice, metrics: metrics, sides: sides)
                         .frame(width: closedWidth)
+                        .contentShape(Rectangle())
+                        .onTapGesture { hud.activate() }
                         .transition(.opacity.animation(.easeOut(duration: 0.15)))
+                }
+
+                if let preview {
+                    HUDPreviewCard(preview: preview, metrics: metrics) { hud.performActivated() }
+                        .frame(width: card.width, height: card.height)
+                        .transition(contentTransition)
                 }
 
                 if model.isOpen {
@@ -52,15 +63,27 @@ struct NotchRootView: View {
             .frame(width: width, height: height, alignment: .top)
             .clipShape(shape)
             .offset(x: shift)
+            // Tarjeta de un aviso: resplandor detras (solo se ve por fuera) y borde encima.
+            .background {
+                if preview != nil { SiriGlow(shape: shape, halo: true).transition(.opacity) }
+            }
             .overlay {
                 if model.isDropTargeted, model.isOpen {
                     DropGlow(shape: shape)
+                } else if preview != nil {
+                    SiriGlow(shape: shape, halo: false).transition(.opacity)
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
             .animation(AppMotion.open, value: sides)
-            // Abrir el notch para la alarma que esta sonando.
-            .onChange(of: model.isOpen) { _, open in if open { focus.silence() } }
+            .animation(AppMotion.open, value: preview != nil)
+            // Abrir el notch silencia la alarma que esta sonando y cierra la tarjeta.
+            .onChange(of: model.isOpen) { _, open in
+                if open {
+                    focus.silence()
+                    hud.dismissActivated()
+                }
+            }
             // Cerrado y con el raton encima, se asoma un poco desde arriba.
             .scaleEffect(model.isPeeking && !model.isOpen && !AppMotion.reduceMotion ? 1.02 : 1, anchor: .top)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.
@@ -117,6 +140,38 @@ private struct DropGlow: View {
                 .easeInOut(duration: 0.55)
             }
             .allowsHitTesting(false)
+    }
+}
+
+/// Borde de la tarjeta de un aviso pulsado, como la nueva Siri: un degradado
+/// multicolor que recorre el contorno. `halo` es el resplandor difuso de detras.
+/// Con "Reducir movimiento", el degradado queda quieto.
+private struct SiriGlow: View {
+    let shape: NotchShape
+    let halo: Bool
+
+    var body: some View {
+        Group {
+            if AppMotion.reduceMotion {
+                ring(.zero)
+            } else {
+                TimelineView(.animation) { context in
+                    // Una vuelta cada 4 s.
+                    ring(.degrees(context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 4) * 90))
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private func ring(_ angle: Angle) -> some View {
+        let gradient = AngularGradient(colors: AppColors.glow, center: .center, angle: angle)
+        if halo {
+            shape.stroke(gradient, lineWidth: 8).blur(radius: 12).opacity(0.85)
+        } else {
+            shape.stroke(gradient, lineWidth: 1.5)
+        }
     }
 }
 

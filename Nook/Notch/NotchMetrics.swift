@@ -20,6 +20,8 @@ struct NotchMetrics: Equatable {
     static let pillWidth: CGFloat = 180
     /// Alto extra de la pestaña de correo, para leer un mensaje sin salir del notch.
     static let readerExtra: CGFloat = 200
+    /// Alto de la tarjeta de un aviso pulsado, bajo la fila del notch.
+    static let previewHeight: CGFloat = 84
 
     var hasNotch: Bool
     var screenFrame: CGRect
@@ -68,6 +70,27 @@ struct NotchMetrics: Equatable {
 
     /// Zona que abre el panel al pasar el raton.
     var closedHotRect: CGRect { closedWindowFrame }
+
+    /// Forma del notch cerrado con un aviso: crece `sides.left` a la izquierda y
+    /// `sides.right` a la derecha con el notch fisico en su sitio (como el `shift`
+    /// de `NotchRootView`).
+    func closedNoticeRect(sides: HUDSides) -> CGRect {
+        let frame = closedWindowFrame
+        return CGRect(x: frame.minX - sides.left, y: frame.minY, width: frame.width + sides.left + sides.right, height: frame.height)
+    }
+
+    /// Tarjeta de un aviso pulsado: tan ancha como el panel y mucho mas baja.
+    var previewSize: CGSize {
+        CGSize(width: openSize(searchRow: false).width, height: notchHeight + Self.previewHeight)
+    }
+
+    /// Zona de la tarjeta (con el mismo margen que el panel abierto).
+    var previewHotRect: CGRect {
+        CGRect(
+            x: screenFrame.midX - previewSize.width / 2, y: screenFrame.maxY - previewSize.height,
+            width: previewSize.width, height: previewSize.height
+        ).insetBy(dx: -8, dy: -8)
+    }
 
     /// Zona que mantiene el panel abierto: la forma visible mas un pequeño margen.
     func openHotRect(searchRow: Bool, extra: CGFloat = 0) -> CGRect {

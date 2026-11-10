@@ -68,13 +68,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let focus = FocusTimer()
         let mail = MailService()
         let battery = BatteryCenter()
-        mail.onNew = { [weak hud] message in
+        mail.onNew = { [weak hud, weak mail] message in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail) else { return }
-            hud?.show(.mail(sender: message.sender), for: 3)
+            let preview = SystemHUD.Preview(
+                symbol: "envelope.fill", title: message.sender, subtitle: message.subject,
+                body: message.preview, actionTitle: String(localized: "Abrir correo")
+            ) { mail?.open(message) }
+            hud?.show(.mail(sender: message.sender), for: 3, preview: preview)
         }
-        agents.onChange = { [weak hud] session, event in
+        agents.onChange = { [weak hud, weak agents] session, event in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudAgents) else { return }
-            hud?.show(.agent(project: session.project, waiting: event == .waiting), for: event == .waiting ? 6 : 4)
+            let waiting = event == .waiting
+            let vscode = session.tool == .claudeVSCode
+            var question = ""
+            if case let .pending(text?) = session.status { question = text }
+            let preview = SystemHUD.Preview(
+                symbol: "terminal.fill", appIcon: vscode ? AgentIcons.vscode : nil,
+                title: session.project ?? String(localized: "Agente"),
+                subtitle: waiting ? String(localized: "Espera tu respuesta") : String(localized: "Ha terminado"),
+                body: question, actionTitle: vscode ? String(localized: "Ir a VS Code") : String(localized: "Ir a la terminal")
+            ) { agents?.focus(session) }
+            hud?.show(.agent(project: session.project, waiting: waiting), for: waiting ? 6 : 4, preview: preview)
         }
         hud.focus = focus
         hud.calendar = calendar
@@ -115,7 +129,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.ring = ring
         self.selection = SelectionActions(store: store)
         notificationFeed.onNotice = { [weak hud] notice in
-            hud?.show(.notification(bundleID: notice.bundleID, title: notice.title, body: notice.body), for: 5)
+            let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: notice.bundleID)
+            let preview = SystemHUD.Preview(
+                symbol: "bell.fill", appIcon: AgentIcons.icon(notice.bundleID),
+                title: app.map { FileManager.default.displayName(atPath: $0.path) } ?? notice.title,
+                subtitle: notice.title, body: notice.body, actionTitle: String(localized: "Abrir app")
+            ) {
+                guard let app else { return }
+                NSWorkspace.shared.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
+            }
+            hud?.show(.notification(bundleID: notice.bundleID, title: notice.title, body: notice.body), for: 5, preview: preview)
         }
         windowSnap.onNeedsPermission = { [weak hud] in
             hud?.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)

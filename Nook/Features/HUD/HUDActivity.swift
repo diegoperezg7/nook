@@ -267,3 +267,60 @@ struct HUDActivity: View {
         }
     }
 }
+
+/// Tarjeta que sale al pulsar un aviso: que ha pasado y un boton para ir a su origen.
+struct HUDPreviewCard: View {
+    let preview: SystemHUD.Preview
+    let metrics: NotchMetrics
+    let onAction: () -> Void
+    @State private var thumbnail: NSImage?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            icon
+            VStack(alignment: .leading, spacing: 2) {
+                Text(preview.title).font(AppTypography.title).lineLimit(1)
+                if !preview.subtitle.isEmpty {
+                    Text(preview.subtitle).font(AppTypography.body).lineLimit(1)
+                        .foregroundStyle(AppColors.notchText.opacity(0.75))
+                }
+                if !preview.body.isEmpty {
+                    Text(preview.body).font(AppTypography.subtitle).lineLimit(2)
+                        .foregroundStyle(AppColors.notchText.opacity(0.55))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button(action: onAction) {
+                Text(preview.actionTitle)
+                    .font(AppTypography.bodyStrong)
+                    .foregroundStyle(AppColors.onAccent)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(Capsule().fill(AppColors.accent))
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .foregroundStyle(AppColors.notchText)
+        .padding(.horizontal, NotchMetrics.sideMargin)
+        .padding(.top, metrics.notchHeight + 8)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .task(id: preview.file) {
+            guard let file = preview.file else { return }
+            thumbnail = await Thumbnails.image(for: file, size: CGSize(width: 80, height: 80))
+        }
+    }
+
+    @ViewBuilder
+    private var icon: some View {
+        if let image = thumbnail ?? preview.appIcon {
+            Image(nsImage: image).resizable().scaledToFit().frame(width: 40, height: 40)
+        } else {
+            Image(systemName: preview.symbol)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(AppColors.notchText.opacity(0.12)))
+        }
+    }
+}
