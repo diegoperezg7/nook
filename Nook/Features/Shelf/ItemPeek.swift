@@ -153,8 +153,9 @@ struct AgeText: View {
         formatter.locale = locale
         formatter.unitsStyle = .short
         formatter.dateTimeStyle = .named
-        // "ahora" para lo recien copiado; el formateador diria "dentro de 0 s".
-        if now.timeIntervalSince(date) < 1 {
+        // "ahora" para lo recien copiado; el formateador diria "dentro de 0 s". Con
+        // valor absoluto: una fecha futura (cuando se reinicia el consumo) no es "ahora".
+        if abs(now.timeIntervalSince(date)) < 1 {
             return formatter.localizedString(fromTimeInterval: 0)
         }
         return formatter.localizedString(for: date, relativeTo: now)

@@ -21,4 +21,9 @@ final class AgeTextTests: XCTestCase {
     func testShowsHours() {
         XCTAssertEqual(age(2 * 3600 + 120), "hace 2 h")
     }
+
+    /// Fechas futuras, como el reinicio del consumo: "dentro de", no "ahora".
+    func testFutureDatesAreNotNow() {
+        XCTAssertEqual(age(-(2 * 3600 + 120)), "dentro de 2 h")
+    }
 }
