@@ -64,6 +64,15 @@ final class AgentMonitorTests: XCTestCase {
         }
     }
 
+    func testIdleSessionWithLiveProcessIsOpen() {
+        let base = ["sessionId": "x", "entrypoint": "cli", "status": "idle"] as [String: Any]
+        var alive = base; alive["pid"] = NSNumber(value: getpid())
+        var dead = base; dead["pid"] = NSNumber(value: Int32.max)
+        XCTAssertTrue(AgentSources.claudeSession(from: alive)?.isOpen == true)
+        XCTAssertFalse(AgentSources.claudeSession(from: dead)?.isOpen == true)
+        XCTAssertFalse(AgentSources.claudeSession(from: base)?.isOpen == true)
+    }
+
     // MARK: Herramienta en uso
 
     private func session(_ tool: AgentSession.Tool, _ status: AgentSession.Status, minutesAgo: Double) -> AgentSession {

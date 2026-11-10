@@ -17,9 +17,10 @@ import SQLite3
 @Observable
 @MainActor
 final class AgentMonitor {
-    /// Solo las sesiones activas: en curso o esperando al usuario. Las paradas
-    /// (terminadas, interrumpidas, con error) no se muestran.
-    var sessions: [AgentSession] { allSessions.filter(\.status.isActive) }
+    /// Las sesiones activas (en curso o esperando al usuario) y las de Claude Code que
+    /// siguen abiertas tras terminar su turno (`idle` con el proceso vivo). Las
+    /// cerradas, interrumpidas o con error no se muestran.
+    var sessions: [AgentSession] { allSessions.filter { $0.status.isActive || $0.isOpen } }
     /// Todas, para saber que herramienta se uso por ultima vez (consumo).
     private(set) var allSessions: [AgentSession] = []
     private(set) var claudeUsage: SubscriptionUsage?
@@ -148,6 +149,12 @@ struct AgentSession: Identifiable, Equatable, Sendable {
     var pid: pid_t?
     /// Panel de tmux donde corre ("sesion:@ventana.%panel"), si va dentro de tmux.
     var tmux: String?
+
+    /// Turno terminado pero con el proceso aun vivo: la sesion sigue abierta.
+    var isOpen: Bool {
+        guard status == .finished, let pid else { return false }
+        return kill(pid, 0) == 0 || errno == EPERM
+    }
 }
 
 /// Lo que merece un aviso.
