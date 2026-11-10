@@ -188,6 +188,8 @@ private struct MailRow: View {
                     }
                 }
                 .lineLimit(1)
+                // Con el raton encima, el texto deja sitio a los botones en vez de quedar debajo.
+                .padding(.trailing, hovering ? (message.isRead ? 36 : 68) : 0)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 7)
