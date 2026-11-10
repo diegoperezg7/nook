@@ -1391,6 +1391,16 @@
         }
       }
     },
+    "Copiar como": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy as"
+          }
+        }
+      }
+    },
     "Copiar texto de la imagen": {
       "localizations": {
         "en": {
@@ -2191,6 +2201,16 @@
         }
       }
     },
+    "JSON formateado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatted JSON"
+          }
+        }
+      }
+    },
     "La versión clásica, por AppleScript": {
       "localizations": {
         "en": {
@@ -2297,6 +2317,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Today's to-dos, with a checkbox to complete them."
+          }
+        }
+      }
+    },
+    "MAYÚSCULAS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UPPERCASE"
           }
         }
       }
@@ -3551,6 +3581,16 @@
         }
       }
     },
+    "Texto plano": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plain text"
+          }
+        }
+      }
+    },
     "Tiempo": {
       "localizations": {
         "en": {
@@ -3567,6 +3607,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Weather in the ring"
+          }
+        }
+      }
+    },
+    "Tipo Título": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title Case"
           }
         }
       }
@@ -3677,6 +3727,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "A glass drop hanging from the notch."
+          }
+        }
+      }
+    },
+    "Una sola línea": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single line"
           }
         }
       }
@@ -3837,6 +3897,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS didn't allow capturing the sound. Check the permission in System Settings > Privacy > Audio Recording."
+          }
+        }
+      }
+    },
+    "minúsculas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lowercase"
           }
         }
       }
