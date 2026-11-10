@@ -296,7 +296,7 @@ struct HUDPreviewCard: View {
                     .foregroundStyle(AppColors.onAccent)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 7)
-                    .background(Capsule().fill(AppColors.accent))
+                    .background(Capsule().fill(AppColors.accentFill))
                     .contentShape(Capsule())
             }
             .buttonStyle(.plain)

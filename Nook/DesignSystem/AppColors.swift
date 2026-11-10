@@ -28,6 +28,9 @@ enum AppColors {
     static let textSecondary = dynamic(light: 0x5D6372, dark: 0x9BA1AE)
 
     static let accent = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF)
+    /// Relleno de boton con texto blanco: el tono claro del acento en los dos modos
+    /// (blanco sobre 0x4C7DFF da 3,69:1, por debajo de AA; sobre 0x1F5BFF, 5,25:1).
+    static let accentFill = Color(nsColor: NSColor(hex: 0x1F5BFF, alpha: 1))
     static let accentSoft = dynamic(light: 0x1F5BFF, dark: 0x4C7DFF, lightAlpha: 0.16, darkAlpha: 0.22)
     static let onAccent = Color.white
     /// Texto e iconos sobre el negro del notch (siempre negro, en claro y en oscuro).
