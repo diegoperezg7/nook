@@ -46,6 +46,7 @@ targets:
         SUScheduledCheckInterval: 86400
         # Bateria de AirPods y accesorios (system_profiler lee Bluetooth).
         NSBluetoothAlwaysUsageDescription: "Nook muestra en el notch la batería de tus AirPods, teclado y ratón."
+        NSFocusStatusUsageDescription: "Nook avisa en el notch cuando activas o quitas No molestar o un modo de Concentración."
         NSServices:
           - NSMenuItem:
               default: Añadir a Nook
@@ -62,6 +63,8 @@ targets:
         # Los datos siguen en el App Group (la 0.11 los copio ahi).
         com.apple.security.application-groups:
           - $(NOOK_APP_GROUP)
+        # Estado de Concentracion (INFocusStatusCenter) para su aviso.
+        com.apple.developer.usernotifications.communication: true
         # Con Hardened Runtime estos permisos se siguen declarando.
         # Calendario: eventos del Mac y alta rapida (EventKit).
         com.apple.security.personal-information.calendars: true

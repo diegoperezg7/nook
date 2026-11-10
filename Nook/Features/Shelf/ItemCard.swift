@@ -8,6 +8,8 @@ struct ItemCard: View {
     let item: NotchItem
     let store: ItemStore
     let index: Int
+    /// Elegida con las flechas desde el buscador.
+    var highlighted = false
     var onCopied: () -> Void = {}
     var onDragStart: () -> Void = {}
     /// Avisa de que la vista previa grande se abre o se cierra.
@@ -18,6 +20,7 @@ struct ItemCard: View {
     @State private var feedback: Feedback?
     @State private var thumbnail: NSImage?
     @State private var showPeek = false
+    @State private var qrCode: NSImage?
 
     static let size = CGSize(width: 120, height: 120)
     /// La X sobresale de la esquina; mas el crecimiento de la tarjeta con el zoom.
@@ -99,7 +102,7 @@ struct ItemCard: View {
         .frame(width: Self.size.width, height: Self.size.height, alignment: .top)
         .liquidGlass(in: RoundedRectangle(cornerRadius: Self.corner, style: .continuous))
         .overlay {
-            if hovering {
+            if hovering || highlighted {
                 RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
                     .strokeBorder(AppColors.accent, lineWidth: 1.5)
             }
@@ -155,6 +158,23 @@ struct ItemCard: View {
             ItemPeek(item: item, store: store, onCopy: copy, onDragStart: onDragStart)
         }
         .onChange(of: showPeek) { _, shown in onPreviewChange(shown) }
+        .popover(isPresented: Binding(get: { qrCode != nil }, set: { if !$0 { qrCode = nil } }), arrowEdge: .bottom) {
+            if let qrCode {
+                VStack(spacing: 8) {
+                    Image(nsImage: qrCode)
+                        .interpolation(.none)
+                        .resizable()
+                        .frame(width: 200, height: 200)
+                        .padding(10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(.white))
+                    Text("Escanéalo con la cámara del móvil")
+                        .font(AppTypography.subtitle)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                .padding(14)
+            }
+        }
+        .onChange(of: qrCode != nil) { _, shown in onPreviewChange(shown) }
         .onAppear {
             withAnimation(AppMotion.stagger(index)) { appeared = true }
         }
@@ -177,6 +197,10 @@ struct ItemCard: View {
             }
         }
         Button("Vista previa", systemImage: "eye") { showPeek = true }
+        if item.kind == .text, let text = item.text {
+            Button("Mostrar código QR", systemImage: "qrcode") { qrCode = FileActions.qrCode(for: text) }
+                .disabled(text.utf8.count > 2_300)
+        }
         share
         Button("Enviar por AirDrop", systemImage: "dot.radiowaves.left.and.right") { QuickShare.send(shareItems, via: .sendViaAirDrop) }
             .disabled(fileURL == nil)

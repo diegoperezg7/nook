@@ -9,6 +9,8 @@ import Observation
 final class FocusTimer {
     private(set) var end: Date?
     private(set) var total: TimeInterval = 0
+    /// Lo que quedaba al pausar (nil = no esta en pausa).
+    private(set) var pausedRemaining: TimeInterval?
     /// Mantener despierto: activo y hasta cuando (nil = hasta que se pare).
     private(set) var isAwake = false
     private(set) var awakeUntil: Date?
@@ -39,19 +41,40 @@ final class FocusTimer {
 
     var isRunning: Bool { end != nil }
 
+    var isPaused: Bool { pausedRemaining != nil }
+
     func start(minutes: Int) {
         stop()
         total = TimeInterval(minutes * 60)
-        end = Date.now.addingTimeInterval(total)
+        run(for: total)
+    }
+
+    private func run(for seconds: TimeInterval) {
+        end = Date.now.addingTimeInterval(seconds)
         let work = DispatchWorkItem { [weak self] in self?.finish() }
         finishWork = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + total, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: work)
+    }
+
+    func pause() {
+        guard let end else { return }
+        finishWork?.cancel()
+        finishWork = nil
+        pausedRemaining = max(end.timeIntervalSinceNow, 0)
+        self.end = nil
+    }
+
+    func resume() {
+        guard let remaining = pausedRemaining else { return }
+        pausedRemaining = nil
+        run(for: remaining)
     }
 
     func stop() {
         finishWork?.cancel()
         finishWork = nil
         end = nil
+        pausedRemaining = nil
     }
 
     private func finish() {

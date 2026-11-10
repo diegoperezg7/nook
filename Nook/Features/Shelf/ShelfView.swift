@@ -48,6 +48,8 @@ struct ItemStrip: View {
     let model: NotchViewModel
     /// En la bandeja con varios archivos: tarjeta "Arrastrar todo" delante.
     var dragAll: Int?
+    /// Tarjeta elegida con el teclado (portapapeles).
+    var highlightedID: UUID?
 
     private enum Entry: Identifiable {
         case all(Int)
@@ -74,6 +76,7 @@ struct ItemStrip: View {
             case let .item(item):
                 ItemCard(
                     item: item, store: store, index: index,
+                    highlighted: item.id == highlightedID,
                     onCopied: model.didCopy,
                     onDragStart: model.beginDragOut,
                     onPreviewChange: { model.isPreviewing = $0 }

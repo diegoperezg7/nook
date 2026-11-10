@@ -454,6 +454,7 @@ struct NoticeGrid: View {
     @AppStorage(SettingsKey.notifications) private var notifications = true
     @AppStorage(SettingsKey.hudAgents) private var agents = true
     @AppStorage(SettingsKey.hudUsage) private var usage = true
+    @AppStorage(SettingsKey.hudFocus) private var focusMode = true
 
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 8) {
@@ -469,6 +470,7 @@ struct NoticeGrid: View {
             Chip(symbol: "bell.fill", title: "Notificaciones", isOn: $notifications)
             Chip(symbol: "sparkles", title: "Agentes de IA", isOn: $agents)
             Chip(symbol: "gauge.with.dots.needle.67percent", title: "Consumo de Claude", isOn: $usage)
+            Chip(symbol: "moon.fill", title: "Concentración", isOn: $focusMode)
         }
     }
 }

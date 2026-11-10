@@ -35,6 +35,14 @@ final class MailService {
         var isRead = false
     }
 
+    /// El aviso de correo nuevo solo sale si el remitente contiene alguna de las
+    /// palabras de `filter` (nombre, direccion o dominio, separadas por comas).
+    /// Sin palabras, avisa de todos.
+    nonisolated static func isImportant(sender: String, filter: String) -> Bool {
+        let words = filter.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        return words.isEmpty || words.contains { sender.localizedCaseInsensitiveContains($0) }
+    }
+
     /// Un correo entero para leerlo en el notch.
     struct Detail: Equatable {
         let sender: String

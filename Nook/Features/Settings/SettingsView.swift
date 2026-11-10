@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.closeDelay) private var closeDelay = 0.18
     @AppStorage(SettingsKey.mailEnabled) private var mailEnabled = true
     @AppStorage(SettingsKey.mailSource) private var mailSource = MailService.Source.mail.rawValue
+    @AppStorage(SettingsKey.mailImportant) private var mailImportant = ""
     @AppStorage(SettingsKey.basketOnShake) private var basketOnShake = true
     @AppStorage(SettingsKey.shelfExpiryDays) private var shelfExpiryDays = 0
     @AppStorage(SettingsKey.actionRing) private var actionRing = true
@@ -160,6 +161,9 @@ struct SettingsView: View {
                     Text("Outlook (clásico)").tag(MailService.Source.outlook.rawValue)
                 }
                 .disabled(!mailEnabled)
+                TextField("Avisar solo de", text: $mailImportant, prompt: Text("Todos"))
+                    .disabled(!mailEnabled)
+                    .help(Text("Nombres, direcciones o dominios separados por comas. Vacío: avisa de todos los correos nuevos."))
             } header: {
                 Text("Correo")
             } footer: {

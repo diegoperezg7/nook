@@ -69,10 +69,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let mail = MailService()
         let battery = BatteryCenter()
         mail.onNew = { [weak hud, weak mail] message in
-            guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail) else { return }
+            guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail),
+                  MailService.isImportant(sender: message.sender,
+                                          filter: UserDefaults.standard.string(forKey: SettingsKey.mailImportant) ?? "")
+            else { return }
             let preview = SystemHUD.Preview(
                 symbol: "envelope.fill", title: message.sender, subtitle: message.subject,
-                body: message.preview, actionTitle: String(localized: "Abrir correo")
+                body: message.preview, actionTitle: String(localized: "Abrir correo"),
+                extras: [
+                    .init(symbol: "envelope.open", title: String(localized: "Marcar como leído")) { mail?.markRead(message) },
+                    .init(symbol: "trash", title: String(localized: "Eliminar")) { mail?.trash(message) },
+                ]
             ) { mail?.open(message) }
             hud?.show(.mail(sender: message.sender), for: 3, preview: preview)
         }

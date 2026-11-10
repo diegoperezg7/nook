@@ -283,6 +283,7 @@ struct HUDActivity: View {
 struct HUDPreviewCard: View {
     let preview: SystemHUD.Preview
     let metrics: NotchMetrics
+    let onExtra: (SystemHUD.Preview.Extra) -> Void
     let onAction: () -> Void
     @State private var thumbnail: NSImage?
 
@@ -301,6 +302,19 @@ struct HUDPreviewCard: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            ForEach(preview.extras.indices, id: \.self) { index in
+                let extra = preview.extras[index]
+                Button { onExtra(extra) } label: {
+                    Image(systemName: extra.symbol)
+                        .font(.system(size: 12, weight: .bold))
+                        .frame(width: 30, height: 30)
+                        .background(Circle().fill(AppColors.notchText.opacity(0.12)))
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .help(Text(verbatim: extra.title))
+                .accessibilityLabel(Text(verbatim: extra.title))
+            }
             Button(action: onAction) {
                 Text(preview.actionTitle)
                     .font(AppTypography.bodyStrong)

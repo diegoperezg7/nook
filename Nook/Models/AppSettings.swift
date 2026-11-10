@@ -26,6 +26,8 @@ enum SettingsKey {
     /// Bandeja de entrada: activa y de que app se lee (mail / outlook).
     static let mailEnabled = "mailEnabled"
     static let mailSource = "mailSource"
+    /// Remitentes que avisan de correo nuevo, separados por comas (vacio = todos).
+    static let mailImportant = "mailImportant"
     /// Calendarios que el usuario ha quitado (identificadores de EventKit).
     static let hiddenCalendars = "hiddenCalendars"
     /// Cesta flotante al agitar el raton arrastrando archivos.
@@ -41,6 +43,8 @@ enum SettingsKey {
     static let hudAgents = "hudAgents"
     /// Aviso cuando el consumo de Claude cruza el 80 % o el 95 %.
     static let hudUsage = "hudUsage"
+    /// Aviso al activar o quitar No molestar / Concentracion.
+    static let hudFocus = "hudFocus"
     /// Introduccion del primer arranque ya vista.
     static let onboardingDone = "onboardingDone"
     /// Lanzador con ⌥Espacio.
@@ -81,6 +85,7 @@ enum SettingsKey {
             hudMail: true,
             hudAgents: true,
             hudUsage: true,
+            hudFocus: true,
             mailEnabled: true,
             mailSource: "mail",
             basketOnShake: true,

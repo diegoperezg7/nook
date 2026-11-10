@@ -221,8 +221,23 @@ private struct ScreenshotCard: View {
     @State private var hovering = false
     @State private var thumbnail: NSImage?
 
+    @Environment(SystemHUD.self) private var hud
+
     static let size = CGSize(width: 168, height: 120)
     private static let corner: CGFloat = 14
+
+    /// OCR local (Vision) de la captura al portapapeles.
+    private func copyText(_ url: URL) {
+        Task {
+            let text = try? await Task.detached(priority: .userInitiated) { try FileActions.recognizeText(in: url) }.value
+            guard let text, !text.isEmpty else {
+                return hud.show(.notice(icon: "text.viewfinder", text: String(localized: "No hay texto en la imagen")), for: 2)
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+            hud.show(.notice(icon: "doc.on.clipboard.fill", text: String(localized: "Texto copiado")), for: 2)
+        }
+    }
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
@@ -270,6 +285,7 @@ private struct ScreenshotCard: View {
         .contextMenu {
             Button("Copiar", systemImage: "doc.on.doc", action: onCopy)
             Button("Vista previa", systemImage: "eye") { QuickLookPresenter.shared.show(shot.url) }
+            Button("Copiar texto de la imagen", systemImage: "text.viewfinder") { copyText(shot.url) }
             Button("Mostrar en Finder", systemImage: "folder") {
                 NSWorkspace.shared.activateFileViewerSelecting([shot.url])
             }

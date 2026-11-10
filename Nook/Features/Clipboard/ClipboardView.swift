@@ -16,6 +16,8 @@ struct ClipboardView: View {
 
     @FocusState private var searchFocused: Bool
     @State private var filter = HistoryFilter.all
+    /// Tarjeta elegida con ← →; Intro la copia. Vuelve a la primera al buscar.
+    @State private var highlight = 0
     @AppStorage(SettingsKey.captureClipboard) private var captureEnabled = true
 
     private var visibleItems: [NotchItem] {
@@ -41,7 +43,8 @@ struct ClipboardView: View {
             if visibleItems.isEmpty {
                 emptyState
             } else {
-                ItemStrip(items: visibleItems, store: store, model: model)
+                ItemStrip(items: visibleItems, store: store, model: model,
+                          highlightedID: searchFocused ? visibleItems[min(highlight, visibleItems.count - 1)].id : nil)
             }
         }
         .onChange(of: model.searchFocusRequest, initial: true) { _, _ in
@@ -60,6 +63,10 @@ struct ClipboardView: View {
                 .foregroundStyle(AppColors.textPrimary)
                 .focused($searchFocused)
                 .onSubmit(copyFirst)
+                // Con texto, las flechas mueven el cursor; sin texto, eligen tarjeta.
+                .onKeyPress(.leftArrow) { move(-1) }
+                .onKeyPress(.rightArrow) { move(1) }
+                .onChange(of: model.searchText) { highlight = 0 }
             if !model.searchText.isEmpty {
                 Button { model.searchText = "" } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(AppColors.textSecondary)
@@ -157,8 +164,15 @@ struct ClipboardView: View {
         return "Copia algo y aparecerá aquí"
     }
 
+    private func move(_ step: Int) -> KeyPress.Result {
+        guard model.searchText.isEmpty, !visibleItems.isEmpty else { return .ignored }
+        highlight = min(max(highlight + step, 0), visibleItems.count - 1)
+        return .handled
+    }
+
     private func copyFirst() {
-        guard let first = visibleItems.first else { return }
+        guard !visibleItems.isEmpty else { return }
+        let first = visibleItems[min(highlight, visibleItems.count - 1)]
         store.copyToPasteboard(first)
         model.didCopy()
     }

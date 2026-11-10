@@ -188,4 +188,26 @@ enum FileActions {
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
     }
+
+    /// Codigo QR del texto, nitido (sin suavizado) al tamaño pedido. nil si no cabe
+    /// en un QR (unos 2.900 bytes).
+    static func qrCode(for text: String, side: CGFloat = 220) -> NSImage? {
+        guard let filter = CIFilter(name: "CIQRCodeGenerator") else { return nil }
+        filter.setValue(Data(text.utf8), forKey: "inputMessage")
+        filter.setValue("M", forKey: "inputCorrectionLevel")
+        guard let output = filter.outputImage, output.extent.width > 0 else { return nil }
+        let scale = (side / output.extent.width).rounded(.down)
+        let image = output.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        let rep = NSCIImageRep(ciImage: image)
+        let result = NSImage(size: rep.size)
+        result.addRepresentation(rep)
+        return result
+    }
+
+    /// Color en "#RRGGBB" (sRGB), como lo pide la web.
+    static func hex(_ color: NSColor) -> String? {
+        guard let rgb = color.usingColorSpace(.sRGB) else { return nil }
+        let parts = [rgb.redComponent, rgb.greenComponent, rgb.blueComponent].map { Int(($0 * 255).rounded()) }
+        return String(format: "#%02X%02X%02X", parts[0], parts[1], parts[2])
+    }
 }

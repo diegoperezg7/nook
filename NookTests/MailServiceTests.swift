@@ -84,4 +84,13 @@ final class MailServiceTests: XCTestCase {
         XCTAssertTrue(script.contains(#"set content of r to "<div>a &lt; b &amp; c<br>fin</div><br>" & q"#))
         XCTAssertTrue(script.contains("\nsend r\n"))
     }
+
+    func testImportantSenderFilter() {
+        let sender = "Chema Salamanca <chema@beaienergy.com>"
+        XCTAssertTrue(MailService.isImportant(sender: sender, filter: ""))
+        XCTAssertTrue(MailService.isImportant(sender: sender, filter: " , "))
+        XCTAssertTrue(MailService.isImportant(sender: sender, filter: "xeal.es, BEAIENERGY.com"))
+        XCTAssertTrue(MailService.isImportant(sender: sender, filter: "chema"))
+        XCTAssertFalse(MailService.isImportant(sender: sender, filter: "xeal.es, ignis"))
+    }
 }

@@ -18,4 +18,22 @@ final class ToolsTests: XCTestCase {
         XCTAssertEqual(symbol(73), "cloud.snow.fill")
         XCTAssertEqual(symbol(95), "cloud.bolt.rain.fill")
     }
+
+    @MainActor
+    func testTimerPausesAndResumes() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "nook-tests-timer"))
+        defer { defaults.removePersistentDomain(forName: "nook-tests-timer") }
+        let timer = FocusTimer(defaults: defaults)
+        timer.start(minutes: 10)
+        timer.pause()
+        XCTAssertFalse(timer.isRunning)
+        XCTAssertTrue(timer.isPaused)
+        XCTAssertEqual(try XCTUnwrap(timer.pausedRemaining), 600, accuracy: 2)
+        timer.resume()
+        XCTAssertTrue(timer.isRunning)
+        XCTAssertFalse(timer.isPaused)
+        XCTAssertEqual(try XCTUnwrap(timer.end).timeIntervalSinceNow, 600, accuracy: 2)
+        timer.stop()
+        XCTAssertFalse(timer.isRunning || timer.isPaused)
+    }
 }

@@ -2,6 +2,7 @@ import AppKit
 import AudioToolbox
 import CoreAudio
 import CoreMediaIO
+import Intents
 import IOKit.ps
 import Network
 import Observation
@@ -53,7 +54,15 @@ final class SystemHUD {
         var subtitle: String
         var body = ""
         var actionTitle: String
+        /// Acciones secundarias (iconos junto al boton principal).
+        var extras: [Extra] = []
         var action: () -> Void
+
+        struct Extra {
+            let symbol: String
+            let title: String
+            let action: () -> Void
+        }
     }
 
     private(set) var current: Kind?
@@ -138,6 +147,32 @@ final class SystemHUD {
         startPolling()
         startNetwork()
         startAccessoryChecks()
+        startFocusChecks()
+    }
+
+    // MARK: - Concentracion (No molestar)
+
+    /// Concentracion activa ahora (nil = sin permiso o sin leer aun).
+    private(set) var focusOn: Bool?
+    @ObservationIgnored private var focusTimer: Timer?
+
+    /// macOS no avisa del cambio: se lee cada 3 s (lectura local, sin coste).
+    private func startFocusChecks() {
+        let center = INFocusStatusCenter.default
+        if center.authorizationStatus == .notDetermined {
+            center.requestAuthorization { _ in }
+        }
+        focusTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, center.authorizationStatus == .authorized,
+                      let on = center.focusStatus.isFocused else { return }
+                let before = self.focusOn
+                self.focusOn = on
+                guard let before, before != on, self.defaults.bool(forKey: SettingsKey.hudFocus) else { return }
+                self.show(.notice(icon: on ? "moon.fill" : "moon",
+                                  text: on ? String(localized: "Concentración activada") : String(localized: "Concentración desactivada")), for: 2)
+            }
+        }
     }
 
     // MARK: - Bateria de accesorios
@@ -285,6 +320,12 @@ final class SystemHUD {
         let preview = activated
         activated = nil
         preview?.action()
+    }
+
+    /// Accion secundaria de la tarjeta: la ejecuta y cierra la tarjeta.
+    func performExtra(_ extra: Preview.Extra) {
+        activated = nil
+        extra.action()
     }
 
     func dismissActivated() {

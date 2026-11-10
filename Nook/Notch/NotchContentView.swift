@@ -15,8 +15,7 @@ struct NotchContentView: View {
     @Environment(SystemHUD.self) private var hud
     @State private var showBattery = false
     @State private var showMirror = false
-    @State private var showAlarm = false
-    @State private var alarmTime = Date.now.addingTimeInterval(3600)
+    @State private var showClock = false
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -62,7 +61,7 @@ struct NotchContentView: View {
                 if let call = MeetingControls.current(micInUse: hud.micInUse) {
                     callControls(call)
                 } else {
-                    if mail.isEnabled { mailButton }
+                    agentsButton
                     timerMenu
                 }
                 mirrorButton
@@ -83,10 +82,18 @@ struct NotchContentView: View {
     private var tabs: some View {
         HStack(spacing: 2) {
             tabButton(.shelf, title: "Bandeja", icon: "tray.full.fill")
+                .keyboardShortcut("1", modifiers: .command)
             tabButton(.clipboard, title: "Portapapeles", icon: "list.clipboard.fill")
+                .keyboardShortcut("2", modifiers: .command)
             tabButton(.screenshots, title: "Capturas", icon: "camera.viewfinder", logo: AgentIcons.screenshot)
+                .keyboardShortcut("3", modifiers: .command)
             tabButton(.calendar, title: "Calendario", icon: "calendar", logo: AgentIcons.calendar)
-            tabButton(.agents, title: "Agentes de IA", icon: "brain", logo: AgentIcons.claude)
+                .keyboardShortcut("4", modifiers: .command)
+            if mail.isEnabled {
+                tabButton(.mail, title: "Bandeja de entrada", icon: "envelope", logo: AgentIcons.mail(mail.source))
+                    .keyboardShortcut("5", modifiers: .command)
+                    .overlay(alignment: .topTrailing) { unreadBadge }
+            }
         }
         .padding(3)
         .liquidGlass(in: Capsule())
@@ -180,90 +187,79 @@ struct NotchContentView: View {
         }
     }
 
-    /// Bandeja de entrada: no cabe como pestaña junto al notch, asi que va aqui,
-    /// con el numero de correos sin leer.
-    private var mailButton: some View {
+    /// Agentes de IA: boton redondo junto al temporizador; el correo ocupa su pestaña.
+    private var agentsButton: some View {
         Button {
-            withAnimation(AppMotion.snappy) { model.tab = model.tab == .mail ? .shelf : .mail }
+            withAnimation(AppMotion.snappy) { model.tab = model.tab == .agents ? .shelf : .agents }
         } label: {
-            CircleIconLabel(icon: "envelope", logo: AgentIcons.mail(mail.source), active: model.tab == .mail)
-                .overlay(alignment: .topTrailing) {
-                    if mail.unreadCount > 0 {
-                        Text(verbatim: "\(mail.unreadCount)")
-                            .font(.system(size: 9, weight: .bold).monospacedDigit())
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 4)
-                            .frame(minWidth: 15, minHeight: 15)
-                            .background(Capsule().fill(AppColors.danger))
-                            .offset(x: 3, y: -2)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
+            CircleIconLabel(icon: "brain", logo: AgentIcons.claude, active: model.tab == .agents)
+                .overlay { usageRing }
         }
         .buttonStyle(.plain)
-        .help(Text("Bandeja de entrada"))
-        .accessibilityLabel(Text("Bandeja de entrada"))
+        .keyboardShortcut("6", modifiers: .command)
+        .help(usageHelp)
+        .accessibilityLabel(Text("Agentes de IA"))
+    }
+
+    /// Ventana de 5 h de Claude: la primera del snapshot de consumo.
+    private var fiveHour: SubscriptionUsage.Window? { agents.claudeUsage?.windows.first }
+
+    /// Aro con el % usado de las 5 h: naranja desde el 80 %, rojo desde el 95 %.
+    @ViewBuilder
+    private var usageRing: some View {
+        if let window = fiveHour, model.tab != .agents {
+            let used = min(max(window.usedPercent, 0), 100) / 100
+            Circle()
+                .trim(from: 0, to: used)
+                .stroke(used >= 0.95 ? AppColors.danger : used >= 0.8 ? AppColors.warning : AppColors.accent,
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .padding(1)
+                .allowsHitTesting(false)
+        }
+    }
+
+    private var usageHelp: Text {
+        guard let window = fiveHour else { return Text("Agentes de IA") }
+        return Text("Agentes de IA · \(window.label): \(Int(window.usedPercent.rounded())) %")
+    }
+
+    /// Numero de correos sin leer sobre la pestaña de correo.
+    @ViewBuilder
+    private var unreadBadge: some View {
+        if mail.unreadCount > 0 {
+            Text(verbatim: "\(mail.unreadCount)")
+                .font(.system(size: 9, weight: .bold).monospacedDigit())
+                .foregroundStyle(.white)
+                .padding(.horizontal, 4)
+                .frame(minWidth: 15, minHeight: 15)
+                .background(Capsule().fill(AppColors.danger))
+                .offset(x: 4, y: -4)
+                .allowsHitTesting(false)
+                .transition(.scale.combined(with: .opacity))
+        }
     }
 
     /// Temporizador (Pomodoro), alarmas y Mantener despierto. El boton se pone
     /// naranja (como el Reloj de Apple) mientras hay algo en marcha.
     private var timerMenu: some View {
-        Menu {
-            Section("Temporizador") {
-                if focus.isRunning {
-                    Button("Detener temporizador", systemImage: "stop.fill") { focus.stop() }
-                }
-                ForEach(FocusTimer.timerPresets, id: \.self) { minutes in
-                    Button(minutes == 25 ? String(localized: "Pomodoro · 25 min") : String(localized: "\(minutes) min")) {
-                        focus.start(minutes: minutes)
-                    }
-                }
-            }
-            Section("Alarmas") {
-                ForEach(focus.alarms, id: \.self) { date in
-                    Button {
-                        focus.removeAlarm(date)
-                    } label: {
-                        Label(String(localized: "Quitar alarma de las \(date.formatted(date: .omitted, time: .shortened))"), systemImage: "alarm")
-                    }
-                }
-                Button("Nueva alarma…", systemImage: "plus") {
-                    alarmTime = FocusTimer.nextOccurrence(of: .now.addingTimeInterval(3600))
-                    model.isPreviewing = true
-                    showAlarm = true
-                }
-            }
-            Section("Mantener despierto") {
-                if focus.isAwake {
-                    Button("Dejar de mantener despierto", systemImage: "moon.zzz") { focus.stopAwake() }
-                }
-                ForEach(FocusTimer.awakePresets, id: \.self) { minutes in
-                    Button(minutes < 60 ? String(localized: "\(minutes) min") : String(localized: "\(minutes / 60) h")) {
-                        focus.stayAwake(minutes: minutes)
-                    }
-                }
-                Button("Hasta que lo pare") { focus.stayAwake(minutes: nil) }
-            }
+        Button {
+            model.isPreviewing = true
+            showClock = true
         } label: {
             CircleIconLabel(
-                icon: focus.isRunning ? "timer" : !focus.alarms.isEmpty ? "alarm.fill" : focus.isAwake ? "cup.and.saucer.fill" : "timer",
+                icon: "timer",
                 logo: AgentIcons.clock,
-                active: focus.isRunning || focus.isAwake || !focus.alarms.isEmpty,
-                activeColor: focus.isRunning || !focus.alarms.isEmpty ? AppColors.clock : AppColors.accent
+                active: focus.isRunning || focus.isPaused || focus.isAwake || !focus.alarms.isEmpty,
+                activeColor: focus.isRunning || focus.isPaused || !focus.alarms.isEmpty ? AppColors.clock : AppColors.accent
             )
+            .overlay { if focus.isRunning || focus.isPaused { TimerRing(focus: focus, lineWidth: 2).padding(1) } }
         }
-        .menuStyle(.button)
         .buttonStyle(.plain)
-        .menuIndicator(.hidden)
-        .fixedSize()
         .help(Text("Temporizador, alarmas y mantener despierto"))
-        .popover(isPresented: $showAlarm, arrowEdge: .bottom) {
-            AlarmPicker(time: $alarmTime) {
-                focus.addAlarm(at: alarmTime)
-                showAlarm = false
-            }
-        }
-        .onChange(of: showAlarm) { _, shown in
+        .accessibilityLabel(Text("Reloj"))
+        .popover(isPresented: $showClock, arrowEdge: .bottom) { ClockPanel(focus: focus) }
+        .onChange(of: showClock) { _, shown in
             if !shown { model.isPreviewing = false }
         }
     }
@@ -298,10 +294,22 @@ struct NotchContentView: View {
         }
     }
 
+    /// Cuentagotas de macOS: el color elegido va al portapapeles en HEX.
+    private func pickColor() {
+        model.close()
+        NSColorSampler().show { color in
+            guard let color, let hex = FileActions.hex(color) else { return }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(hex, forType: .string)
+            hud.show(.notice(icon: "eyedropper.full", text: String(localized: "\(hex) copiado")), for: 2)
+        }
+    }
+
     private var menu: some View {
         Menu {
             Button("Ajustes…", systemImage: "gearshape") { model.onOpenSettings?() }
             Button("Buscar actualizaciones…", systemImage: "arrow.down.circle") { model.onCheckForUpdates?() }
+            Button("Cuentagotas", systemImage: "eyedropper") { pickColor() }
             Divider()
             switch model.tab {
             case .shelf:
@@ -460,40 +468,266 @@ private struct CircleIconLabel: View {
 
 /// Elegir la hora de una alarma, al estilo del Reloj de Apple: la hora grande y
 /// el boton naranja.
-private struct AlarmPicker: View {
-    @Binding var time: Date
-    let onAdd: () -> Void
+
+/// Lo que queda del temporizador en un aro naranja que se vacia, como el Reloj de Apple.
+private struct TimerRing: View {
+    let focus: FocusTimer
+    var lineWidth: CGFloat = 6
 
     var body: some View {
-        VStack(spacing: 12) {
-            Text("Nueva alarma")
-                .font(AppTypography.bodyStrong)
-                .foregroundStyle(AppColors.textSecondary)
-            DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
-                .labelsHidden()
-                .datePickerStyle(.stepperField)
-                .font(.system(size: 22, weight: .light).monospacedDigit())
-            Text(verbatim: summary)
-                .font(AppTypography.subtitle)
-                .foregroundStyle(AppColors.textSecondary)
-            Button(action: onAdd) {
-                Text("Añadir")
-                    .font(AppTypography.bodyStrong)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 28)
-                    .background(Capsule().fill(AppColors.clock))
-            }
-            .buttonStyle(.plain)
-            .keyboardShortcut(.defaultAction)
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            Circle()
+                .trim(from: 0, to: fraction(at: context.date))
+                .stroke(AppColors.clock, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(.linear(duration: 1), value: fraction(at: context.date))
         }
-        .padding(16)
-        .frame(width: 200)
+        .allowsHitTesting(false)
     }
 
-    /// "Hoy" o "Mañana", segun si esa hora ya ha pasado.
-    private var summary: String {
-        let next = FocusTimer.nextOccurrence(of: time)
-        return Calendar.current.isDateInToday(next) ? String(localized: "Sonará hoy") : String(localized: "Sonará mañana")
+    private func fraction(at date: Date) -> Double {
+        guard focus.total > 0 else { return 0 }
+        let left = focus.pausedRemaining ?? focus.end.map { $0.timeIntervalSince(date) } ?? 0
+        return min(max(left / focus.total, 0), 1)
+    }
+}
+
+/// Reloj: temporizador, alarmas y mantener despierto, en paginas como la app Reloj.
+private struct ClockPanel: View {
+    let focus: FocusTimer
+    private enum Page: Hashable { case timer, alarms, awake }
+    @State private var page: Page
+    @State private var adding = false
+    @State private var newAlarm = FocusTimer.nextOccurrence(of: .now.addingTimeInterval(3600))
+    @State private var customMinutes = 10
+
+    init(focus: FocusTimer) {
+        self.focus = focus
+        _page = State(initialValue: focus.isRunning || focus.isPaused ? .timer : !focus.alarms.isEmpty ? .alarms : focus.isAwake ? .awake : .timer)
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Picker("", selection: $page) {
+                Text("Temporizador").tag(Page.timer)
+                Text("Alarmas").tag(Page.alarms)
+                Text("Despierto").tag(Page.awake)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+
+            Group {
+                switch page {
+                case .timer: timer
+                case .alarms: alarms
+                case .awake: awake
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .transition(.opacity)
+        }
+        .padding(16)
+        .frame(width: 290)
+        .animation(AppMotion.snappy, value: page)
+        .animation(AppMotion.snappy, value: focus.isRunning)
+        .animation(AppMotion.snappy, value: focus.isPaused)
+        .animation(AppMotion.snappy, value: adding)
+    }
+
+    // MARK: Temporizador
+
+    @ViewBuilder
+    private var timer: some View {
+        if focus.isRunning || focus.isPaused {
+            VStack(spacing: 14) {
+                ZStack {
+                    Circle().stroke(AppColors.clock.opacity(0.18), lineWidth: 6)
+                    TimerRing(focus: focus)
+                    VStack(spacing: 2) {
+                        Group {
+                            if let end = focus.end {
+                                Text(timerInterval: Date.now...end, countsDown: true)
+                            } else {
+                                Text(verbatim: Self.clock(focus.pausedRemaining ?? 0))
+                            }
+                        }
+                        .font(.system(size: 30, weight: .light).monospacedDigit())
+                        .multilineTextAlignment(.center)
+                        if let end = focus.end {
+                            Label(end.formatted(date: .omitted, time: .shortened), systemImage: "bell.fill")
+                                .font(AppTypography.subtitle)
+                                .foregroundStyle(AppColors.textSecondary)
+                        } else {
+                            Text("En pausa")
+                                .font(AppTypography.subtitle)
+                                .foregroundStyle(AppColors.textSecondary)
+                        }
+                    }
+                }
+                .frame(width: 150, height: 150)
+                HStack(spacing: 10) {
+                    pill("Cancelar", color: AppColors.textPrimary.opacity(0.12), text: AppColors.textPrimary) { focus.stop() }
+                    if focus.isPaused {
+                        pill("Reanudar", color: AppColors.clock, text: .white) { focus.resume() }
+                    } else {
+                        pill("Pausar", color: AppColors.clock.opacity(0.18), text: AppColors.clock) { focus.pause() }
+                    }
+                }
+            }
+        } else {
+            VStack(spacing: 10) {
+                HStack(spacing: 8) {
+                    ForEach(FocusTimer.timerPresets, id: \.self) { minutes in
+                        Button { focus.start(minutes: minutes) } label: {
+                            VStack(spacing: 0) {
+                                Text(verbatim: "\(minutes)").font(.system(size: 17, weight: .semibold).monospacedDigit())
+                                Text("min").font(.system(size: 9, weight: .medium))
+                            }
+                            .foregroundStyle(AppColors.clock)
+                            .frame(width: 46, height: 46)
+                            .background(Circle().fill(AppColors.clock.opacity(0.15)))
+                            .contentShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(minutes == 25 ? Text("Pomodoro") : Text(verbatim: "\(minutes) min"))
+                    }
+                }
+                HStack(spacing: 10) {
+                    Stepper(value: $customMinutes, in: 1...240) {
+                        Text(verbatim: "\(customMinutes) min")
+                            .font(.system(size: 15, weight: .medium).monospacedDigit())
+                            .frame(minWidth: 64, alignment: .leading)
+                    }
+                    Spacer()
+                    pill("Iniciar", color: AppColors.clock, text: .white) { focus.start(minutes: customMinutes) }
+                }
+                .padding(.top, 6)
+            }
+        }
+    }
+
+    // MARK: Alarmas
+
+    private var alarms: some View {
+        VStack(spacing: 0) {
+            if focus.alarms.isEmpty && !adding {
+                Text("Sin alarmas")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .padding(.vertical, 8)
+            }
+            ForEach(focus.alarms, id: \.self) { date in
+                HStack {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(date.formatted(date: .omitted, time: .shortened))
+                            .font(.system(size: 28, weight: .light).monospacedDigit())
+                        Text(Calendar.current.isDateInToday(date) ? "Hoy" : "Mañana")
+                            .font(AppTypography.subtitle)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                    Spacer()
+                    Button { focus.removeAlarm(date) } label: {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(AppColors.danger)
+                            .frame(width: 28, height: 28)
+                            .background(Circle().fill(AppColors.danger.opacity(0.12)))
+                    }
+                    .buttonStyle(.plain)
+                    .help(Text("Quitar alarma"))
+                    .accessibilityLabel(Text("Quitar alarma"))
+                }
+                .padding(.vertical, 6)
+                Divider()
+            }
+            if adding {
+                HStack {
+                    DatePicker("", selection: $newAlarm, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
+                        .datePickerStyle(.stepperField)
+                    Spacer()
+                    pill("Añadir", color: AppColors.clock, text: .white) {
+                        focus.addAlarm(at: newAlarm)
+                        adding = false
+                    }
+                    .keyboardShortcut(.defaultAction)
+                }
+                .padding(.top, 10)
+            } else {
+                Button {
+                    newAlarm = FocusTimer.nextOccurrence(of: .now.addingTimeInterval(3600))
+                    adding = true
+                } label: {
+                    Label("Nueva alarma", systemImage: "plus")
+                        .font(AppTypography.bodyStrong)
+                        .foregroundStyle(AppColors.clock)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 10)
+            }
+        }
+    }
+
+    // MARK: Mantener despierto
+
+    private var awake: some View {
+        VStack(spacing: 12) {
+            Image(systemName: focus.isAwake ? "cup.and.saucer.fill" : "moon.zzz.fill")
+                .font(.system(size: 26))
+                .foregroundStyle(focus.isAwake ? AppColors.accent : AppColors.textSecondary)
+            Text(awakeStatus)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textSecondary)
+            HStack(spacing: 8) {
+                ForEach(FocusTimer.awakePresets, id: \.self) { minutes in
+                    awakeOption(minutes < 60 ? String(localized: "\(minutes) min") : String(localized: "\(minutes / 60) h")) {
+                        focus.stayAwake(minutes: minutes)
+                    }
+                }
+                awakeOption(String(localized: "Siempre")) { focus.stayAwake(minutes: nil) }
+            }
+            if focus.isAwake {
+                pill("Desactivar", color: AppColors.textPrimary.opacity(0.12), text: AppColors.textPrimary) { focus.stopAwake() }
+            }
+        }
+    }
+
+    private var awakeStatus: String {
+        guard focus.isAwake else { return String(localized: "El Mac puede dormir con normalidad") }
+        guard let until = focus.awakeUntil else { return String(localized: "Despierto hasta que lo desactives") }
+        return String(localized: "Despierto hasta las \(until.formatted(date: .omitted, time: .shortened))")
+    }
+
+    private func awakeOption(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(verbatim: title)
+                .font(AppTypography.bodyStrong)
+                .foregroundStyle(AppColors.accent)
+                .padding(.horizontal, 12)
+                .frame(height: 28)
+                .background(Capsule().fill(AppColors.accent.opacity(0.14)))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 1:05:09 o 4:09.
+    static func clock(_ seconds: TimeInterval) -> String {
+        let total = Int(seconds.rounded())
+        let (h, m, s) = (total / 3600, total / 60 % 60, total % 60)
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
+    }
+
+    private func pill(_ title: LocalizedStringKey, color: Color, text: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(AppTypography.bodyStrong)
+                .foregroundStyle(text)
+                .padding(.horizontal, 18)
+                .frame(height: 30)
+                .background(Capsule().fill(color))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }

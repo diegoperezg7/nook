@@ -61,4 +61,16 @@ final class FileActionsTests: XCTestCase {
         XCTAssertNotNil(item.data(forType: .png))
         XCTAssertNotNil(item.data(forType: .tiff))
     }
+
+    func testQRCodeForShortTextAndNoneForHugeText() {
+        let image = FileActions.qrCode(for: "https://github.com/diegoperezg7/nook")
+        XCTAssertNotNil(image)
+        XCTAssertGreaterThanOrEqual(image?.size.width ?? 0, 150)
+        XCTAssertNil(FileActions.qrCode(for: String(repeating: "x", count: 5000)))
+    }
+
+    func testHexOfColor() {
+        XCTAssertEqual(FileActions.hex(NSColor(srgbRed: 18 / 255, green: 181 / 255, blue: 176 / 255, alpha: 1)), "#12B5B0")
+        XCTAssertEqual(FileActions.hex(.white), "#FFFFFF")
+    }
 }

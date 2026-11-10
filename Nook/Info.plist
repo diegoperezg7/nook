@@ -20,6 +20,8 @@
 	<string>1</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Nook muestra en el notch la batería de tus AirPods, teclado y ratón.</string>
+	<key>NSFocusStatusUsageDescription</key>
+	<string>Nook avisa en el notch cuando activas o quitas No molestar o un modo de Concentración.</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
