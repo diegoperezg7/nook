@@ -80,17 +80,30 @@ final class ItemStoreTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: source.path), "El original no se toca")
     }
 
-    func testImageIsStoredAsPNG() throws {
+    func testImageIsStoredAsPNG() async throws {
         let image = NSImage(size: NSSize(width: 4, height: 4))
         image.lockFocus()
         NSColor.systemBlue.setFill()
         NSRect(x: 0, y: 0, width: 4, height: 4).fill()
         image.unlockFocus()
-        store.captureImage(try XCTUnwrap(image.tiffRepresentation))
+        await store.captureImage(try XCTUnwrap(image.tiffRepresentation))
 
         let item = try XCTUnwrap(try items(.clipboard).first)
         XCTAssertEqual(item.kind, .image)
         XCTAssertEqual(store.fileURL(for: item)?.pathExtension, "png")
+    }
+
+    /// La misma imagen copiada dos veces sube la existente, no se duplica.
+    func testSameImageTwiceIsNotDuplicated() async throws {
+        let image = NSImage(size: NSSize(width: 4, height: 4))
+        image.lockFocus()
+        NSColor.systemRed.setFill()
+        NSRect(x: 0, y: 0, width: 4, height: 4).fill()
+        image.unlockFocus()
+        let data = try XCTUnwrap(image.tiffRepresentation)
+        await store.captureImage(data)
+        await store.captureImage(data)
+        XCTAssertEqual(try items(.clipboard).count, 1)
     }
 
     func testOwnPasteboardWriteIsRemembered() throws {

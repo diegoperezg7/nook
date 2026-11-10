@@ -100,10 +100,14 @@ final class ItemStore {
         trimHistory()
     }
 
-    func captureImage(_ data: Data, source: String? = nil) {
-        let hash = Self.hash(data)
-        guard !bumpExisting(hash: hash) else { return }
-        guard let item = makeImageItem(data, origin: .clipboard, hash: hash) else { return }
+    /// El hash y el paso a PNG van fuera del hilo principal: con una captura 5K son
+    /// unos 180 ms que congelaban la interfaz.
+    func captureImage(_ data: Data, source: String? = nil) async {
+        let (hash, png) = await Task.detached(priority: .userInitiated) {
+            (Self.hash(data), Self.pngData(data))
+        }.value
+        guard !bumpExisting(hash: hash), let png else { return }
+        guard let item = makeImageItem(png: png, origin: .clipboard, hash: hash) else { return }
         item.sourceBundleID = source
         insert(item)
         trimHistory()
@@ -296,8 +300,16 @@ final class ItemStore {
 
     // MARK: - Internos
 
+    nonisolated static func pngData(_ data: Data) -> Data? {
+        NSBitmapImageRep(data: data)?.representation(using: .png, properties: [:])
+    }
+
     private func makeImageItem(_ data: Data, origin: ItemOrigin, hash: String? = nil) -> NotchItem? {
-        guard let png = NSBitmapImageRep(data: data)?.representation(using: .png, properties: [:]) else { return nil }
+        guard let png = Self.pngData(data) else { return nil }
+        return makeImageItem(png: png, origin: origin, hash: hash)
+    }
+
+    private func makeImageItem(png: Data, origin: ItemOrigin, hash: String? = nil) -> NotchItem? {
         let id = UUID()
         let name = String(localized: "Imagen") + ".png"
         let folder = itemsDirectory.appendingPathComponent(id.uuidString, isDirectory: true)
@@ -358,9 +370,9 @@ final class ItemStore {
         try? context.save()
     }
 
-    static func hash(_ text: String) -> String { hash(Data(text.utf8)) }
+    nonisolated static func hash(_ text: String) -> String { hash(Data(text.utf8)) }
 
-    static func hash(_ data: Data) -> String {
+    nonisolated static func hash(_ data: Data) -> String {
         SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 }

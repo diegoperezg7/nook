@@ -43,7 +43,7 @@ final class HistoryFeaturesTests: XCTestCase {
     }
 
     func testCopiedImageIsFoundByTheTextInside() async throws {
-        store.captureImage(try imageData(text: "Factura 2026"))
+        await store.captureImage(try imageData(text: "Factura 2026"))
         let image = try XCTUnwrap(try history().first)
 
         // El OCR va en segundo plano: se espera a que termine.

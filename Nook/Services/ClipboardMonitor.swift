@@ -87,7 +87,7 @@ final class ClipboardMonitor {
         if !urls.isEmpty {
             urls.prefix(ClipboardFilter.maxFilesPerCopy).forEach { store.captureFile($0, source: source) }
         } else if let data = pasteboard.data(forType: .png) ?? pasteboard.data(forType: .tiff) {
-            store.captureImage(data, source: source)
+            Task { await store.captureImage(data, source: source) }
         } else if let text = pasteboard.string(forType: .string) {
             store.captureText(text, source: source)
         }
