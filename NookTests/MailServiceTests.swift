@@ -21,6 +21,14 @@ final class MailServiceTests: XCTestCase {
         XCTAssertEqual(messages[0].subject, "")
     }
 
+    /// El sexto campo dice si esta leido; sin el, cuenta como sin leer.
+    func testReadFlag() {
+        let text = ["e5", "Ana", "Hola", "2026-11-09T10:00:00", "", "true"].joined(separator: us) + rs
+            + ["f6", "Luis", "Adios", "2026-11-09T09:00:00", "", "false"].joined(separator: us) + rs
+            + ["g7", "Marta", "Viejo", "2026-11-09T08:00:00"].joined(separator: us) + rs
+        XCTAssertEqual(MailService.parse(text).map(\.isRead), [true, false, false])
+    }
+
     func testEmptyInbox() {
         XCTAssertTrue(MailService.parse("").isEmpty)
     }

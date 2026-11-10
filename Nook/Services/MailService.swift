@@ -1,7 +1,7 @@
 import AppKit
 import Observation
 
-/// Bandeja de entrada: los correos sin leer (remitente, asunto y hora) de Mail o de
+/// Bandeja de entrada: los ultimos correos, leidos o no (remitente, asunto y hora), de Mail o de
 /// Outlook, leidos por AppleScript. Solo se consulta la app si ya esta abierta: Nook
 /// no la lanza por su cuenta. No guarda nada: lo que se ve sale de la app cada vez.
 @Observable
@@ -32,6 +32,7 @@ final class MailService {
         let date: Date
         /// Principio del texto (solo en los mas recientes; vacio si no se leyo).
         var preview: String = ""
+        var isRead = false
     }
 
     /// Un correo entero para leerlo en el notch.
@@ -43,7 +44,9 @@ final class MailService {
         let body: String
     }
 
+    /// Los ultimos de la bandeja, leidos y sin leer, el mas reciente primero.
     private(set) var messages: [Message] = []
+    var unreadCount: Int { messages.filter { !$0.isRead }.count }
     private(set) var state: State = .idle
     /// Ultimo correo mandado a la papelera: se borra de verdad a los 5 s, salvo que
     /// se pulse "Deshacer".
@@ -138,7 +141,7 @@ final class MailService {
         case let .ok(text):
             let parsed = Self.parse(text)
             if let seen {
-                for message in parsed where !seen.contains(message.id) { onNew?(message) }
+                for message in parsed where !message.isRead && !seen.contains(message.id) { onNew?(message) }
             }
             seen = Set(parsed.map(\.id))
             messages = parsed.filter { $0.id != pendingTrash?.id }
@@ -170,20 +173,21 @@ final class MailService {
                 set us to character id 31
                 set rs to character id 30
                 set out to ""
-                set msgs to (messages of inbox whose read status is false)
+                set msgs to messages of inbox
                 set n to count of msgs
-                if n > 40 then set n to 40
+                if n > 30 then set n to 30
                 repeat with i from 1 to n
                     set m to item i of msgs
                     set pv to ""
-                    if i ≤ 15 then
+                    -- Solo los sin leer: pedir el cuerpo de uno ya leido lo descarga y tarda minutos.
+                    if i ≤ 15 and (read status of m) is false then
                         try
                             set c to content of m
                             if length of c > 160 then set c to text 1 thru 160 of c
                             set pv to c
                         end try
                     end if
-                    set out to out & (message id of m) & us & (extract name from (sender of m)) & us & (subject of m) & us & ((date received of m) as «class isot» as string) & us & pv & rs
+                    set out to out & (message id of m) & us & (extract name from (sender of m)) & us & (subject of m) & us & ((date received of m) as «class isot» as string) & us & pv & us & ((read status of m) as string) & rs
                 end repeat
                 return out
             end tell
@@ -194,9 +198,9 @@ final class MailService {
                 set us to character id 31
                 set rs to character id 30
                 set out to ""
-                set msgs to (messages of inbox whose is read is false)
+                set msgs to messages of inbox
                 set n to count of msgs
-                if n > 40 then set n to 40
+                if n > 30 then set n to 30
                 repeat with i from 1 to n
                     set m to item i of msgs
                     set who to ""
@@ -206,14 +210,14 @@ final class MailService {
                         if who is missing value or who is "" then set who to address of s
                     end try
                     set pv to ""
-                    if i ≤ 15 then
+                    if i ≤ 15 and (is read of m) is false then
                         try
                             set c to plain text content of m
                             if length of c > 160 then set c to text 1 thru 160 of c
                             set pv to c
                         end try
                     end if
-                    set out to out & (id of m as string) & us & who & us & (subject of m) & us & ((time received of m) as «class isot» as string) & us & pv & rs
+                    set out to out & (id of m as string) & us & who & us & (subject of m) & us & ((time received of m) as «class isot» as string) & us & pv & us & ((is read of m) as string) & rs
                 end repeat
                 return out
             end tell
@@ -231,7 +235,8 @@ final class MailService {
             guard fields.count >= 4, !fields[0].isEmpty else { return nil }
             let subject = fields[2] == "missing value" ? "" : fields[2]
             let preview = fields.count > 4 ? Self.clean(fields[4], lines: false) : ""
-            return Message(id: fields[0], sender: fields[1], subject: subject, date: iso.date(from: fields[3]) ?? .distantPast, preview: preview)
+            let isRead = fields.count > 5 && fields[5] == "true"
+            return Message(id: fields[0], sender: fields[1], subject: subject, date: iso.date(from: fields[3]) ?? .distantPast, preview: preview, isRead: isRead)
         }
         .sorted { $0.date > $1.date }
     }
@@ -265,11 +270,10 @@ final class MailService {
         }
     }
 
-    /// Marca el correo como leido en su app y lo quita de la lista.
+    /// Marca el correo como leido en su app; sigue en la lista, ya como leido.
     func markRead(_ message: Message) {
         let script = Self.actionScript(for: source, id: message.id, action: source == .mail ? "set read status of m to true" : "set is read of m to true")
-        messages.removeAll { $0.id == message.id }
-        seen?.remove(message.id)
+        if let index = messages.firstIndex(where: { $0.id == message.id }) { messages[index].isRead = true }
         queue.async { _ = Self.run(script) }
     }
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Bandeja de entrada: correos sin leer, el mas reciente arriba, con el principio
-/// del texto. Al pulsar uno se lee aqui mismo; desde ahi se responde, se marca como
+/// Bandeja de entrada: los ultimos correos, el mas reciente arriba, con el principio
+/// del texto. Los sin leer llevan punto azul y el remitente en negrita. Al pulsar uno se lee aqui mismo; desde ahi se responde, se marca como
 /// leido o se abre en su app.
 struct MailView: View {
     let mail: MailService
@@ -71,7 +71,7 @@ struct MailView: View {
                 .font(AppTypography.bodyStrong)
                 .foregroundStyle(AppColors.textPrimary)
             if mail.state == .ok {
-                Text(mail.messages.isEmpty ? String(localized: "Todo leído") : String(localized: "\(mail.messages.count) sin leer"))
+                Text(mail.unreadCount == 0 ? String(localized: "Todo leído") : String(localized: "\(mail.unreadCount) sin leer"))
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.textSecondary)
             }
@@ -108,7 +108,7 @@ struct MailView: View {
                 .animation(AppMotion.snappy, value: mail.messages)
             }
         case .ok:
-            notice(icon: "checkmark.circle.fill", title: "No tienes correos sin leer")
+            notice(icon: "checkmark.circle.fill", title: "No hay correos en la bandeja")
         case .notRunning, .idle:
             notice(icon: "envelope", title: mail.source == .mail ? "Mail no está abierto" : "Outlook no está abierto",
                    action: (String(localized: "Abrir en segundo plano"), mail.launchSource))
@@ -156,22 +156,31 @@ private struct MailRow: View {
             HStack(spacing: 10) {
                 Text(verbatim: initials)
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(AppColors.onAccent)
+                    .foregroundStyle(message.isRead ? AppColors.textSecondary : AppColors.onAccent)
                     .frame(width: 26, height: 26)
-                    .background(Circle().fill(AppColors.accent))
+                    .background(Circle().fill(message.isRead ? AppColors.controlTrack : AppColors.accent))
+                    .overlay(alignment: .topLeading) {
+                        if !message.isRead {
+                            Circle().fill(AppColors.accent)
+                                .frame(width: 8, height: 8)
+                                .overlay(Circle().strokeBorder(AppColors.panel, lineWidth: 1.5))
+                                .offset(x: -3, y: -2)
+                        }
+                    }
+                    .accessibilityLabel(Text(message.isRead ? "Leído" : "Sin leer"))
                 VStack(alignment: .leading, spacing: 1) {
                     HStack(spacing: 8) {
                         Text(verbatim: message.sender)
-                            .font(AppTypography.cardTitle.weight(.semibold))
-                            .foregroundStyle(AppColors.textPrimary)
+                            .font(AppTypography.cardTitle.weight(message.isRead ? .regular : .semibold))
+                            .foregroundStyle(message.isRead ? AppColors.textSecondary : AppColors.textPrimary)
                         Spacer(minLength: 8)
                         Text(verbatim: time)
                             .font(AppTypography.cardCaption.monospacedDigit())
                             .foregroundStyle(AppColors.textSecondary)
                     }
                     Text(verbatim: message.subject.isEmpty ? String(localized: "(Sin asunto)") : message.subject)
-                        .font(AppTypography.cardCaption.weight(.medium))
-                        .foregroundStyle(AppColors.textPrimary.opacity(0.9))
+                        .font(AppTypography.cardCaption.weight(message.isRead ? .regular : .medium))
+                        .foregroundStyle(message.isRead ? AppColors.textSecondary : AppColors.textPrimary.opacity(0.9))
                     if !message.preview.isEmpty {
                         Text(verbatim: message.preview)
                             .font(AppTypography.cardCaption)
@@ -193,7 +202,9 @@ private struct MailRow: View {
         .overlay(alignment: .trailing) {
             if hovering {
                 HStack(spacing: 4) {
-                    ReaderButton(icon: "envelope.open.fill", help: "Marcar como leído") { mail.markRead(message) }
+                    if !message.isRead {
+                        ReaderButton(icon: "envelope.open.fill", help: "Marcar como leído") { mail.markRead(message) }
+                    }
                     ReaderButton(icon: "trash.fill", help: "Mover a la papelera") { mail.trash(message) }
                 }
                 .padding(.trailing, 8)

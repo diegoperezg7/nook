@@ -2151,6 +2151,16 @@
         }
       }
     },
+    "Leído": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read"
+          }
+        }
+      }
+    },
     "Listo": {
       "localizations": {
         "en": {
@@ -2441,6 +2451,16 @@
         }
       }
     },
+    "No hay correos en la bandeja": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No mail in the inbox"
+          }
+        }
+      }
+    },
     "No hay cámara disponible": {
       "localizations": {
         "en": {
@@ -2517,16 +2537,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't save"
-          }
-        }
-      }
-    },
-    "No tienes correos sin leer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No unread mail"
           }
         }
       }
@@ -3217,6 +3227,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No mail"
+          }
+        }
+      }
+    },
+    "Sin leer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unread"
           }
         }
       }

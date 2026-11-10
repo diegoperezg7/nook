@@ -6,9 +6,9 @@ final class HUDSidesTests: XCTestCase {
         XCTAssertEqual(HUDSides.make(desired: 58, leftFree: nil, rightFree: nil), HUDSides(left: 58, right: 58, merged: false))
     }
 
-    func testEachSideStopsAtTheMenuBarItems() {
+    func testBothSidesMatchTheNarrowerOne() {
         let sides = HUDSides.make(desired: 112, leftFree: 280, rightFree: 60)
-        XCTAssertEqual(sides, HUDSides(left: 112, right: 56, merged: false))
+        XCTAssertEqual(sides, HUDSides(left: 56, right: 56, merged: false))
     }
 
     /// Barra llena a la derecha (20 pt libres): todo el aviso pasa a la izquierda.

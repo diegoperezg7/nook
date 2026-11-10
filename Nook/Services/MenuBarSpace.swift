@@ -120,7 +120,10 @@ struct HUDSides: Equatable {
         let fitsLeft = left >= minimum, fitsRight = right >= minimum
         switch (fitsLeft, fitsRight) {
         case (true, true):
-            return HUDSides(left: min(desired, left), right: min(desired, right), merged: false)
+            // Los dos lados iguales: con anchos distintos la forma se desplaza y al
+            // encogerse se recorta un lado antes que el otro.
+            let side = min(desired, left, right)
+            return HUDSides(left: side, right: side, merged: false)
         case (true, false):
             return HUDSides(left: min(desired * 2, left), right: 0, merged: true)
         case (false, true):

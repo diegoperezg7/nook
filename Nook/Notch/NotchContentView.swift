@@ -188,8 +188,8 @@ struct NotchContentView: View {
         } label: {
             CircleIconLabel(icon: "envelope", logo: AgentIcons.mail(mail.source), active: model.tab == .mail)
                 .overlay(alignment: .topTrailing) {
-                    if !mail.messages.isEmpty {
-                        Text(verbatim: mail.messages.count > 40 ? "40+" : "\(mail.messages.count)")
+                    if mail.unreadCount > 0 {
+                        Text(verbatim: "\(mail.unreadCount)")
                             .font(.system(size: 9, weight: .bold).monospacedDigit())
                             .foregroundStyle(.white)
                             .padding(.horizontal, 4)
