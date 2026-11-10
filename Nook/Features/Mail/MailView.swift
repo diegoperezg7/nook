@@ -241,6 +241,13 @@ private struct MailReader: View {
     @State private var html: String?
     @State private var allowRemote = false
     @State private var failed = false
+    /// Respuesta escrita aqui mismo. Si el envio falla, el texto se queda.
+    @State private var composing = false
+    @State private var draft = ""
+    @State private var sending = false
+    @State private var sendFailed = false
+    @State private var sent = false
+    @FocusState private var draftFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -277,6 +284,15 @@ private struct MailReader: View {
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.textPrimary)
                 .lineLimit(2)
+
+            if composing {
+                composer
+            } else if sent {
+                Label("Respuesta enviada", systemImage: "checkmark.circle.fill")
+                    .font(AppTypography.bodyStrong)
+                    .foregroundStyle(AppColors.success)
+                    .transition(.opacity)
+            }
 
             Group {
                 if let html {
@@ -327,7 +343,12 @@ private struct MailReader: View {
 
     private var actions: some View {
         HStack(spacing: 6) {
-            ReaderButton(icon: "arrowshape.turn.up.left.fill", help: "Responder") { mail.reply(to: message) }
+            ReaderButton(icon: "arrowshape.turn.up.left.fill", help: "Responder") {
+                withAnimation(AppMotion.snappy) {
+                    sent = false
+                    composing = true
+                }
+            }
             ReaderButton(icon: "envelope.open.fill", help: "Marcar como leído") {
                 mail.markRead(message)
                 back()
@@ -337,6 +358,84 @@ private struct MailReader: View {
                 back()
             }
             ReaderButton(icon: "arrow.up.forward.app.fill", help: "Abrir en la app") { mail.open(message) }
+        }
+    }
+}
+
+private extension MailReader {
+    /// Campo de respuesta: ⌘↩ envia y Escape lo cierra sin cerrar el notch (el boton
+    /// Cancelar se queda la tecla antes que el panel).
+    var composer: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            TextEditor(text: $draft)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textPrimary)
+                .scrollContentBackground(.hidden)
+                .focused($draftFocused)
+                .disabled(sending)
+                .frame(height: 76)
+                .padding(8)
+                .liquidGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(draftFocused ? AppColors.accent : .clear, lineWidth: 1.5))
+                .onAppear {
+                    // El panel solo es key si hace falta teclado: hay que pedirlo.
+                    NSApp.windows.first { $0 is NotchPanel }?.makeKey()
+                    draftFocused = true
+                }
+            HStack(spacing: 10) {
+                Button { mail.reply(to: message) } label: {
+                    Text("Abrir en \(mail.source == .mail ? "Mail" : "Outlook")")
+                        .foregroundStyle(AppColors.accent)
+                }
+                .buttonStyle(.plain)
+                .help(Text("Para adjuntar o dar formato"))
+                if sendFailed {
+                    Text("No se ha podido confirmar el envío. Mira en Enviados antes de reintentar.")
+                        .foregroundStyle(AppColors.danger)
+                        .lineLimit(2)
+                }
+                Spacer(minLength: 8)
+                // Sin deshabilitar mientras envia: asi Escape no llega al panel y no
+                // cierra el notch con el texto aun sin confirmar.
+                Button("Cancelar") {
+                    guard !sending else { return }
+                    withAnimation(AppMotion.snappy) { composing = false }
+                    draft = ""
+                    sendFailed = false
+                }
+                .keyboardShortcut(.cancelAction)
+                Button(action: send) {
+                    if sending {
+                        ProgressView().controlSize(.mini)
+                    } else {
+                        Text("Enviar")
+                    }
+                }
+                .keyboardShortcut(.return, modifiers: .command)
+                .help(Text("Enviar (⌘↩)"))
+                .disabled(sending || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .font(AppTypography.cardCaption)
+            .controlSize(.small)
+        }
+    }
+
+    func send() {
+        guard !sending else { return }
+        sending = true
+        sendFailed = false
+        Task {
+            let ok = await mail.send(draft, inReplyTo: message)
+            sending = false
+            guard ok else { return sendFailed = true }
+            draft = ""
+            withAnimation(AppMotion.snappy) {
+                composing = false
+                sent = true
+            }
+            try? await Task.sleep(for: .seconds(2.5))
+            withAnimation(AppMotion.snappy) { sent = false }
         }
     }
 }

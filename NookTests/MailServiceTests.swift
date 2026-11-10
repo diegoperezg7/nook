@@ -49,4 +49,39 @@ final class MailServiceTests: XCTestCase {
         XCTAssertEqual(detail.body, "Hola,\n\nAdjunto va el contrato.\u{1F}Fin")
         XCTAssertNil(MailService.parseDetail("roto"))
     }
+
+    // MARK: - Responder desde el notch
+
+    private let tricky = "Hola \"Ana\",\nla ruta es C:\\temp\\ y\r\nseguimos. Á é ñ ü «ok» & <b>"
+
+    /// El literal se lee igual en AppleScript (se ejecuta solo `return`, sin apps).
+    func testLiteralRoundTripsInAppleScript() throws {
+        var error: NSDictionary?
+        let output = NSAppleScript(source: "return " + MailService.literal(tricky))?.executeAndReturnError(&error)
+        XCTAssertNil(error)
+        XCTAssertEqual(output?.stringValue, tricky.replacingOccurrences(of: "\r\n", with: "\n"))
+    }
+
+    func testLiteralHasNoRawLineBreaksOrLooseQuotes() {
+        let literal = MailService.literal(tricky)
+        XCTAssertFalse(literal.contains("\n") || literal.contains("\r"))
+        XCTAssertEqual(MailService.literal("a\"b\\c"), #""a\"b\\c""#)
+    }
+
+    func testMailReplyScriptSendsWithoutWindow() {
+        let script = MailService.replyScript(for: .mail, id: "x\"1@ejemplo", text: tricky)
+        XCTAssertTrue(script.hasPrefix("tell application \"Mail\""))
+        XCTAssertTrue(script.contains(#"message id is "x\"1@ejemplo""#))
+        XCTAssertTrue(script.contains("set r to reply m without opening window"))
+        XCTAssertTrue(script.contains("set content of r to " + MailService.literal(tricky) + " & return & return & q"))
+        XCTAssertTrue(script.contains("\nsend r\n"))
+    }
+
+    func testOutlookReplyScriptUsesEscapedHTML() {
+        let script = MailService.replyScript(for: .outlook, id: "12a3", text: "a < b & c\nfin")
+        XCTAssertTrue(script.contains("set m to message id 123\n"))
+        XCTAssertTrue(script.contains("set r to reply to m without opening window"))
+        XCTAssertTrue(script.contains(#"set content of r to "<div>a &lt; b &amp; c<br>fin</div><br>" & q"#))
+        XCTAssertTrue(script.contains("\nsend r\n"))
+    }
 }
