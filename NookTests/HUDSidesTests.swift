@@ -19,6 +19,17 @@ final class HUDSidesTests: XCTestCase {
         XCTAssertEqual(narrow.left, 96)
     }
 
+    func testGrowsComparesTotalWidth() {
+        let none = HUDSides(left: 0, right: 0, merged: false)
+        let pair = HUDSides(left: 40, right: 40, merged: false)
+        let merged = HUDSides(left: 90, right: 0, merged: true)
+        XCTAssertTrue(pair.grows(from: none))
+        XCTAssertFalse(none.grows(from: pair))
+        XCTAssertTrue(merged.grows(from: pair))
+        XCTAssertFalse(pair.grows(from: merged))
+        XCTAssertFalse(pair.grows(from: pair))
+    }
+
     func testNoNoticeNoGrowth() {
         XCTAssertEqual(HUDSides.make(desired: 0, leftFree: 10, rightFree: 10), HUDSides(left: 0, right: 0, merged: false))
     }

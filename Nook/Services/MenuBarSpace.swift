@@ -106,6 +106,11 @@ struct HUDSides: Equatable {
     /// Todo el aviso va en un lado (el otro no tiene sitio).
     var merged: Bool
 
+    /// Si el aviso ocupa mas que antes (para elegir la curva: crece o se recoge).
+    func grows(from old: HUDSides) -> Bool {
+        left + right > old.left + old.right
+    }
+
     /// Menos de esto no da para mostrar nada en un lado.
     static let minimum: CGFloat = 30
 

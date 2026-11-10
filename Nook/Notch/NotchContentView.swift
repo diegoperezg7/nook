@@ -288,7 +288,7 @@ struct NotchContentView: View {
             Button(String(localized: "Unir en un PDF (\(pages.count))"), systemImage: "doc.on.doc") {
                 Task {
                     let name = String(localized: "Documentos unidos")
-                    if let output = try? await Task.detached { try FileActions.makePDF(from: pages, name: name) }.value {
+                    if let output = try? await Task.detached(operation: { try FileActions.makePDF(from: pages, name: name) }).value {
                         withAnimation(AppMotion.snappy) { try? store.addGeneratedFile(output) }
                     } else {
                         NSSound.beep()

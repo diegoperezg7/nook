@@ -258,8 +258,9 @@ private struct ScreenshotCard: View {
         .scaleEffect(hovering && !AppMotion.reduceMotion ? 1.04 : 1)
         .contentShape(shape)
         .onHover { inside in withAnimation(AppMotion.snappy) { hovering = inside } }
-        .onTapGesture(count: 2) { QuickLookPresenter.shared.show(shot.url) }
+        // Doble clic simultaneo: si fuera antes, el clic simple esperaria a descartarlo.
         .onTapGesture(perform: onToggle)
+        .simultaneousGesture(TapGesture(count: 2).onEnded { QuickLookPresenter.shared.show(shot.url) })
         .onDrag {
             onDragStart()
             let provider = NSItemProvider(object: shot.url as NSURL)
