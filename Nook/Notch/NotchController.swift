@@ -267,6 +267,8 @@ final class NotchController {
                 } else if case .agent = self.hud.current {
                     // Con el aviso de un agente, a sus tarjetas (un clic y a su terminal).
                     self.model.open(reason: .hover, tab: .agents)
+                } else if case .usage = self.hud.current {
+                    self.model.open(reason: .hover, tab: .agents)
                 } else if case .mail = self.hud.current {
                     self.model.open(reason: .hover, tab: .mail)
                 } else {

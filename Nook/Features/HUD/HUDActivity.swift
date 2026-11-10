@@ -21,6 +21,7 @@ struct HUDActivity: View {
         case .accessory: return 112
         case .notification: return 150
         case .agent: return 120
+        case .usage: return 96
         }
     }
 
@@ -135,6 +136,8 @@ struct HUDActivity: View {
             } else {
                 Self.logo(AgentIcons.claude, fallback: "sparkles")
             }
+        case .usage:
+            Self.logo(AgentIcons.claude, fallback: "sparkles")
         }
     }
 
@@ -237,6 +240,14 @@ struct HUDActivity: View {
             }
             .lineLimit(1)
             .truncationMode(.middle)
+        case let .usage(percent, window):
+            VStack(alignment: .trailing, spacing: 0) {
+                Text(verbatim: "\(percent) %")
+                    .font(.system(size: 11, weight: .bold).monospacedDigit())
+                    .foregroundStyle(percent >= 95 ? AppColors.danger : AppColors.warning)
+                Text(verbatim: window).font(.system(size: 9, weight: .medium)).opacity(0.75)
+            }
+            .lineLimit(1)
         }
     }
 

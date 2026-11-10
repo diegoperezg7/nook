@@ -39,6 +39,8 @@ enum SettingsKey {
     static let notifications = "notifications"
     /// Aviso cuando un agente termina o te espera.
     static let hudAgents = "hudAgents"
+    /// Aviso cuando el consumo de Claude cruza el 80 % o el 95 %.
+    static let hudUsage = "hudUsage"
     /// Introduccion del primer arranque ya vista.
     static let onboardingDone = "onboardingDone"
     /// Lanzador con ⌥Espacio.
@@ -78,6 +80,7 @@ enum SettingsKey {
             hudMeetings: true,
             hudMail: true,
             hudAgents: true,
+            hudUsage: true,
             mailEnabled: true,
             mailSource: "mail",
             basketOnShake: true,
