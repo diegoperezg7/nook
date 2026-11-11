@@ -191,7 +191,7 @@ final class NotchController {
     }
 
     private func closeOnOutsideClick() {
-        if !model.isOpen, hud.activated != nil, !model.metrics.previewHotRect.contains(NSEvent.mouseLocation) {
+        if !model.isOpen, hud.activated != nil, !previewHotRect.contains(NSEvent.mouseLocation) {
             hud.dismissActivated()
             return
         }
@@ -211,12 +211,17 @@ final class NotchController {
         if panel.ignoresMouseEvents == interactive { panel.ignoresMouseEvents = !interactive }
     }
 
+    /// Zona de la tarjeta abierta, que mide lo que su contenido.
+    private var previewHotRect: CGRect {
+        model.metrics.previewHotRect(content: hud.activated.map(HUDPreviewCard.contentSize(for:)) ?? .zero)
+    }
+
     /// La misma forma que dibuja `NotchRootView`: la tarjeta de un aviso pulsado o
     /// el aviso visible.
     private var closedClickRect: CGRect {
-        if hud.activated != nil { return model.metrics.previewHotRect }
+        if hud.activated != nil { return previewHotRect }
         guard !model.isCollapsing, hud.isActionable, let notice = hud.current ?? hud.ambient else { return model.closedHotRect }
-        if HUDActivity.isIsland(notice) { return model.metrics.islandRect }
+        if HUDActivity.isIsland(notice) { return model.metrics.islandRect(content: NotificationIsland.contentWidth(for: notice)) }
         let free = menuBar.free
         let sides = HUDSides.make(desired: HUDActivity.side(for: notice), leftFree: free.left, rightFree: free.right)
         return model.metrics.closedNoticeRect(sides: sides)
@@ -254,7 +259,7 @@ final class NotchController {
             }
         } else if hud.activated != nil {
             // Tarjeta de un aviso: se cierra al sacar el raton, como el panel.
-            if model.metrics.previewHotRect.contains(point) { cancelClose() } else { scheduleClose() }
+            if previewHotRect.contains(point) { cancelClose() } else { scheduleClose() }
         } else if model.closedHotRect.contains(point) {
             setPeeking(true)
             scheduleOpen()
@@ -317,7 +322,7 @@ final class NotchController {
             }
             // Cerrado solo queda la tarjeta de un aviso pulsado.
             if !self.model.isOpen {
-                if !self.model.metrics.previewHotRect.contains(NSEvent.mouseLocation) { self.hud.dismissActivated() }
+                if !self.previewHotRect.contains(NSEvent.mouseLocation) { self.hud.dismissActivated() }
                 return
             }
             // Con un menu o la vista previa abiertos el cursor suele estar fuera del panel.
@@ -356,6 +361,11 @@ final class NotchController {
         let delay = UserDefaults.standard.double(forKey: "VisorOpenAfter")
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.model.open(reason: .pinned, tab: tab)
+        }
+        // `-VisorCloseAfter 4`: y lo cierra despues, para grabar el cierre.
+        let close = UserDefaults.standard.double(forKey: "VisorCloseAfter")
+        if close > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + close) { [weak self] in self?.model.close() }
         }
     }
     #endif

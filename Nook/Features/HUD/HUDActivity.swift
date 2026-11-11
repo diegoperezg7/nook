@@ -282,6 +282,15 @@ struct NotificationIsland: View {
     let kind: SystemHUD.Kind
     let metrics: NotchMetrics
 
+    /// Ancho que pide el mensaje (sin margenes): icono y la linea mas larga.
+    static func contentWidth(for kind: SystemHUD.Kind) -> CGFloat {
+        guard case let .notification(_, title, body) = kind else { return 0 }
+        func width(_ text: String, _ size: CGFloat, _ weight: NSFont.Weight) -> CGFloat {
+            (text as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: size, weight: weight)]).width
+        }
+        return 26 + 10 + ceil(max(width(title, 12, .semibold), width(body, 11, .regular)))
+    }
+
     var body: some View {
         if case let .notification(bundleID, title, body) = kind {
             HStack(spacing: 10) {
@@ -304,7 +313,7 @@ struct NotificationIsland: View {
             }
             .truncationMode(.tail)
             .foregroundStyle(AppColors.notchText)
-            .padding(.horizontal, 18)
+            .padding(.horizontal, NotchMetrics.islandPadding)
             .padding(.top, metrics.notchHeight + 4)
             .padding(.bottom, 10)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -320,12 +329,40 @@ struct HUDPreviewCard: View {
     let onAction: () -> Void
     @State private var thumbnail: NSImage?
 
+    private static let iconSize: CGFloat = 32
+    private static let spacing: CGFloat = 12
+    private static let lineSpacing: CGFloat = 1
+    private static let extraSize: CGFloat = 30
+
+    /// Tamaño que pide el contenido de la tarjeta (sin margenes), con las mismas
+    /// fuentes que `AppTypography`: la tarjeta crece lo justo para su texto.
+    static func contentSize(for preview: SystemHUD.Preview) -> CGSize {
+        func measure(_ text: String, _ size: CGFloat, _ weight: NSFont.Weight) -> CGSize {
+            let font = NSFont.systemFont(ofSize: size, weight: weight)
+            let width = text.isEmpty ? 0 : (text as NSString).size(withAttributes: [.font: font]).width
+            return CGSize(width: ceil(width), height: ceil(font.ascender - font.descender + font.leading))
+        }
+        var lines = [measure(preview.title, 13, .semibold)]
+        if !preview.subtitle.isEmpty { lines.append(measure(preview.subtitle, 12, .regular)) }
+        if !preview.body.isEmpty { lines.append(measure(preview.body, 11, .regular)) }
+        let text = CGSize(
+            width: lines.map(\.width).max() ?? 0,
+            height: lines.map(\.height).reduce(0, +) + lineSpacing * CGFloat(lines.count - 1)
+        )
+        let button = measure(preview.actionTitle, 12, .semibold).width + 28
+        let extras = CGFloat(preview.extras.count) * (extraSize + spacing)
+        return CGSize(
+            width: iconSize + spacing + text.width + spacing + extras + button,
+            height: max(iconSize, text.height)
+        )
+    }
+
     var body: some View {
         summaryRow
             .foregroundStyle(AppColors.notchText)
             .padding(.horizontal, NotchMetrics.sideMargin)
-            .padding(.top, metrics.notchHeight + 8)
-            .padding(.bottom, 12)
+            .padding(.top, metrics.notchHeight + NotchMetrics.previewTop)
+            .padding(.bottom, NotchMetrics.previewBottom)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .task(id: preview.file) {
                 guard let file = preview.file else { return }
@@ -334,9 +371,9 @@ struct HUDPreviewCard: View {
     }
 
     private var summaryRow: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Self.spacing) {
             icon
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Self.lineSpacing) {
                 Text(preview.title).font(AppTypography.title).lineLimit(1)
                 // Sobre el cristal, el texto secundario necesita mas opacidad que sobre negro.
                 if !preview.subtitle.isEmpty {
@@ -344,17 +381,18 @@ struct HUDPreviewCard: View {
                         .foregroundStyle(AppColors.notchText.opacity(0.9))
                 }
                 if !preview.body.isEmpty {
-                    Text(preview.body).font(AppTypography.subtitle).lineLimit(2)
+                    Text(preview.body).font(AppTypography.subtitle).lineLimit(1)
                         .foregroundStyle(AppColors.notchText.opacity(0.8))
                 }
             }
+            .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
             ForEach(preview.extras.indices, id: \.self) { index in
                 let extra = preview.extras[index]
                 Button { onExtra(extra) } label: {
                     Image(systemName: extra.symbol)
                         .font(.system(size: 12, weight: .bold))
-                        .frame(width: 30, height: 30)
+                        .frame(width: Self.extraSize, height: Self.extraSize)
                         .background(Circle().fill(AppColors.notchText.opacity(0.12)))
                         .contentShape(Circle())
                 }
@@ -378,11 +416,11 @@ struct HUDPreviewCard: View {
     @ViewBuilder
     private var icon: some View {
         if let image = thumbnail ?? preview.appIcon {
-            Image(nsImage: image).resizable().scaledToFit().frame(width: 40, height: 40)
+            Image(nsImage: image).resizable().scaledToFit().frame(width: Self.iconSize, height: Self.iconSize)
         } else {
             Image(systemName: preview.symbol)
-                .font(.system(size: 18, weight: .semibold))
-                .frame(width: 40, height: 40)
+                .font(.system(size: 15, weight: .semibold))
+                .frame(width: Self.iconSize, height: Self.iconSize)
                 .background(Circle().fill(AppColors.notchText.opacity(0.12)))
         }
     }

@@ -102,11 +102,23 @@ final class NotchMetricsTests: XCTestCase {
     /// La tarjeta de un aviso pulsado es mas alta que el notch y mas baja que el panel.
     func testPreviewCardSitsBetweenNoticeAndPanel() {
         let metrics = NotchMetrics(hasNotch: true, screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956), notchWidth: 190, notchHeight: 32)
-        XCTAssertGreaterThan(metrics.previewSize.height, metrics.closedSize.height)
-        XCTAssertLessThan(metrics.previewSize.height, metrics.openSize(searchRow: false).height)
-        XCTAssertEqual(metrics.previewHotRect.midX, 735)
-        XCTAssertEqual(metrics.previewHotRect.maxY, 956 + 8)
-        XCTAssertTrue(metrics.previewHotRect.contains(metrics.closedNoticeRect(sides: HUDSides(left: 150, right: 150, merged: false))))
+        let content = CGSize(width: 300, height: 32)
+        XCTAssertGreaterThan(metrics.previewSize(content: content).height, metrics.closedSize.height)
+        XCTAssertLessThan(metrics.previewSize(content: content).height, metrics.openSize(searchRow: false).height)
+        XCTAssertEqual(metrics.previewHotRect(content: content).midX, 735)
+        XCTAssertEqual(metrics.previewHotRect(content: content).maxY, 956 + 8)
+    }
+
+    /// La tarjeta y la isla miden lo que su texto, entre un minimo y un maximo.
+    func testCardAndIslandFollowTheirText() {
+        let metrics = NotchMetrics(hasNotch: true, screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956), notchWidth: 190, notchHeight: 32)
+        let open = metrics.openSize(searchRow: false).width
+        XCTAssertEqual(metrics.previewSize(content: CGSize(width: 300, height: 32)).width, 300 + NotchMetrics.sideMargin * 2)
+        XCTAssertEqual(metrics.previewSize(content: CGSize(width: 2000, height: 32)).width, open)
+        XCTAssertEqual(metrics.previewSize(content: .zero).width, metrics.closedSize.width + NotchMetrics.islandMinSide * 2)
+        XCTAssertEqual(metrics.islandSize(content: 0).width, metrics.closedSize.width + NotchMetrics.islandMinSide * 2)
+        XCTAssertEqual(metrics.islandSize(content: 2000).width, metrics.closedSize.width + NotchMetrics.islandMaxSide * 2)
+        XCTAssertEqual(metrics.islandRect(content: 100).midX, 735)
     }
 
     /// En llamada la cabecera derecha lleva cinco botones (micro, camara, colgar,

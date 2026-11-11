@@ -23,12 +23,14 @@ struct NotchRootView: View {
         // Al pulsar un aviso, en su lugar sale su tarjeta (mas alta que el aviso).
         let preview = model.isOpen || model.isCollapsing ? nil : hud.activated
         let notice = model.isOpen || model.isCollapsing || preview != nil ? nil : (hud.current ?? hud.ambient)
-        let card = metrics.previewSize
+        // La tarjeta mide lo que su texto; sin tarjeta guarda la ultima medida para
+        // recogerse desde su tamaño.
+        let card = metrics.previewSize(content: preview.map(HUDPreviewCard.contentSize(for:)) ?? .zero)
         // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
         let free = menuBar.free
         // Una notificacion no va en las alas: sale como isla, simetrica y hacia abajo.
         let island = notice.map(HUDActivity.isIsland) ?? false
-        let islandSize = metrics.islandSize
+        let islandSize = metrics.islandSize(content: island ? notice.map(NotificationIsland.contentWidth(for:)) ?? 0 : 0)
         let sides = HUDSides.make(desired: island ? 0 : notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
         let closedWidth = metrics.closedSize.width + sides.left + sides.right
         let width = model.expandedWidth ? open.width : preview != nil ? card.width : island ? islandSize.width : closedWidth
@@ -44,12 +46,12 @@ struct NotchRootView: View {
 
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
-                if preview != nil {
-                    CardBackground(shape: shape, bandFraction: metrics.notchHeight / card.height)
-                        .transition(.opacity)
-                } else {
-                    NotchBackground(shape: shape)
-                }
+                // Los dos fondos estan siempre y se funden: una vista que entra con
+                // transicion toma de golpe el tamaño final y no crece con la forma.
+                NotchBackground(shape: shape)
+                    .opacity(preview != nil ? 0 : 1)
+                CardBackground(shape: shape, bandFraction: metrics.notchHeight / card.height)
+                    .opacity(preview != nil ? 1 : 0)
 
                 if let notice, island {
                     NotificationIsland(kind: notice, metrics: metrics)
@@ -81,15 +83,18 @@ struct NotchRootView: View {
             .clipShape(shape)
             .offset(x: shift)
             // Tarjeta de un aviso: resplandor detras (solo se ve por fuera) y borde encima.
+            // Igual que los fondos: siempre presente y con opacidad, para que el borde
+            // crezca con la forma y no aparezca ya con el tamaño de la tarjeta.
             .background {
-                if preview != nil { SiriGlow(shape: shape, halo: true, band: metrics.notchHeight).transition(.opacity) }
+                SiriGlow(shape: shape, halo: true, band: metrics.notchHeight, active: preview != nil)
+                    .opacity(preview != nil ? 1 : 0)
             }
             .overlay {
-                if model.isDropTargeted, model.isOpen {
-                    DropGlow(shape: shape)
-                } else if preview != nil {
-                    SiriGlow(shape: shape, halo: false, band: metrics.notchHeight).transition(.opacity)
-                }
+                SiriGlow(shape: shape, halo: false, band: metrics.notchHeight, active: preview != nil)
+                    .opacity(preview != nil ? 1 : 0)
+            }
+            .overlay {
+                if model.isDropTargeted, model.isOpen { DropGlow(shape: shape) }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
             .onChange(of: sides) { _, new in lastSides = new }
@@ -124,15 +129,16 @@ struct NotchRootView: View {
         }
     }
 
-    /// El contenido entra cuando el panel ya ha salido, con un leve zoom desde arriba
-    /// y un desenfoque ligero; sale con un fundido rapido para no estorbar al cierre.
+    /// El contenido entra cuando el panel ya ha salido casi entero (0,12 s: antes se
+    /// veia recortado por los lados mientras la forma crecia), con un leve zoom desde
+    /// el centro y un desenfoque ligero; sale con un fundido rapido para no estorbar al cierre.
     private var contentTransition: AnyTransition {
         if AppMotion.reduceMotion { return .opacity }
         return .asymmetric(
             insertion: .modifier(
                 active: RevealModifier(progress: 0),
                 identity: RevealModifier(progress: 1)
-            ).animation(.spring(response: 0.42, dampingFraction: 0.86).delay(0.06)),
+            ).animation(.spring(response: 0.42, dampingFraction: 0.86).delay(0.12)),
             removal: .opacity.animation(.easeOut(duration: 0.1))
         )
     }
@@ -173,8 +179,6 @@ private struct CardBackground: View {
             // El tinte del cristal apenas oscurece: este velo deja el texto blanco por
             // encima de 4,5:1 aunque detras haya una pagina blanca.
             shape.fill(AppColors.notch.opacity(0.42))
-            // Colores del borde, suaves, para que el cristal no sea gris.
-            shape.fill(LinearGradient(colors: AppColors.glow.map { $0.opacity(0.32) }, startPoint: .leading, endPoint: .trailing))
             shape.fill(LinearGradient(stops: [
                 .init(color: AppColors.notch, location: 0),
                 .init(color: AppColors.notch, location: bandFraction),
@@ -211,13 +215,15 @@ private struct SiriGlow: View {
     let halo: Bool
     /// Alto de la franja del notch: ahi el borde aun no se ve.
     let band: CGFloat
+    /// Sin tarjeta el borde esta oculto: el giro se para y no gasta.
+    let active: Bool
 
     var body: some View {
         Group {
             if AppMotion.reduceMotion {
                 ring(.zero)
             } else {
-                TimelineView(.animation) { context in
+                TimelineView(.animation(minimumInterval: nil, paused: !active)) { context in
                     // Una vuelta cada 4 s.
                     ring(.degrees(context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 4) * 90))
                 }

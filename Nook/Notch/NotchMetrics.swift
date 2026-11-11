@@ -20,17 +20,24 @@ struct NotchMetrics: Equatable {
     static let pillWidth: CGFloat = 180
     /// Isla de una notificacion: el notch crece un poco a cada lado y hacia abajo,
     /// como la Isla Dinamica, y el mensaje va debajo del notch fisico.
-    static let islandSide: CGFloat = 76
+    /// El ancho va con el texto (`content`, sin margenes): de `islandMinSide` a
+    /// `islandMaxSide` mas a cada lado; lo que no cabe se corta con puntos.
+    static let islandMinSide: CGFloat = 40
+    static let islandMaxSide: CGFloat = 130
+    static let islandPadding: CGFloat = 18
     static let islandExtra: CGFloat = 46
     static let islandBottomRadius: CGFloat = 20
 
-    var islandSize: CGSize {
-        CGSize(width: closedSize.width + Self.islandSide * 2, height: notchHeight + Self.islandExtra)
+    func islandSize(content: CGFloat) -> CGSize {
+        let width = content + Self.islandPadding * 2
+        let low = closedSize.width + Self.islandMinSide * 2
+        let high = closedSize.width + Self.islandMaxSide * 2
+        return CGSize(width: min(max(width.rounded(.up), low), high), height: notchHeight + Self.islandExtra)
     }
 
     /// Zona de la isla (centrada en el notch).
-    var islandRect: CGRect {
-        let size = islandSize
+    func islandRect(content: CGFloat) -> CGRect {
+        let size = islandSize(content: content)
         return CGRect(x: screenFrame.midX - size.width / 2, y: screenFrame.maxY - size.height, width: size.width, height: size.height)
     }
 
@@ -45,8 +52,10 @@ struct NotchMetrics: Equatable {
     }
     /// Alto extra de la pestaña de correo, para leer un mensaje sin salir del notch.
     static let readerExtra: CGFloat = 200
-    /// Alto de la tarjeta de un aviso pulsado, bajo la fila del notch.
-    static let previewHeight: CGFloat = 84
+    /// Aire de la tarjeta de un aviso pulsado por encima (bajo la fila del notch) y
+    /// por debajo de su contenido.
+    static let previewTop: CGFloat = 8
+    static let previewBottom: CGFloat = 12
 
     var hasNotch: Bool
     var screenFrame: CGRect
@@ -104,16 +113,23 @@ struct NotchMetrics: Equatable {
         return CGRect(x: frame.minX - sides.left, y: frame.minY, width: frame.width + sides.left + sides.right, height: frame.height)
     }
 
-    /// Tarjeta de un aviso pulsado: tan ancha como el panel y mucho mas baja.
-    var previewSize: CGSize {
-        CGSize(width: openSize(searchRow: false).width, height: notchHeight + Self.previewHeight)
+    /// Tarjeta de un aviso pulsado: lo justo para su contenido (`content`, sin los
+    /// margenes), nunca mas estrecha que la isla mas pequeña ni mas ancha que el
+    /// panel abierto.
+    func previewSize(content: CGSize) -> CGSize {
+        let width = content.width + Self.sideMargin * 2
+        return CGSize(
+            width: min(max(width.rounded(.up), closedSize.width + Self.islandMinSide * 2), openSize(searchRow: false).width),
+            height: notchHeight + Self.previewTop + content.height.rounded(.up) + Self.previewBottom
+        )
     }
 
     /// Zona de la tarjeta (con el mismo margen que el panel abierto).
-    var previewHotRect: CGRect {
-        CGRect(
-            x: screenFrame.midX - previewSize.width / 2, y: screenFrame.maxY - previewSize.height,
-            width: previewSize.width, height: previewSize.height
+    func previewHotRect(content: CGSize) -> CGRect {
+        let size = previewSize(content: content)
+        return CGRect(
+            x: screenFrame.midX - size.width / 2, y: screenFrame.maxY - size.height,
+            width: size.width, height: size.height
         ).insetBy(dx: -8, dy: -8)
     }
 

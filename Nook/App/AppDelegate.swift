@@ -248,6 +248,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     #if DEBUG
+    /// `-VisorDemoCard YES`: pulsa el aviso un segundo despues de salir (se ve el paso
+    /// de aviso a tarjeta); `-VisorDemoCardFor 3` cierra la tarjeta pasados esos segundos.
+    private func activateDemoCard() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.hud?.activate()
+            let hold = UserDefaults.standard.double(forKey: "VisorDemoCardFor")
+            guard hold > 0 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + hold) { self?.hud?.dismissActivated() }
+        }
+    }
+
     private func showDemoNotice(_ kind: String) {
         let hold = UserDefaults.standard.double(forKey: "VisorDemoHold")
         let duration: TimeInterval = hold > 0 ? hold : 4
@@ -258,7 +269,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 subtitle: "Ana", body: "¿Quedamos a las ocho en el sitio de siempre?", actionTitle: String(localized: "Abrir app")
             ) {}
             hud?.show(.notification(bundleID: "com.apple.MobileSMS", title: "Ana", body: "¿Quedamos a las ocho?"), for: duration, preview: preview)
-            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { hud?.activate() }
+            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { activateDemoCard() }
         default:
             let waiting = kind == "waiting"
             let preview = SystemHUD.Preview(
@@ -267,7 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 actionTitle: String(localized: "Ir a la terminal")
             ) {}
             hud?.show(.agent(project: "visor", waiting: waiting), for: duration, preview: preview)
-            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { hud?.activate() }
+            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { activateDemoCard() }
         }
     }
     #endif
