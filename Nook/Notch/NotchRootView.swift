@@ -40,7 +40,12 @@ struct NotchRootView: View {
 
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
-                NotchBackground(shape: shape)
+                if preview != nil {
+                    CardBackground(shape: shape, bandFraction: metrics.notchHeight / card.height)
+                        .transition(.opacity)
+                } else {
+                    NotchBackground(shape: shape)
+                }
 
                 if let notice {
                     HUDActivity(kind: notice, metrics: metrics, sides: sides)
@@ -139,6 +144,29 @@ private struct NotchBackground: View {
 
     var body: some View {
         shape.fill(AppColors.notch)
+    }
+}
+
+/// Fondo de la tarjeta de un aviso pulsado, como la nueva Siri: arriba, la franja del
+/// notch en negro; abajo, cristal (Liquid Glass en macOS 26, material antes) con un
+/// velo de los colores del borde. El negro se funde hacia abajo y no queda debajo del
+/// cristal: sobre un fondo opaco el cristal pierde el tinte.
+private struct CardBackground: View {
+    let shape: NotchShape
+    /// Parte de la altura que ocupa la franja del notch.
+    let bandFraction: CGFloat
+
+    var body: some View {
+        ZStack {
+            Color.clear.liquidGlass(in: shape, tint: AppColors.notch.opacity(0.65))
+            // Colores del borde, suaves, para que el cristal no sea gris.
+            shape.fill(LinearGradient(colors: AppColors.glow.map { $0.opacity(0.32) }, startPoint: .leading, endPoint: .trailing))
+            shape.fill(LinearGradient(stops: [
+                .init(color: AppColors.notch, location: 0),
+                .init(color: AppColors.notch, location: bandFraction),
+                .init(color: AppColors.notch.opacity(0), location: min(1, bandFraction + 0.45)),
+            ], startPoint: .top, endPoint: .bottom))
+        }
     }
 }
 

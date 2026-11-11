@@ -283,13 +283,14 @@ struct HUDPreviewCard: View {
             icon
             VStack(alignment: .leading, spacing: 2) {
                 Text(preview.title).font(AppTypography.title).lineLimit(1)
+                // Sobre el cristal, el texto secundario necesita mas opacidad que sobre negro.
                 if !preview.subtitle.isEmpty {
                     Text(preview.subtitle).font(AppTypography.body).lineLimit(1)
-                        .foregroundStyle(AppColors.notchText.opacity(0.75))
+                        .foregroundStyle(AppColors.notchText.opacity(0.9))
                 }
                 if !preview.body.isEmpty {
                     Text(preview.body).font(AppTypography.subtitle).lineLimit(2)
-                        .foregroundStyle(AppColors.notchText.opacity(0.55))
+                        .foregroundStyle(AppColors.notchText.opacity(0.8))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
