@@ -88,13 +88,18 @@ struct OnboardingView: View {
         // `-NookOnboardingStep 2` abre directamente ese paso (para revisarlo).
         if let step = Step(rawValue: UserDefaults.standard.integer(forKey: "NookOnboardingStep")) { return step }
         #endif
-        return .welcome
+        return Step(rawValue: UserDefaults.standard.integer(forKey: Self.stepKey)) ?? .welcome
     }
+
+    /// Paso en el que se quedo: al dar Acceso total al disco macOS reinicia Visor, y
+    /// la introduccion sigue donde iba en vez de volver al principio.
+    static let stepKey = "onboardingStep"
 
     private func go(_ delta: Int) {
         guard let next = Step(rawValue: step.rawValue + delta) else { return }
         forward = delta > 0
         withAnimation(AppMotion.reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.38, dampingFraction: 0.9)) { step = next }
+        UserDefaults.standard.set(next.rawValue, forKey: Self.stepKey)
     }
 }
 

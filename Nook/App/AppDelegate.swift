@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SettingsKey.registerDefaults()
         // Los tests usan la app como host: sin panel ni monitores.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+        permissions.onGranted = { [weak self] in self?.permissionGranted() }
 
         if DataHome.dataLeftInContainer {
             let alert = NSAlert()
@@ -296,8 +297,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.center()
             whatsNewWindow = window
         }
-        NSApp.activate()
-        whatsNewWindow?.makeKeyAndOrderFront(nil)
+        present(whatsNewWindow)
     }
 
     private func applySettings() {
@@ -408,8 +408,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.center()
             settingsWindow = window
         }
-        NSApp.activate()
-        settingsWindow?.makeKeyAndOrderFront(nil)
+        present(settingsWindow)
     }
 
     /// Introduccion del primer arranque (y "Ver de nuevo" en Ajustes).
@@ -420,6 +419,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if onboardingWindow == nil {
             let view = OnboardingView(calendar: calendar, mail: mail, screenshots: screenshots, permissions: permissions) { [weak self] in
                 UserDefaults.standard.set(true, forKey: SettingsKey.onboardingDone)
+                UserDefaults.standard.removeObject(forKey: OnboardingView.stepKey)
                 self?.onboardingWindow?.close()
             }
             let window = NSWindow(contentViewController: NSHostingController(rootView: view))
@@ -431,8 +431,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.center()
             onboardingWindow = window
         }
+        present(onboardingWindow)
+    }
+
+    /// Visor no tiene icono en el Dock: desde macOS 14 el sistema puede ignorar
+    /// `activate()` y la ventana se abria detras de las demas. `orderFrontRegardless`
+    /// la pone delante igualmente.
+    private func present(_ window: NSWindow?) {
+        guard let window else { return }
         NSApp.activate()
-        onboardingWindow?.makeKeyAndOrderFront(nil)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+    }
+
+    /// Tras conceder un permiso (aviso del sistema o Ajustes del Sistema), vuelve al
+    /// frente la ventana desde la que se pidio, para seguir con el siguiente.
+    private func permissionGranted() {
+        for window in [onboardingWindow, settingsWindow] where window?.isVisible == true {
+            present(window)
+            return
+        }
     }
 
     private static func makeContainer() -> ModelContainer {

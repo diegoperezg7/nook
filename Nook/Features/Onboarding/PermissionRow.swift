@@ -1,4 +1,5 @@
 import AppKit
+import EventKit
 import ServiceManagement
 import SwiftUI
 
@@ -9,6 +10,9 @@ import SwiftUI
 final class PermissionState {
     private(set) var accessibility = AXAccess.isTrusted
     private(set) var fullDiskAccess = PermissionState.readsNotifications
+    @ObservationIgnored private var calendar = PermissionState.calendarGranted
+    /// Se llama cuando un permiso pasa a concedido.
+    @ObservationIgnored var onGranted: (() -> Void)?
 
     @ObservationIgnored private var observer: NSObjectProtocol?
     @ObservationIgnored private var timer: Timer?
@@ -33,9 +37,16 @@ final class PermissionState {
     }
 
     func refresh() {
-        let ax = AXAccess.isTrusted, disk = Self.readsNotifications
+        let ax = AXAccess.isTrusted, disk = Self.readsNotifications, cal = Self.calendarGranted
+        let granted = (ax && !accessibility) || (disk && !fullDiskAccess) || (cal && !calendar)
         if ax != accessibility { accessibility = ax }
         if disk != fullDiskAccess { fullDiskAccess = disk }
+        calendar = cal
+        if granted { onGranted?() }
+    }
+
+    private static var calendarGranted: Bool {
+        EKEventStore.authorizationStatus(for: .event) == .fullAccess
     }
 
     private static var readsNotifications: Bool {
