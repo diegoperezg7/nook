@@ -18,6 +18,8 @@ final class FocusTimer {
     private(set) var alarms: [Date] = []
     /// Alarma que esta sonando ahora (hasta que se abre el notch o pasa un minuto).
     private(set) var ringing: Date?
+    /// Ultimas duraciones usadas (segundos), la mas reciente primero, sin repetir.
+    private(set) var recents: [Int] = []
 
     /// Se llama al terminar el temporizador.
     @ObservationIgnored var onFinish: (() -> Void)?
@@ -28,15 +30,16 @@ final class FocusTimer {
     @ObservationIgnored private var sound: NSSound?
     @ObservationIgnored private let defaults: UserDefaults
     private static let alarmsKey = "alarms"
+    private static let recentsKey = "timerRecents"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         let saved = (defaults.array(forKey: Self.alarmsKey) as? [Double] ?? []).map(Date.init(timeIntervalSince1970:))
         for date in saved where date > .now { schedule(date) }
         save()
+        recents = defaults.array(forKey: Self.recentsKey) as? [Int] ?? []
     }
 
-    static let timerPresets = [5, 15, 25, 45, 60]
     static let awakePresets = [30, 60, 120]
 
     var isRunning: Bool { end != nil }
@@ -44,9 +47,21 @@ final class FocusTimer {
     var isPaused: Bool { pausedRemaining != nil }
 
     func start(minutes: Int) {
+        start(seconds: minutes * 60)
+    }
+
+    func start(seconds: Int) {
+        guard seconds > 0 else { return }
         stop()
-        total = TimeInterval(minutes * 60)
+        total = TimeInterval(seconds)
         run(for: total)
+        recents = Self.remember(seconds, in: recents)
+        defaults.set(recents, forKey: Self.recentsKey)
+    }
+
+    /// La duracion pasa a ser la primera; como mucho tres, sin repetir.
+    nonisolated static func remember(_ seconds: Int, in recents: [Int]) -> [Int] {
+        Array(([seconds] + recents.filter { $0 != seconds }).prefix(3))
     }
 
     private func run(for seconds: TimeInterval) {

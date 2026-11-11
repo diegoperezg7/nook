@@ -45,6 +45,15 @@ struct NotchContentView: View {
         }
         // Al abrir: por si acabas de conectar los AirPods.
         .onAppear { battery.refresh() }
+        #if DEBUG
+        // `-VisorOpenClock YES`: abre el reloj al abrir el panel (capturas).
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenClock") else { return }
+            try? await Task.sleep(for: .seconds(0.8))
+            model.isPreviewing = true
+            showClock = true
+        }
+        #endif
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
         // estrecho que la ventana. Sin esto los margenes se quedaban en 2 pt.
         .padding(.horizontal, NotchMetrics.openEar)
@@ -487,6 +496,59 @@ private struct CircleIconLabel: View {
 /// Elegir la hora de una alarma, al estilo del Reloj de Apple: la hora grande y
 /// el boton naranja.
 
+/// Columna de la rueda del temporizador: los numeros se desplazan con la rueda o el
+/// trackpad y encajan en la franja central; un clic en un numero tambien lo elige.
+private struct DurationWheel: View {
+    @Binding var value: Int?
+    let range: Range<Int>
+    let unit: String
+    static let rowHeight: CGFloat = 30
+    private static let visibleRows: CGFloat = 3
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(spacing: 0) {
+                    ForEach(range, id: \.self) { number in
+                        Text(verbatim: "\(number)")
+                            .font(.system(size: 20, weight: number == value ? .semibold : .regular).monospacedDigit())
+                            .foregroundStyle(number == value ? AppColors.textPrimary : AppColors.textSecondary)
+                            .frame(width: 40, height: Self.rowHeight, alignment: .trailing)
+                            .contentShape(Rectangle())
+                            .onTapGesture { withAnimation(AppMotion.snappy) { value = number } }
+                            .id(number)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .contentMargins(.vertical, Self.rowHeight, for: .scrollContent)
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: $value, anchor: .center)
+            // El valor inicial no se centra solo: se lleva a la franja al aparecer.
+            .onAppear { proxy.scrollTo(value ?? 0, anchor: .center) }
+            }
+            .frame(width: 44, height: Self.rowHeight * Self.visibleRows)
+            .mask(LinearGradient(colors: [.clear, .black, .black, .clear], startPoint: .top, endPoint: .bottom))
+            Text(verbatim: unit)
+                .font(AppTypography.bodyStrong)
+                .foregroundStyle(AppColors.textSecondary)
+                .frame(width: 26, alignment: .leading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: unit))
+        .accessibilityValue(Text(verbatim: "\(value ?? 0)"))
+        .accessibilityAdjustableAction { direction in
+            let current = value ?? 0
+            switch direction {
+            case .increment: value = min(current + 1, range.upperBound - 1)
+            case .decrement: value = max(current - 1, range.lowerBound)
+            @unknown default: break
+            }
+        }
+    }
+}
+
 /// Lo que queda del temporizador en un aro naranja que se vacia, como el Reloj de Apple.
 private struct TimerRing: View {
     let focus: FocusTimer
@@ -517,10 +579,17 @@ private struct ClockPanel: View {
     @State private var page: Page
     @State private var adding = false
     @State private var newAlarm = FocusTimer.nextOccurrence(of: .now.addingTimeInterval(3600))
-    @State private var customMinutes = 10
+    /// Duracion elegida en la rueda: la ultima usada o 10 min.
+    @State private var hours: Int?
+    @State private var minutes: Int?
+    @State private var seconds: Int?
 
     init(focus: FocusTimer) {
         self.focus = focus
+        let last = focus.recents.first ?? 600
+        _hours = State(initialValue: last / 3600)
+        _minutes = State(initialValue: last / 60 % 60)
+        _seconds = State(initialValue: last % 60)
         _page = State(initialValue: focus.isRunning || focus.isPaused ? .timer : !focus.alarms.isEmpty ? .alarms : focus.isAwake ? .awake : .timer)
     }
 
@@ -545,7 +614,8 @@ private struct ClockPanel: View {
             .transition(.opacity)
         }
         .padding(16)
-        .frame(width: 290)
+        // Ancho para que las tres pestañas del selector quepan enteras.
+        .frame(width: 340)
         .animation(AppMotion.snappy, value: page)
         .animation(AppMotion.snappy, value: focus.isRunning)
         .animation(AppMotion.snappy, value: focus.isPaused)
@@ -593,35 +663,64 @@ private struct ClockPanel: View {
                 }
             }
         } else {
-            VStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    ForEach(FocusTimer.timerPresets, id: \.self) { minutes in
-                        Button { focus.start(minutes: minutes) } label: {
-                            VStack(spacing: 0) {
-                                Text(verbatim: "\(minutes)").font(.system(size: 17, weight: .semibold).monospacedDigit())
-                                Text("min").font(.system(size: 9, weight: .medium))
+            // Como el Reloj de Apple: rueda de horas, minutos y segundos, las
+            // duraciones recientes y Cancelar / Iniciar.
+            VStack(spacing: 14) {
+                HStack(spacing: 4) {
+                    DurationWheel(value: $hours, range: 0..<24, unit: "h")
+                    DurationWheel(value: $minutes, range: 0..<60, unit: "min")
+                    DurationWheel(value: $seconds, range: 0..<60, unit: "s")
+                }
+                .background {
+                    // Franja de la seleccion, detras de las tres columnas.
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(AppColors.textPrimary.opacity(0.08))
+                        .frame(height: DurationWheel.rowHeight)
+                }
+                if !focus.recents.isEmpty {
+                    HStack(spacing: 6) {
+                        ForEach(focus.recents, id: \.self) { duration in
+                            Button { focus.start(seconds: duration) } label: {
+                                Text(verbatim: Self.duration(duration))
+                                    .font(AppTypography.bodyStrong.monospacedDigit())
+                                    .foregroundStyle(AppColors.clock)
+                                    .padding(.horizontal, 10)
+                                    .frame(height: 26)
+                                    .background(Capsule().fill(AppColors.clock.opacity(0.15)))
+                                    .contentShape(Capsule())
                             }
-                            .foregroundStyle(AppColors.clock)
-                            .frame(width: 46, height: 46)
-                            .background(Circle().fill(AppColors.clock.opacity(0.15)))
-                            .contentShape(Circle())
+                            .buttonStyle(.plain)
+                            .help(Text("Empezar"))
                         }
-                        .buttonStyle(.plain)
-                        .help(minutes == 25 ? Text("Pomodoro") : Text(verbatim: "\(minutes) min"))
                     }
                 }
-                HStack(spacing: 10) {
-                    Stepper(value: $customMinutes, in: 1...240) {
-                        Text(verbatim: "\(customMinutes) min")
-                            .font(.system(size: 15, weight: .medium).monospacedDigit())
-                            .frame(minWidth: 64, alignment: .leading)
-                    }
+                HStack {
+                    // Como en el Reloj: Cancelar solo hace algo con un temporizador en marcha.
+                    pill("Cancelar", color: AppColors.textPrimary.opacity(0.12), text: AppColors.textPrimary) {}
+                        .disabled(true)
+                        .opacity(0.5)
                     Spacer()
-                    pill("Iniciar", color: AppColors.clock, text: .white) { focus.start(minutes: customMinutes) }
+                    pill("Iniciar", color: AppColors.clock, text: .white) { focus.start(seconds: wheelSeconds) }
+                        .disabled(wheelSeconds == 0)
+                        .opacity(wheelSeconds == 0 ? 0.5 : 1)
+                        .keyboardShortcut(.defaultAction)
                 }
-                .padding(.top, 6)
             }
         }
+    }
+
+    private var wheelSeconds: Int {
+        (hours ?? 0) * 3600 + (minutes ?? 0) * 60 + (seconds ?? 0)
+    }
+
+    /// "25 min", "1 h 30 min", "45 s".
+    static func duration(_ total: Int) -> String {
+        let (h, m, s) = (total / 3600, total / 60 % 60, total % 60)
+        var parts: [String] = []
+        if h > 0 { parts.append(String(localized: "\(h) h")) }
+        if m > 0 { parts.append(String(localized: "\(m) min")) }
+        if s > 0 { parts.append(String(localized: "\(s) s")) }
+        return parts.joined(separator: " ")
     }
 
     // MARK: Alarmas
