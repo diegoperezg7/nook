@@ -49,19 +49,18 @@ final class PermissionState {
         EKEventStore.authorizationStatus(for: .event) == .fullAccess
     }
 
-    /// Con Acceso total al disco se puede leer la base de datos de permisos del
-    /// usuario, que existe siempre. La de notificaciones no sirve de prueba: desde
-    /// macOS 27 ya no existe y el permiso salia como no concedido aunque lo estuviera.
     private static var readsNotifications: Bool {
-        let home = getpwuid(getuid())?.pointee.pw_dir.map { String(cString: $0) } ?? NSHomeDirectory()
-        let probe = home + "/Library/Application Support/com.apple.TCC/TCC.db"
-        for path in [probe, NotificationFeed.databasePath] {
-            if let handle = FileHandle(forReadingAtPath: path) {
-                try? handle.close()
-                return true
-            }
-        }
-        return false
+        FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath)
+    }
+
+    /// Acceso total al disco solo sirve para leer la base de datos de notificaciones.
+    /// Desde macOS 27 ya no existe (las notificaciones llegan por Accesibilidad) y el
+    /// permiso no se podia dar por concedido nunca: entonces no se pide.
+    /// Sin el permiso, mirar dentro puede dar "sin permiso" en vez de "no existe":
+    /// solo un "no existe" (ENOENT) quita la fila.
+    static var fullDiskAccessNeeded: Bool {
+        var info = stat()
+        return stat(NotificationFeed.databasePath, &info) == 0 || errno != ENOENT
     }
 }
 

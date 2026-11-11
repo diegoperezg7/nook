@@ -602,13 +602,15 @@ private struct PermissionsPage: View {
                     action: { AXAccess.request(); AXAccess.openSettings() }
                 ) { AppBadge(symbol: "accessibility", color: .blue) }
 
-                PermissionRow(
-                    title: "Acceso total al disco",
-                    detail: "Mostrar en el notch las notificaciones que entrega macOS. Solo se leen las nuevas y no se guardan.",
-                    granted: permissions.fullDiskAccess,
-                    actionTitle: "Abrir Ajustes",
-                    action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
-                ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+                if PermissionState.fullDiskAccessNeeded {
+                    PermissionRow(
+                        title: "Acceso total al disco",
+                        detail: "Mostrar en el notch las notificaciones que entrega macOS. Solo se leen las nuevas y no se guardan.",
+                        granted: permissions.fullDiskAccess,
+                        actionTitle: "Abrir Ajustes",
+                        action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
+                    ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+                }
             }
             .rise(1)
 
