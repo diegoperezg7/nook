@@ -117,3 +117,6 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.diegoperez.visor.tests
+        # El producto se llama Visor, no como el target.
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Visor.app/Contents/MacOS/Visor
+        BUNDLE_LOADER: $(TEST_HOST)
