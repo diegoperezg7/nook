@@ -4,8 +4,9 @@ import CoreAudio
 import os
 
 /// Controles de reunion para cualquier app de llamadas. Con el microfono en uso, la
-/// app que graba (Teams, Zoom, FaceTime, Discord, Meet en el navegador...) es la
-/// llamada. Cada accion se intenta por este orden:
+/// app que graba es la llamada si es conocida (Teams, Zoom), si es un navegador en
+/// una web de reuniones (Meet...) o si tiene boton de colgar (FaceTime, Discord...).
+/// Cada accion se intenta por este orden:
 /// 1. Pulsar el boton o el menu de la propia app por Accesibilidad, sin traerla delante.
 /// 2. El atajo conocido de la app, trayendo antes su ventana delante por Accesibilidad
 ///    (desde macOS 14, `activate()` desde una app de fondo como Visor se ignora y el
@@ -55,21 +56,28 @@ enum MeetingControls {
         // `-VisorDemoCall <bundle id>`: finge una llamada en esa app (capturas).
         if let demo = UserDefaults.standard.string(forKey: "VisorDemoCall"),
            let app = NSRunningApplication.runningApplications(withBundleIdentifier: demo).first {
-            var demoTarget = target(for: app)
-            demoTarget.hasCamera = true
-            return demoTarget
+            let id = app.bundleIdentifier ?? demo
+            return Target(bundleID: id, pid: app.processIdentifier, name: app.localizedName ?? id, mic: nil, camera: nil, leave: nil, hasCamera: true)
         }
         #endif
         guard micInUse else { return nil }
         let running = NSWorkspace.shared.runningApplications
         guard let users = micUsers() else {
             // Sin lista de procesos: la primera app conocida abierta.
-            return running.first { known[$0.bundleIdentifier ?? ""] != nil }.map(target(for:))
+            return running.first { known[$0.bundleIdentifier ?? ""] != nil }.flatMap(target(for:))
         }
         let candidates = users.compactMap { owner(of: $0, in: running) }
         // Las conocidas primero; luego cualquier otra app con ventanas.
-        let app = candidates.first { known[$0.bundleIdentifier ?? ""] != nil } ?? candidates.first
-        return app.map(target(for:))
+        let ordered = candidates.filter { known[$0.bundleIdentifier ?? ""] != nil } + candidates
+        return ordered.lazy.compactMap(target(for:)).first
+    }
+
+    /// En el navegador solo es llamada si una ventana es de un servicio de reuniones:
+    /// dictar en una web tambien graba, y colgar podria pulsar cualquier "Leave".
+    static let meetingSites = ["Meet", "Teams", "Zoom", "Webex", "Jitsi", "Whereby", "Discord", "Slack", "Huddle", "FaceTime"]
+
+    static func meetingSite(in titles: [String]) -> String? {
+        meetingSites.first { site in titles.contains { $0.localizedCaseInsensitiveContains(site) } }
     }
 
     /// App con ventanas a la que pertenece un proceso que graba: el propio app, su
@@ -101,36 +109,46 @@ enum MeetingControls {
         return true
     }
 
-    /// Nombre y atajos. En el navegador, por el titulo de sus ventanas (Meet o Teams).
+    /// Nombre y atajos. En el navegador, por el titulo de sus ventanas; nil si
+    /// ninguna es de un servicio de reuniones.
     @MainActor
-    private static func target(for app: NSRunningApplication) -> Target {
+    private static func target(for app: NSRunningApplication) -> Target? {
         let id = app.bundleIdentifier ?? ""
         let name = app.localizedName ?? id
         if let entry = known[id] {
             return Target(bundleID: id, pid: app.processIdentifier, name: entry.name, mic: entry.mic, camera: entry.camera, leave: entry.leave, hasCamera: true)
         }
         if browsers.contains(id) {
-            let titles = AXTree.windowTitles(pid: app.processIdentifier)
-            if titles.contains(where: { $0.localizedCaseInsensitiveContains("Meet") }) {
+            guard let site = meetingSite(in: AXTree.windowTitles(pid: app.processIdentifier)) else { return nil }
+            switch site {
+            case "Meet":
                 // Meet: ⌘D micro, ⌘E camara; colgar no tiene atajo (⌘W cerraria la pestaña).
                 return Target(bundleID: id, pid: app.processIdentifier, name: "Meet", mic: (2, command), camera: (14, command), leave: nil, hasCamera: true)
-            }
-            if titles.contains(where: { $0.localizedCaseInsensitiveContains("Teams") }), let teams = known["com.microsoft.teams2"] {
+            case "Teams":
+                let teams = known["com.microsoft.teams2"]!
                 return Target(bundleID: id, pid: app.processIdentifier, name: teams.name, mic: teams.mic, camera: teams.camera, leave: teams.leave, hasCamera: true)
+            default:
+                return Target(bundleID: id, pid: app.processIdentifier, name: site, mic: nil, camera: nil, leave: nil,
+                              hasCamera: controlExists(.camera, pid: app.processIdentifier))
             }
         }
+        // Una app cualquiera que graba solo es llamada si tiene boton de colgar: asi
+        // dictar en otra app (Codex, un chat con voz) no saca los controles.
+        guard controlExists(.leave, pid: app.processIdentifier) else { return nil }
         return Target(bundleID: id, pid: app.processIdentifier, name: name, mic: nil, camera: nil, leave: nil,
-                      hasCamera: cameraControlExists(pid: app.processIdentifier))
+                      hasCamera: controlExists(.camera, pid: app.processIdentifier))
     }
 
-    /// Si la app tiene un boton de camara (se busca como mucho cada 10 s por app).
-    @MainActor private static var cameraCache: [pid_t: (found: Bool, at: Date)] = [:]
+    /// Si la app tiene ese control en sus ventanas o menus. Se busca como mucho cada
+    /// 10 s por app y control: la cabecera se dibuja a menudo.
+    @MainActor private static var controlCache: [String: (found: Bool, at: Date)] = [:]
 
     @MainActor
-    private static func cameraControlExists(pid: pid_t) -> Bool {
-        if let cached = cameraCache[pid], Date.now.timeIntervalSince(cached.at) < 10 { return cached.found }
-        let found = AXAccess.isTrusted && AXTree.find(Action.camera, pid: pid) != nil
-        cameraCache[pid] = (found, .now)
+    private static func controlExists(_ action: Action, pid: pid_t) -> Bool {
+        let key = "\(pid)-\(action)"
+        if let cached = controlCache[key], Date.now.timeIntervalSince(cached.at) < 10 { return cached.found }
+        let found = AXAccess.isTrusted && AXTree.find(action, pid: pid) != nil
+        controlCache[key] = (found, .now)
         return found
     }
 

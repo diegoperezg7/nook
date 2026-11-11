@@ -37,6 +37,14 @@ final class MeetingControlsTests: XCTestCase {
         XCTAssertFalse(leave.matches("Leaves"))
     }
 
+    /// Un navegador que graba solo es llamada en una web de reuniones (no al dictar).
+    func testBrowserNeedsAMeetingSite() {
+        XCTAssertEqual(MeetingControls.meetingSite(in: ["Meet - abc-defg-hij - Google Chrome"]), "Meet")
+        XCTAssertEqual(MeetingControls.meetingSite(in: ["Inbox", "Reunión | Microsoft Teams"]), "Teams")
+        XCTAssertNil(MeetingControls.meetingSite(in: ["Claude - Google Chrome", "ChatGPT"]))
+        XCTAssertNil(MeetingControls.meetingSite(in: []))
+    }
+
     func testSystemAndOwnProcessesAreNotCalls() {
         XCTAssertTrue(MeetingControls.isCallCandidate("com.microsoft.teams2"))
         XCTAssertTrue(MeetingControls.isCallCandidate("com.hnc.Discord"))
