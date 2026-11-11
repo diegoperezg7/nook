@@ -12,7 +12,8 @@ struct ScreenshotsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if library.folder == nil {
+            // Sin capturas y en otra carpeta que la de macOS: se ofrece usar esa.
+            if library.folder == nil || (library.shots.isEmpty && !library.usesSystemFolder) {
                 setup
             } else {
                 toolbar

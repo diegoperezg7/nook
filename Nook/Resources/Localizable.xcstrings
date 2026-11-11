@@ -1891,6 +1891,16 @@
         }
       }
     },
+    "En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In System Settings, turn on Visor in the list (or add it with +). When you come back, the status updates by itself."
+          }
+        }
+      }
+    },
     "En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.": {
       "localizations": {
         "en": {

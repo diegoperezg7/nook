@@ -64,6 +64,13 @@ final class ScreenshotLibrary {
         return realHome.appendingPathComponent("Desktop", isDirectory: true)
     }
 
+    /// true si se lee la carpeta donde macOS guarda las capturas. Una carpeta heredada
+    /// de Nook (elegida a mano en su dia) puede no serlo, y la seccion salia vacia.
+    var usesSystemFolder: Bool {
+        folder?.standardizedFileURL.resolvingSymlinksInPath().path
+            == Self.systemFolder.standardizedFileURL.resolvingSymlinksInPath().path
+    }
+
     /// Usa la carpeta de macOS sin dialogo (Nook no esta en sandbox).
     func useSystemFolder() {
         let url = Self.systemFolder

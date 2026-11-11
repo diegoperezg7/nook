@@ -518,7 +518,7 @@ private struct ExtrasPage: View {
                 PermissionRow(
                     title: "Carpeta de capturas",
                     detail: "Visor muestra las capturas que macOS guarda en \(ScreenshotLibrary.systemFolder.lastPathComponent).",
-                    granted: screenshots.folder != nil,
+                    granted: screenshots.usesSystemFolder,
                     actionTitle: "Usar esa carpeta",
                     action: screenshots.useSystemFolder
                 ) { AppBadge(image: AgentIcons.screenshot, symbol: "camera.viewfinder", color: .gray) }
@@ -617,7 +617,13 @@ private struct PermissionsPage: View {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "lightbulb")
                     .foregroundStyle(AppColors.warning)
-                Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.")
+                Group {
+                    if PermissionState.fullDiskAccessNeeded {
+                        Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.")
+                    } else {
+                        Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo.")
+                    }
+                }
                     .font(.system(size: 11))
                     .foregroundStyle(AppColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
