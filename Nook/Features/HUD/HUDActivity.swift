@@ -25,6 +25,12 @@ struct HUDActivity: View {
         }
     }
 
+    /// Avisos que salen como isla (bajo el notch) en vez de en las alas.
+    static func isIsland(_ kind: SystemHUD.Kind) -> Bool {
+        if case .notification = kind { return true }
+        return false
+    }
+
     var body: some View {
         let ear = NotchMetrics.closedEar
         HStack(spacing: 0) {
@@ -270,15 +276,123 @@ struct HUDActivity: View {
     }
 }
 
+/// Notificacion como la Isla Dinamica: bajo el notch, el icono de la app, quien
+/// escribe y el mensaje en una linea. Al pulsarla sale la tarjeta (responder, abrir).
+struct NotificationIsland: View {
+    let kind: SystemHUD.Kind
+    let metrics: NotchMetrics
+
+    var body: some View {
+        if case let .notification(bundleID, title, body) = kind {
+            HStack(spacing: 10) {
+                if let icon = AgentIcons.icon(bundleID) {
+                    Image(nsImage: icon).resizable().frame(width: 26, height: 26)
+                } else {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(width: 26, height: 26)
+                        .background(Circle().fill(AppColors.notchText.opacity(0.14)))
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: title).font(AppTypography.bodyStrong).lineLimit(1)
+                    if !body.isEmpty {
+                        Text(verbatim: body).font(AppTypography.subtitle).lineLimit(1)
+                            .foregroundStyle(AppColors.notchText.opacity(0.8))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .truncationMode(.tail)
+            .foregroundStyle(AppColors.notchText)
+            .padding(.horizontal, 18)
+            .padding(.top, metrics.notchHeight + 4)
+            .padding(.bottom, 10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+    }
+}
+
 /// Tarjeta que sale al pulsar un aviso: que ha pasado y un boton para ir a su origen.
 struct HUDPreviewCard: View {
     let preview: SystemHUD.Preview
     let metrics: NotchMetrics
     let onExtra: (SystemHUD.Preview.Extra) -> Void
+    let onReply: (String) -> Void
     let onAction: () -> Void
     @State private var thumbnail: NSImage?
+    @State private var replying = false
+    @State private var draft = ""
+    @State private var sending = false
+    @FocusState private var fieldFocused: Bool
 
     var body: some View {
+        Group {
+            if replying { replyRow } else { summaryRow }
+        }
+        .foregroundStyle(AppColors.notchText)
+        .padding(.horizontal, NotchMetrics.sideMargin)
+        .padding(.top, metrics.notchHeight + 8)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .animation(AppMotion.snappy, value: replying)
+        .task(id: preview.file) {
+            guard let file = preview.file else { return }
+            thumbnail = await Thumbnails.image(for: file, size: CGSize(width: 80, height: 80))
+        }
+    }
+
+    /// Escribir la respuesta: icono, campo y enviar (Intro tambien envia).
+    private var replyRow: some View {
+        HStack(spacing: 12) {
+            icon
+            TextField(String(localized: "Responder a \(preview.subtitle.isEmpty ? preview.title : preview.subtitle)"), text: $draft)
+                .textFieldStyle(.plain)
+                .font(AppTypography.body)
+                .padding(.horizontal, 12)
+                .frame(height: 32)
+                .background(Capsule().fill(AppColors.notchText.opacity(0.14)))
+                .focused($fieldFocused)
+                .onSubmit(send)
+                .disabled(sending)
+            Button { replying = false } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .bold))
+                    .frame(width: 30, height: 30)
+                    .background(Circle().fill(AppColors.notchText.opacity(0.12)))
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .help(Text("Cancelar"))
+            .accessibilityLabel(Text("Cancelar"))
+            Button(action: send) {
+                Group {
+                    if sending {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Image(systemName: "arrow.up").font(.system(size: 13, weight: .bold))
+                    }
+                }
+                .foregroundStyle(AppColors.onAccent)
+                .frame(width: 30, height: 30)
+                .background(Circle().fill(AppColors.accentFill))
+                .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty || sending)
+            .help(Text("Enviar"))
+            .accessibilityLabel(Text("Enviar"))
+        }
+        .onAppear { fieldFocused = true }
+    }
+
+    private func send() {
+        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, !sending else { return }
+        sending = true
+        onReply(text)
+    }
+
+    private var summaryRow: some View {
         HStack(spacing: 12) {
             icon
             VStack(alignment: .leading, spacing: 2) {
@@ -307,6 +421,17 @@ struct HUDPreviewCard: View {
                 .help(Text(verbatim: extra.title))
                 .accessibilityLabel(Text(verbatim: extra.title))
             }
+            if preview.reply != nil {
+                Button { replying = true } label: {
+                    Text("Responder")
+                        .font(AppTypography.bodyStrong)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Capsule().fill(AppColors.notchText.opacity(0.14)))
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
             Button(action: onAction) {
                 Text(preview.actionTitle)
                     .font(AppTypography.bodyStrong)
@@ -317,15 +442,6 @@ struct HUDPreviewCard: View {
                     .contentShape(Capsule())
             }
             .buttonStyle(.plain)
-        }
-        .foregroundStyle(AppColors.notchText)
-        .padding(.horizontal, NotchMetrics.sideMargin)
-        .padding(.top, metrics.notchHeight + 8)
-        .padding(.bottom, 12)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .task(id: preview.file) {
-            guard let file = preview.file else { return }
-            thumbnail = await Thumbnails.image(for: file, size: CGSize(width: 80, height: 80))
         }
     }
 

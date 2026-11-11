@@ -18,6 +18,22 @@ struct NotchMetrics: Equatable {
     static let topSpacing: CGFloat = 10
     static let bottomMargin: CGFloat = 18
     static let pillWidth: CGFloat = 180
+    /// Isla de una notificacion: el notch crece un poco a cada lado y hacia abajo,
+    /// como la Isla Dinamica, y el mensaje va debajo del notch fisico.
+    static let islandSide: CGFloat = 76
+    static let islandExtra: CGFloat = 46
+    static let islandBottomRadius: CGFloat = 20
+
+    var islandSize: CGSize {
+        CGSize(width: closedSize.width + Self.islandSide * 2, height: notchHeight + Self.islandExtra)
+    }
+
+    /// Zona de la isla (centrada en el notch).
+    var islandRect: CGRect {
+        let size = islandSize
+        return CGRect(x: screenFrame.midX - size.width / 2, y: screenFrame.maxY - size.height, width: size.width, height: size.height)
+    }
+
     /// Botones redondos de la cabecera y su separacion normal y en llamada.
     static let headerButton: CGFloat = 30
     static let headerButtonSpacing: CGFloat = 8

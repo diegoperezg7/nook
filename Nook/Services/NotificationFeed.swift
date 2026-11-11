@@ -137,7 +137,18 @@ final class NotificationFeed {
     nonisolated static func dumpLatest(of bundleID: String, path: String = databasePath) -> String {
         var db: OpaquePointer?
         let uri = "file:" + (path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path) + "?mode=ro"
-        guard sqlite3_open_v2(uri, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, nil) == SQLITE_OK else { return "sin acceso" }
+        let folder = (path as NSString).deletingLastPathComponent
+        let listing = (try? FileManager.default.contentsOfDirectory(atPath: folder))?.joined(separator: ",") ?? "error: " + String(cString: strerror(errno))
+        let root = ((folder as NSString).deletingLastPathComponent)
+        var tree: [String] = []
+        if let walker = FileManager.default.enumerator(atPath: root) {
+            for case let item as String in walker where tree.count < 60 { tree.append(item) }
+        }
+        NSLog("VISORTREE %@: %@", root, tree.joined(separator: " | "))
+        let probe = open(path, O_RDONLY)
+        let detail = "carpeta [" + listing + "] abrir db: " + (probe >= 0 ? "ok" : String(cString: strerror(errno)))
+        if probe >= 0 { close(probe) }
+        guard sqlite3_open_v2(uri, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, nil) == SQLITE_OK else { return "sin acceso: " + detail }
         defer { sqlite3_close(db) }
         let sql = "SELECT r.data FROM record r JOIN app a ON a.app_id = r.app_id WHERE a.identifier = ? ORDER BY r.rec_id DESC LIMIT 1"
         var statement: OpaquePointer?
@@ -170,6 +181,36 @@ final class NotificationFeed {
         default:
             return String(describing: type(of: value))
         }
+    }
+
+    /// Enmascara un texto: los identificadores de app (con puntos, sin espacios) se ven;
+    /// el resto, letras como "a" y cifras como "9".
+    nonisolated static func mask(_ text: String) -> String {
+        let looksLikeID = text.contains(".") && !text.contains(" ") && text.count < 80
+        if looksLikeID { return text }
+        return String(text.prefix(50).map { $0.isLetter ? "a" : $0.isNumber ? "9" : $0 }) + (text.count > 50 ? "…(\(text.count))" : "")
+    }
+
+    /// `-VisorProbeBiome YES`: cadenas legibles del ultimo segmento de Biome de entregas.
+    nonisolated static func probeBiome() -> String {
+        let home = getpwuid(getuid())?.pointee.pw_dir.map { String(cString: $0) } ?? NSHomeDirectory()
+        let folder = home + "/Library/Biome/streams/restricted/Notification.Delivery/local"
+        guard let files = try? FileManager.default.contentsOfDirectory(atPath: folder) else { return "biome: sin acceso a \(folder)" }
+        let sorted = files.compactMap { name -> (String, Date)? in
+            let path = folder + "/" + name
+            let date = (try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate] as? Date) ?? nil
+            return date.map { (path, $0) }
+        }.sorted { $0.1 > $1.1 }
+        guard let latest = sorted.first, let data = FileManager.default.contents(atPath: latest.0) else { return "biome: vacio" }
+        // Cadenas UTF-8 de 4+ caracteres imprimibles, las ultimas 60.
+        var strings: [String] = [], current = [UInt8]()
+        for byte in data {
+            if byte >= 0x20 && byte < 0x7F || byte >= 0xC2 { current.append(byte) } else {
+                if current.count >= 4, let text = String(bytes: current, encoding: .utf8) { strings.append(text) }
+                current.removeAll()
+            }
+        }
+        return "biome \(latest.0.split(separator: "/").last ?? "") (\(data.count) bytes):\n" + strings.suffix(60).map(mask).joined(separator: "\n")
     }
     #endif
 }

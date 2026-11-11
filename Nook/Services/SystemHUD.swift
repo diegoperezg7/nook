@@ -56,6 +56,8 @@ final class SystemHUD {
         var actionTitle: String
         /// Acciones secundarias (iconos junto al boton principal).
         var extras: [Extra] = []
+        /// Responder desde la tarjeta (WhatsApp, Mensajes...): envia el texto y dice si salio.
+        var reply: ((String, @escaping (Bool) -> Void) -> Void)?
         var action: () -> Void
 
         struct Extra {
@@ -330,6 +332,21 @@ final class SystemHUD {
     func performExtra(_ extra: Preview.Extra) {
         activated = nil
         extra.action()
+    }
+
+    /// Envia la respuesta escrita en la tarjeta y avisa del resultado.
+    func performReply(_ text: String) {
+        guard let preview = activated, let reply = preview.reply else { return }
+        reply(text) { [weak self] sent in
+            guard let self else { return }
+            self.activated = nil
+            if sent {
+                self.show(.notice(icon: "checkmark.circle.fill", text: String(localized: "Respuesta enviada")), for: 2)
+            } else {
+                // El aviso de macOS ya no esta: se ofrece la app.
+                self.show(.notice(icon: "exclamationmark.triangle.fill", text: String(localized: "No se pudo responder: abre la app")), for: 3)
+            }
+        }
     }
 
     func dismissActivated() {

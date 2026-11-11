@@ -216,6 +216,7 @@ final class NotchController {
     private var closedClickRect: CGRect {
         if hud.activated != nil { return model.metrics.previewHotRect }
         guard !model.isCollapsing, hud.isActionable, let notice = hud.current ?? hud.ambient else { return model.closedHotRect }
+        if HUDActivity.isIsland(notice) { return model.metrics.islandRect }
         let free = menuBar.free
         let sides = HUDSides.make(desired: HUDActivity.side(for: notice), leftFree: free.left, rightFree: free.right)
         return model.metrics.closedNoticeRect(sides: sides)

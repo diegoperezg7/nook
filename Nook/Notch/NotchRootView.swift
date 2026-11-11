@@ -26,16 +26,20 @@ struct NotchRootView: View {
         let card = metrics.previewSize
         // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
         let free = menuBar.free
-        let sides = HUDSides.make(desired: notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
+        // Una notificacion no va en las alas: sale como isla, simetrica y hacia abajo.
+        let island = notice.map(HUDActivity.isIsland) ?? false
+        let islandSize = metrics.islandSize
+        let sides = HUDSides.make(desired: island ? 0 : notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
         let closedWidth = metrics.closedSize.width + sides.left + sides.right
-        let width = model.expandedWidth ? open.width : preview != nil ? card.width : closedWidth
+        let width = model.expandedWidth ? open.width : preview != nil ? card.width : island ? islandSize.width : closedWidth
         // Si un lado crece mas que el otro, la forma se desplaza para que el notch
         // fisico siga en su sitio.
-        let shift = model.expandedWidth || preview != nil ? 0 : (sides.right - sides.left) / 2
-        let height = model.expandedHeight ? open.height : preview != nil ? card.height : metrics.closedSize.height
+        let shift = model.expandedWidth || preview != nil || island ? 0 : (sides.right - sides.left) / 2
+        let height = model.expandedHeight ? open.height : preview != nil ? card.height : island ? islandSize.height : metrics.closedSize.height
         let shape = NotchShape(
             topRadius: model.expandedWidth || preview != nil ? NotchMetrics.openEar : NotchMetrics.closedEar,
-            bottomRadius: model.expandedHeight || preview != nil ? NotchMetrics.openBottomRadius : metrics.closedBottomRadius
+            bottomRadius: model.expandedHeight || preview != nil ? NotchMetrics.openBottomRadius
+                : island ? NotchMetrics.islandBottomRadius : metrics.closedBottomRadius
         )
 
         ZStack(alignment: .top) {
@@ -47,7 +51,13 @@ struct NotchRootView: View {
                     NotchBackground(shape: shape)
                 }
 
-                if let notice {
+                if let notice, island {
+                    NotificationIsland(kind: notice, metrics: metrics)
+                        .frame(width: islandSize.width, height: islandSize.height)
+                        .contentShape(Rectangle())
+                        .onTapGesture { hud.activate() }
+                        .transition(noticeTransition)
+                } else if let notice {
                     HUDActivity(kind: notice, metrics: metrics, sides: sides)
                         .frame(width: closedWidth)
                         .contentShape(Rectangle())
@@ -56,7 +66,7 @@ struct NotchRootView: View {
                 }
 
                 if let preview {
-                    HUDPreviewCard(preview: preview, metrics: metrics, onExtra: hud.performExtra) { hud.performActivated() }
+                    HUDPreviewCard(preview: preview, metrics: metrics, onExtra: hud.performExtra, onReply: hud.performReply) { hud.performActivated() }
                         .frame(width: card.width, height: card.height)
                         .transition(contentTransition)
                 }
@@ -102,6 +112,7 @@ struct NotchRootView: View {
         // no, y la forma saltaba a la izquierda y crecia solo hacia la derecha.
         .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
         .animation(AppMotion.open, value: preview != nil)
+        .animation(island ? AppMotion.open : AppMotion.close, value: island)
         .onDrop(of: DropReader.types, isTargeted: $model.isDropTargeted) { providers in
             // Una tarjeta arrastrada y soltada en el propio panel no se duplica.
             guard !model.isDraggingOut else { return false }
