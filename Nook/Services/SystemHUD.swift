@@ -230,7 +230,11 @@ final class SystemHUD {
                 guard ticks % 5 == 0 else { return }
                 let mic = MediaUsage.microphoneInUse()
                 let camera = MediaUsage.cameraInUse()
-                if mic != self.micInUse { self.micInUse = mic }
+                if mic != self.micInUse {
+                    self.micInUse = mic
+                    // Fin de la llamada: el micro del Mac vuelve como estaba.
+                    if !mic { MeetingControls.callEnded() }
+                }
                 if camera != self.cameraInUse { self.cameraInUse = camera }
                 if ticks % 50 == 0 { self.now = .now }
             }

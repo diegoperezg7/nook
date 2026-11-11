@@ -55,16 +55,19 @@ struct NotchContentView: View {
             tabs.frame(maxWidth: .infinity, alignment: .leading)
             // Hueco del notch fisico: ahi no se ve nada.
             Color.clear.frame(width: model.metrics.hasNotch ? model.metrics.notchWidth : 0)
-            HStack(spacing: 8) {
-                // Como mucho cuatro botones por lado: un quinto entraria bajo la
-                // camara en los portatiles. "Añadir archivos…" esta en el menu ⋯.
-                if let call = MeetingControls.current(micInUse: hud.micInUse) {
-                    callControls(call)
+            let call = MeetingControls.current(micInUse: hud.micInUse)
+            // Como mucho cuatro botones por lado con separacion 8: un quinto entraria
+            // bajo la camara en los portatiles. En llamada sale el espejo (la camara ya
+            // la usa la llamada); si ademas hay bateria son cinco y van mas juntos.
+            let spacing = call != nil && battery.headline != nil ? NotchMetrics.callButtonSpacing : NotchMetrics.headerButtonSpacing
+            HStack(spacing: spacing) {
+                if let call {
+                    callControls(call, spacing: spacing)
                 } else {
                     agentsButton
                     timerMenu
+                    mirrorButton
                 }
-                mirrorButton
                 batteryButton
                 menu
             }
@@ -106,21 +109,22 @@ struct NotchContentView: View {
     }
 
     /// En llamada: micro, camara y colgar de la app de la reunion.
-    private func callControls(_ call: MeetingControls.Target) -> some View {
-        HStack(spacing: 8) {
+    private func callControls(_ call: MeetingControls.Target, spacing: CGFloat) -> some View {
+        HStack(spacing: spacing) {
             callButton("mic.slash.fill", String(localized: "Silenciar o activar el micro en \(call.name)"), .mic, call)
-            callButton("video.slash.fill", String(localized: "Apagar o encender la cámara en \(call.name)"), .camera, call)
-            if call.leave != nil {
-                Button { run(.leave, call) } label: {
-                    Image(systemName: "phone.down.fill")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 30, height: 30)
-                        .background(Circle().fill(AppColors.danger))
-                }
-                .buttonStyle(.plain)
-                .help(Text("Colgar en \(call.name)"))
+            if call.hasCamera {
+                callButton("video.slash.fill", String(localized: "Apagar o encender la cámara en \(call.name)"), .camera, call)
             }
+            // Colgar siempre: aunque no haya atajo (Meet), se busca el boton de la app.
+            Button { run(.leave, call) } label: {
+                Image(systemName: "phone.down.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 30, height: 30)
+                    .background(Circle().fill(AppColors.danger))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Colgar en \(call.name)"))
         }
         .transition(.scale.combined(with: .opacity))
     }
@@ -134,8 +138,20 @@ struct NotchContentView: View {
 
     private func run(_ action: MeetingControls.Action, _ call: MeetingControls.Target) {
         model.close()
-        if !MeetingControls.perform(action, on: call) {
+        switch MeetingControls.perform(action, on: call) {
+        case .needsPermission:
             hud.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
+        case .failed:
+            let text = switch action {
+            case .mic: String(localized: "No se pudo silenciar en \(call.name)")
+            case .camera: String(localized: "No se pudo apagar la cámara en \(call.name)")
+            case .leave: String(localized: "No se pudo colgar en \(call.name)")
+            }
+            hud.show(.notice(icon: "exclamationmark.triangle.fill", text: text), for: 2.5)
+        case .systemMute:
+            hud.show(.notice(icon: "mic.slash.fill", text: String(localized: "Micro del Mac silenciado")), for: 2)
+        case .pressed, .shortcut:
+            break
         }
     }
 

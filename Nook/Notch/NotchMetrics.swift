@@ -18,6 +18,15 @@ struct NotchMetrics: Equatable {
     static let topSpacing: CGFloat = 10
     static let bottomMargin: CGFloat = 18
     static let pillWidth: CGFloat = 180
+    /// Botones redondos de la cabecera y su separacion normal y en llamada.
+    static let headerButton: CGFloat = 30
+    static let headerButtonSpacing: CGFloat = 8
+    static let callButtonSpacing: CGFloat = 4
+
+    /// Ancho util a cada lado del notch en la cabecera del panel abierto.
+    var headerSideWidth: CGFloat {
+        (openSize(searchRow: false).width - Self.openEar * 2 - Self.sideMargin * 2 - (hasNotch ? notchWidth : 0)) / 2
+    }
     /// Alto extra de la pestaña de correo, para leer un mensaje sin salir del notch.
     static let readerExtra: CGFloat = 200
     /// Alto de la tarjeta de un aviso pulsado, bajo la fila del notch.

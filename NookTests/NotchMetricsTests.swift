@@ -108,4 +108,28 @@ final class NotchMetricsTests: XCTestCase {
         XCTAssertEqual(metrics.previewHotRect.maxY, 956 + 8)
         XCTAssertTrue(metrics.previewHotRect.contains(metrics.closedNoticeRect(sides: HUDSides(left: 150, right: 150, merged: false))))
     }
+
+    /// En llamada la cabecera derecha lleva cinco botones (micro, camara, colgar,
+    /// bateria, menu): tienen que caber con aire hasta el notch en el Air y los Pro.
+    func testCallButtonsFitBesideTheNotch() {
+        let screens: [(CGFloat, CGFloat, CGFloat)] = [
+            (1470, 956, 645.5), // Air 13"
+            (1512, 982, 662), // Pro 14"
+            (1728, 1117, 770), // Pro 16"
+        ]
+        for (width, height, leftWidth) in screens {
+            let notch: CGFloat = 190
+            let metrics = NotchMetrics.make(
+                screenFrame: CGRect(x: 0, y: 0, width: width, height: height), safeAreaTop: 32,
+                auxiliaryTopLeft: CGRect(x: 0, y: height - 32, width: leftWidth, height: 32),
+                auxiliaryTopRight: CGRect(x: leftWidth + notch, y: height - 32, width: width - leftWidth - notch, height: 32),
+                visibleFrameMaxY: height - 33
+            )
+            let five = NotchMetrics.headerButton * 5 + NotchMetrics.callButtonSpacing * 4
+            XCTAssertLessThanOrEqual(five + 8, metrics.headerSideWidth, "pantalla de \(width) pt")
+            // Con la separacion normal no cabrian: por eso va mas junta en llamada.
+            let wide = NotchMetrics.headerButton * 5 + NotchMetrics.headerButtonSpacing * 4
+            XCTAssertGreaterThan(wide, metrics.headerSideWidth)
+        }
+    }
 }

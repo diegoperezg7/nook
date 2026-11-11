@@ -79,6 +79,7 @@
 		A4A0E1DA0DDA1431733498E3 /* NookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E12DEFF243E7B4B84A7A135 /* NookApp.swift */; };
 		A8791B8672B6B8D9C5FDB854 /* HUDActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B99070D615C306E37876A84 /* HUDActivity.swift */; };
 		AA5FEA1BAB21C10A424260D3 /* WhatsNewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF2E3AE2419175546FFE9BEF /* WhatsNewTests.swift */; };
+		ABC869176F78B2F821A436C3 /* MeetingControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C44F803AC35BCB0482F96 /* MeetingControlsTests.swift */; };
 		B9C5A68A5CF767B18C643FD0 /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB7CFDCAFA11ABC8F25E3A /* ShakeDetector.swift */; };
 		B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */; };
 		BB61B646BAA1DD1EB3CFBDE1 /* NotchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 602FD69B4C2C9E727EBC2063 /* NotchRootView.swift */; };
@@ -153,6 +154,7 @@
 		4725EA490231FF190BDBC64E /* AgentMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentMonitorTests.swift; sourceTree = "<group>"; };
 		478C3AF4A455D260F177913B /* TextTransformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextTransformTests.swift; sourceTree = "<group>"; };
 		478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchMetricsTests.swift; sourceTree = "<group>"; };
+		479C44F803AC35BCB0482F96 /* MeetingControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingControlsTests.swift; sourceTree = "<group>"; };
 		489CFBE97631512088A34585 /* MailHTMLView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailHTMLView.swift; sourceTree = "<group>"; };
 		4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStoreTests.swift; sourceTree = "<group>"; };
 		51AB7CFDCAFA11ABC8F25E3A /* ShakeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetector.swift; sourceTree = "<group>"; };
@@ -457,6 +459,7 @@
 				4E8BB870BD1ACEEF752CF7AE /* ItemStoreTests.swift */,
 				C6EBA6A75CDE045B4E09FED9 /* MailHTMLTests.swift */,
 				FE82FE759E4FC98DBE1490B1 /* MailServiceTests.swift */,
+				479C44F803AC35BCB0482F96 /* MeetingControlsTests.swift */,
 				C16CEFF310C97BABADCF9DE3 /* MIMETests.swift */,
 				478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */,
 				6FB19E6110AF66A80F95871F /* NotificationFeedTests.swift */,
@@ -714,6 +717,7 @@
 				A07E7BEDFC925DFDE4D951B4 /* MIMETests.swift in Sources */,
 				0EA325C87707FB4A287E606C /* MailHTMLTests.swift in Sources */,
 				DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */,
+				ABC869176F78B2F821A436C3 /* MeetingControlsTests.swift in Sources */,
 				91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */,
 				7CB28036B514752A4B5C5CBF /* NotificationFeedTests.swift in Sources */,
 				B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */,
