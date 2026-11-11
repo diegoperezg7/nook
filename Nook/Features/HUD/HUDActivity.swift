@@ -20,7 +20,7 @@ struct HUDActivity: View {
         case .dictation: return 140
         case .accessory: return 112
         case .notification: return 150
-        case .agent: return 120
+        case .agent: return 84
         case .usage: return 96
         }
     }
@@ -129,13 +129,9 @@ struct HUDActivity: View {
                 .foregroundStyle(mic ? AppColors.warning : AppColors.success)
         case .stayAwake:
             Image(systemName: "cup.and.saucer.fill").font(.system(size: 13, weight: .semibold))
-        case let .agent(_, waiting):
-            if #available(macOS 15, *) {
-                Self.logo(AgentIcons.claude, fallback: "sparkles")
-                    .symbolEffect(.bounce, options: .repeat(waiting ? 2 : 1))
-            } else {
-                Self.logo(AgentIcons.claude, fallback: "sparkles")
-            }
+        case .agent:
+            // Sin rebote propio: el aviso entra de una vez, con la forma.
+            Self.logo(AgentIcons.claude, fallback: "sparkles")
         case .usage:
             Self.logo(AgentIcons.claude, fallback: "sparkles")
         }
@@ -229,17 +225,12 @@ struct HUDActivity: View {
             } else {
                 Image(systemName: "infinity").font(.system(size: 12, weight: .bold))
             }
-        case let .agent(project, waiting):
-            VStack(alignment: .trailing, spacing: 0) {
-                Text(waiting ? "Te espera" : "Terminó")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(waiting ? AppColors.warning : AppColors.success)
-                if let project {
-                    Text(verbatim: project).font(.system(size: 9, weight: .medium)).opacity(0.75)
-                }
-            }
-            .lineLimit(1)
-            .truncationMode(.middle)
+        case let .agent(_, waiting):
+            // Una sola linea; el proyecto sale en la tarjeta al pulsar.
+            Text(waiting ? "Te espera" : "Terminó")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(waiting ? AppColors.warning : AppColors.success)
+                .lineLimit(1)
         case let .usage(percent, window):
             VStack(alignment: .trailing, spacing: 0) {
                 Text(verbatim: "\(percent) %")

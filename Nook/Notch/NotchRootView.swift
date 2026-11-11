@@ -77,10 +77,7 @@ struct NotchRootView: View {
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
-            // Crece con muelle; al recogerse, sin rebote.
-            .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
             .onChange(of: sides) { _, new in lastSides = new }
-            .animation(AppMotion.open, value: preview != nil)
             // Abrir el notch silencia la alarma que esta sonando y cierra la tarjeta.
             .onChange(of: model.isOpen) { _, open in
                 if open {
@@ -95,6 +92,11 @@ struct NotchRootView: View {
             .animation(AppMotion.snappy, value: model.isDropTargeted)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        // Crece con muelle; al recogerse, sin rebote. La animacion va aqui, por fuera
+        // del marco que centra la forma: dentro, el tamaño se animaba pero el centrado
+        // no, y la forma saltaba a la izquierda y crecia solo hacia la derecha.
+        .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
+        .animation(AppMotion.open, value: preview != nil)
         .onDrop(of: DropReader.types, isTargeted: $model.isDropTargeted) { providers in
             // Una tarjeta arrastrada y soltada en el propio panel no se duplica.
             guard !model.isDraggingOut else { return false }

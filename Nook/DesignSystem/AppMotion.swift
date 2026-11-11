@@ -29,10 +29,10 @@ enum AppMotion {
         reduceMotion ? .easeInOut(duration: 0.1) : .spring(response: 0.28, dampingFraction: 0.82)
     }
 
-    /// Entrada del texto de un aviso del notch cerrado: fundido algo retrasado para
-    /// no verse recortado mientras la forma aun crece.
+    /// Entrada del contenido de un aviso del notch cerrado: a la vez que crece la
+    /// forma, sin retardo, para que los dos lados aparezcan juntos.
     static var noticeIn: Animation {
-        reduceMotion ? .easeInOut(duration: 0.12) : .easeOut(duration: 0.2).delay(0.08)
+        reduceMotion ? .easeInOut(duration: 0.12) : .easeOut(duration: 0.22)
     }
 
     /// Salida del texto de un aviso: dura lo que tarda la forma en recogerse con

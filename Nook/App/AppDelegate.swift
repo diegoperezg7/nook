@@ -212,6 +212,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileImporter.add(paths.split(separator: "|").map { URL(fileURLWithPath: String($0)) }, to: store)
         }
         notch.applyDebugLaunchArguments()
+        // `-VisorDemoNotice agent|waiting|notification`: aviso de ejemplo con su tarjeta (capturas).
+        if let demo = UserDefaults.standard.string(forKey: "VisorDemoNotice") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.showDemoNotice(demo) }
+        }
         if UserDefaults.standard.string(forKey: "NookOpen") == "settings" { showSettings(); return }
         if UserDefaults.standard.bool(forKey: "NookWhatsNew") { showWhatsNew(); return }
         #endif
@@ -222,6 +226,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             showOnboarding()
         }
     }
+
+    #if DEBUG
+    private func showDemoNotice(_ kind: String) {
+        let hold = UserDefaults.standard.double(forKey: "VisorDemoHold")
+        let duration: TimeInterval = hold > 0 ? hold : 4
+        switch kind {
+        case "notification":
+            let preview = SystemHUD.Preview(
+                symbol: "bell.fill", appIcon: AgentIcons.icon("com.apple.MobileSMS"), title: "Mensajes",
+                subtitle: "Ana", body: "¿Quedamos a las ocho en el sitio de siempre?", actionTitle: String(localized: "Abrir app")
+            ) {}
+            hud?.show(.notification(bundleID: "com.apple.MobileSMS", title: "Ana", body: "¿Quedamos a las ocho?"), for: duration, preview: preview)
+            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { hud?.activate() }
+        default:
+            let waiting = kind == "waiting"
+            let preview = SystemHUD.Preview(
+                symbol: "terminal.fill", title: "visor",
+                subtitle: waiting ? String(localized: "Espera tu respuesta") : String(localized: "Ha terminado"),
+                actionTitle: String(localized: "Ir a la terminal")
+            ) {}
+            hud?.show(.agent(project: "visor", waiting: waiting), for: duration, preview: preview)
+            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { hud?.activate() }
+        }
+    }
+    #endif
 
     /// Novedades tras actualizar (una vez por version).
     private func showWhatsNew() {
