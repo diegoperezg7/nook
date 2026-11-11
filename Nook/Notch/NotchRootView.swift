@@ -66,7 +66,7 @@ struct NotchRootView: View {
                 }
 
                 if let preview {
-                    HUDPreviewCard(preview: preview, metrics: metrics, onExtra: hud.performExtra, onReply: hud.performReply) { hud.performActivated() }
+                    HUDPreviewCard(preview: preview, metrics: metrics, onExtra: hud.performExtra) { hud.performActivated() }
                         .frame(width: card.width, height: card.height)
                         .transition(contentTransition)
                 }

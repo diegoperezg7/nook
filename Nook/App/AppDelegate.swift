@@ -1,4 +1,3 @@
-import EventKit
 import AppKit
 import Carbon.HIToolbox
 import SwiftData
@@ -156,7 +155,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.ring = ring
         self.selection = SelectionActions(store: store)
         notificationFeed.onNotice = { [weak hud, weak self] notice in
-            // Con Accesibilidad mandan los avisos de macOS (traen Responder): sin duplicar.
+            // Con Accesibilidad mandan los avisos de macOS (macOS 27 ya no tiene la base): sin duplicar.
             guard self?.notificationBanners.isRunning != true || !AXAccess.isTrusted else { return }
             let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: notice.bundleID)
             let preview = SystemHUD.Preview(
@@ -173,25 +172,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard banner.appName != "Visor" else { return }
             let bundleID = banner.bundleID ?? ""
             let appURL = banner.bundleID.flatMap { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) }
-            var preview = SystemHUD.Preview(
+            let preview = SystemHUD.Preview(
                 symbol: "bell.fill", appIcon: AgentIcons.icon(bundleID),
                 title: banner.appName, subtitle: banner.title,
                 body: banner.subtitle.isEmpty ? banner.body : banner.subtitle + " · " + banner.body,
                 actionTitle: String(localized: "Abrir app")
             ) {
+                // Con el aviso de macOS aun en pantalla, se abre en ese mensaje.
+                if self?.notificationBanners.open(banner.id) == true { return }
                 guard let appURL else { return }
                 NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration())
             }
-            if banner.canReply {
-                preview.reply = { text, done in
-                    guard let self else { return done(false) }
-                    self.notificationBanners.reply(to: banner.id, text: text, completion: done)
-                }
-            }
-            #if DEBUG
-            NSLog("VISORBANNERS mostrar hud=%d", hud == nil ? 0 : 1)
-            #endif
-            hud?.show(.notification(bundleID: bundleID, title: banner.title, body: banner.body), for: banner.canReply ? 8 : 5, preview: preview)
+            hud?.show(.notification(bundleID: bundleID, title: banner.title, body: banner.body), for: 5, preview: preview)
         }
         windowSnap.onNeedsPermission = { [weak hud] in
             hud?.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
@@ -240,17 +232,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileImporter.add(paths.split(separator: "|").map { URL(fileURLWithPath: String($0)) }, to: store)
         }
         notch.applyDebugLaunchArguments()
-        // Estado de permisos de esta build (pruebas).
-        NSLog("VISORPERMS ax=%d fda=%d calendar=%d", AXAccess.isTrusted ? 1 : 0,
-              FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath) ? 1 : 0,
-              EKEventStore.authorizationStatus(for: .event) == .fullAccess ? 1 : 0)
-        if UserDefaults.standard.bool(forKey: "VisorProbeBiome") {
-            DispatchQueue.global().async { NSLog("VISORBIOME\n%@", NotificationFeed.probeBiome()) }
-        }
-        if UserDefaults.standard.bool(forKey: "VisorProbeBanner") { BannerProbe.start() }
-        if let app = UserDefaults.standard.string(forKey: "VisorDumpNotification") {
-            DispatchQueue.global().async { NSLog("VISORDUMP\n%@", NotificationFeed.dumpLatest(of: app)) }
-        }
         // `-VisorDemoNotice agent|waiting|notification`: aviso de ejemplo con su tarjeta (capturas).
         if let demo = UserDefaults.standard.string(forKey: "VisorDemoNotice") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.showDemoNotice(demo) }
@@ -457,119 +438,3 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-#if DEBUG
-/// `-VisorProbeBanner YES`: cada medio segundo mira las ventanas del Centro de
-/// notificaciones y, si aparece un banner nuevo, registra su arbol de Accesibilidad
-/// (roles, acciones y textos enmascarados).
-@MainActor
-enum BannerProbe {
-    private static var timer: Timer?
-    private static var lastSignature = ""
-
-    static func start() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            MainActor.assumeIsolated { check() }
-        }
-    }
-
-    /// `-VisorProbeReply <texto>`: en el primer aviso de WhatsApp con "Responder",
-    /// pulsa Responder, escribe el texto y lo envia (una sola vez), registrando cada paso.
-    private static var replied = false
-
-    private static func tryReply(in windows: [AXUIElement]) {
-        guard !replied, let text = UserDefaults.standard.string(forKey: "VisorProbeReply") else { return }
-        var queue = windows.map { ($0, 0) }
-        while !queue.isEmpty {
-            let (element, depth) = queue.removeFirst()
-            var actions: CFArray?
-            AXUIElementCopyActionNames(element, &actions)
-            let names = actions as? [String] ?? []
-            var description: CFTypeRef?
-            AXUIElementCopyAttributeValue(element, kAXDescriptionAttribute as CFString, &description)
-            let label = (description as? String ?? "").trimmingCharacters(in: CharacterSet(charactersIn: "\u{200E}\u{200F} "))
-            if label.hasPrefix("WhatsApp"), let reply = names.first(where: { $0.contains("Responder") || $0.contains("Reply") }) {
-                replied = true
-                let result = AXUIElementPerformAction(element, reply as CFString)
-                NSLog("VISORREPLY pulsar Responder: %d", result.rawValue)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { fill(text) }
-                return
-            }
-            guard depth < 12 else { continue }
-            var children: CFTypeRef?
-            AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children)
-            queue += (children as? [AXUIElement] ?? []).map { ($0, depth + 1) }
-        }
-    }
-
-    private static func fill(_ text: String) {
-        guard let center = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.notificationcenterui").first else { return }
-        let app = AXUIElementCreateApplication(center.processIdentifier)
-        var windows: CFTypeRef?
-        AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &windows)
-        var lines: [String] = []
-        for window in windows as? [AXUIElement] ?? [] { dump(window, depth: 0, into: &lines) }
-        NSLog("VISORREPLY tras Responder:\n%@", lines.joined(separator: "\n"))
-        var field: AXUIElement?, send: AXUIElement?
-        var queue = (windows as? [AXUIElement] ?? []).map { ($0, 0) }
-        while !queue.isEmpty {
-            let (element, depth) = queue.removeFirst()
-            var role: CFTypeRef?, title: CFTypeRef?, description: CFTypeRef?
-            AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role)
-            AXUIElementCopyAttributeValue(element, kAXTitleAttribute as CFString, &title)
-            AXUIElementCopyAttributeValue(element, kAXDescriptionAttribute as CFString, &description)
-            let roleName = role as? String ?? ""
-            if field == nil, roleName == kAXTextAreaRole as String || roleName == kAXTextFieldRole as String { field = element }
-            let name = ((title as? String ?? "") + " " + (description as? String ?? "")).lowercased()
-            if send == nil, roleName == kAXButtonRole as String, name.contains("enviar") || name.contains("send") || name.contains("responder") || name.contains("reply") { send = element }
-            guard depth < 14 else { continue }
-            var children: CFTypeRef?
-            AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children)
-            queue += (children as? [AXUIElement] ?? []).map { ($0, depth + 1) }
-        }
-        guard let field else { NSLog("VISORREPLY sin campo de texto"); return }
-        AXUIElementSetAttributeValue(field, kAXFocusedAttribute as CFString, kCFBooleanTrue)
-        let set = AXUIElementSetAttributeValue(field, kAXValueAttribute as CFString, text as CFString)
-        NSLog("VISORREPLY escribir: %d", set.rawValue)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if let send {
-                NSLog("VISORREPLY pulsar enviar: %d", AXUIElementPerformAction(send, kAXPressAction as CFString).rawValue)
-            } else {
-                NSLog("VISORREPLY sin boton enviar; confirmar: %d", AXUIElementPerformAction(field, kAXConfirmAction as CFString).rawValue)
-            }
-        }
-    }
-
-    private static func check() {
-        guard let center = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.notificationcenterui").first else { return }
-        let app = AXUIElementCreateApplication(center.processIdentifier)
-        var windows: CFTypeRef?
-        AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &windows)
-        let list = windows as? [AXUIElement] ?? []
-        tryReply(in: list)
-        var lines: [String] = []
-        for window in list { dump(window, depth: 0, into: &lines) }
-        let signature = lines.joined(separator: "\n")
-        guard signature != lastSignature else { return }
-        lastSignature = signature
-        NSLog("VISORBANNER ventanas=%d\n%@", list.count, signature)
-    }
-
-    private static func dump(_ element: AXUIElement, depth: Int, into lines: inout [String]) {
-        guard depth < 14, lines.count < 200 else { return }
-        func attr(_ name: String) -> String? {
-            var value: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(element, name as CFString, &value) == .success else { return nil }
-            return value as? String
-        }
-        var actions: CFArray?
-        AXUIElementCopyActionNames(element, &actions)
-        let names = (actions as? [String] ?? []).map { $0.replacingOccurrences(of: "\n", with: " ") }
-        let texts = [kAXTitleAttribute, kAXDescriptionAttribute, kAXValueAttribute, kAXIdentifierAttribute, kAXSubroleAttribute]
-            .compactMap { key in attr(key).map { "\(key.replacingOccurrences(of: "AX", with: ""))=\(key == kAXSubroleAttribute || key == kAXIdentifierAttribute ? $0 : NotificationFeed.mask($0))" } }
-        lines.append(String(repeating: "  ", count: depth) + (attr(kAXRoleAttribute) ?? "?") + " " + texts.joined(separator: " ") + (names.isEmpty ? "" : " acciones=\(names)"))
-        var children: CFTypeRef?
-        AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &children)
-        for child in children as? [AXUIElement] ?? [] { dump(child, depth: depth + 1, into: &lines) }
-    }
-}
-#endif

@@ -91,6 +91,16 @@
         }
       }
     },
+    "%lld s": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld s"
+          }
+        }
+      }
+    },
     "%lld seleccionadas": {
       "localizations": {
         "en": {
@@ -2311,6 +2321,16 @@
         }
       }
     },
+    "Iniciar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
     "Instala en Claude Code la barra de estado claude-hud y vuelve aquí para conectarla.": {
       "localizations": {
         "en": {
@@ -2651,6 +2671,16 @@
         }
       }
     },
+    "Micro del Mac silenciado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac microphone muted"
+          }
+        }
+      }
+    },
     "Micro y cámara": {
       "localizations": {
         "en": {
@@ -2901,12 +2931,42 @@
         }
       }
     },
+    "No se pudo apagar la cámara en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't turn off the camera in %@"
+          }
+        }
+      }
+    },
+    "No se pudo colgar en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't hang up in %@"
+          }
+        }
+      }
+    },
     "No se pudo guardar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't save"
+          }
+        }
+      }
+    },
+    "No se pudo silenciar en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't mute in %@"
           }
         }
       }

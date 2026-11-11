@@ -1,11 +1,9 @@
 import AppKit
 import ApplicationServices
 
-/// Notificaciones en el notch leyendo los avisos de macOS por Accesibilidad. En
-/// macOS 27 ya no existe la base de datos de notificaciones que lee `NotificationFeed`,
-/// y el aviso trae ademas sus acciones: "Responder" (WhatsApp, Mensajes...) permite
-/// contestar desde el notch con el campo de respuesta del propio aviso, asi la
-/// respuesta va siempre al chat correcto. Solo mientras el aviso sigue en pantalla.
+/// Notificaciones en el notch leyendo los avisos de macOS por Accesibilidad: en
+/// macOS 27 ya no existe la base de datos de notificaciones que lee `NotificationFeed`.
+/// Pulsar el aviso desde el notch abre la app en ese mensaje (el chat de WhatsApp...).
 @MainActor
 final class NotificationBanners {
     struct Banner: Equatable {
@@ -16,7 +14,6 @@ final class NotificationBanners {
         let title: String
         let subtitle: String
         let body: String
-        let canReply: Bool
 
         /// macOS reutiliza el mismo aviso para el siguiente mensaje de la app: cuenta
         /// como nuevo si cambia su contenido.
@@ -57,7 +54,7 @@ final class NotificationBanners {
         for banner in banners where !seen.contains(banner.key) {
             seen.append(banner.key)
             #if DEBUG
-            NSLog("VISORBANNERS nuevo de %@ primed=%d responder=%d", banner.appName, primed ? 1 : 0, banner.canReply ? 1 : 0)
+            NSLog("VISORBANNERS nuevo de %@ primed=%d", banner.appName, primed ? 1 : 0)
             #endif
             if primed { onBanner?(banner) }
         }
@@ -95,7 +92,7 @@ final class NotificationBanners {
         for child in elements(group, kAXChildrenAttribute) {
             if let key = string(child, kAXIdentifierAttribute), let value = string(child, kAXValueAttribute) { texts[key] = value }
         }
-        var banner = parse(id: id, description: string(group, kAXDescriptionAttribute) ?? "", texts: texts, actions: actionNames(group))
+        var banner = parse(id: id, description: string(group, kAXDescriptionAttribute) ?? "", texts: texts)
         if let name = banner?.appName {
             banner?.bundleID = NSWorkspace.shared.runningApplications.first { $0.localizedName == name }?.bundleIdentifier
         }
@@ -104,26 +101,11 @@ final class NotificationBanners {
 
     /// Datos de un aviso: la descripcion empieza por el nombre de la app ("WhatsApp,
     /// Ana, Hola"); los textos llevan identificador `title`, `subtitle` y `body`.
-    nonisolated static func parse(id: String, description: String, texts: [String: String], actions: [String]) -> Banner? {
+    nonisolated static func parse(id: String, description: String, texts: [String: String]) -> Banner? {
         let app = clean(description.components(separatedBy: ",").first ?? "")
         let title = clean(texts["title"] ?? ""), subtitle = clean(texts["subtitle"] ?? ""), body = clean(texts["body"] ?? "")
         guard !app.isEmpty, !(title.isEmpty && body.isEmpty) else { return nil }
-        let canReply = actions.contains { isReply(actionTitle($0)) }
-        return Banner(id: id, appName: app, title: title, subtitle: subtitle, body: body, canReply: canReply)
-    }
-
-    /// "Name:Responder\nTarget:0x0\nSelector:(null)" -> "Responder".
-    nonisolated static func actionTitle(_ raw: String) -> String {
-        guard raw.hasPrefix("Name:") else { return raw }
-        return clean(String(raw.dropFirst(5).prefix { $0 != "\n" }))
-    }
-
-    nonisolated static func isReply(_ title: String) -> Bool {
-        ["responder", "reply", "contestar"].contains(title.lowercased())
-    }
-
-    nonisolated static func isSend(_ title: String) -> Bool {
-        ["enviar", "send"].contains(title.lowercased())
+        return Banner(id: id, appName: app, title: title, subtitle: subtitle, body: body)
     }
 
     /// Sin las marcas de direccion (U+200E, U+200F) que mete macOS ni espacios.
@@ -131,61 +113,15 @@ final class NotificationBanners {
         text.trimmingCharacters(in: CharacterSet(charactersIn: "\u{200E}\u{200F}").union(.whitespacesAndNewlines))
     }
 
-    // MARK: - Responder
+    // MARK: - Abrir
 
-    /// Abre la respuesta del aviso, escribe el texto y lo envia. `false` si el aviso
-    /// ya no esta o no se pudo (la tarjeta ofrece entonces abrir la app).
-    func reply(to id: String, text: String, completion: @escaping (Bool) -> Void) {
-        guard AXAccess.isTrusted, let group = Self.groups().first(where: { Self.string($0, kAXIdentifierAttribute) == id }),
-              let action = Self.actionNames(group).first(where: { Self.isReply(Self.actionTitle($0)) }) else {
-            completion(false)
-            return
-        }
-        // macOS puede devolver error aunque abra el campo: se comprueba el campo.
-        AXUIElementPerformAction(group, action as CFString)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard let field = Self.find(in: group, where: { Self.string($0, kAXRoleAttribute) == kAXTextAreaRole as String || Self.string($0, kAXRoleAttribute) == kAXTextFieldRole as String }) else {
-                completion(false)
-                return
-            }
-            AXUIElementSetAttributeValue(field, kAXFocusedAttribute as CFString, kCFBooleanTrue)
-            guard AXUIElementSetAttributeValue(field, kAXValueAttribute as CFString, text as CFString) == .success else {
-                completion(false)
-                return
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                if let send = Self.actionNames(group).first(where: { Self.isSend(Self.actionTitle($0)) }) {
-                    AXUIElementPerformAction(group, send as CFString)
-                    completion(true)
-                } else if let button = Self.find(in: group, where: {
-                    Self.string($0, kAXRoleAttribute) == kAXButtonRole as String && Self.isSend(Self.clean(Self.string($0, kAXDescriptionAttribute) ?? ""))
-                }) {
-                    completion(AXUIElementPerformAction(button, kAXPressAction as CFString) == .success)
-                } else {
-                    completion(false)
-                }
-            }
-        }
+    /// Pulsa el aviso de macOS: la app se abre en ese mensaje. `false` si ya no esta.
+    func open(_ id: String) -> Bool {
+        guard AXAccess.isTrusted, let group = Self.groups().first(where: { Self.string($0, kAXIdentifierAttribute) == id }) else { return false }
+        return AXUIElementPerformAction(group, kAXPressAction as CFString) == .success
     }
 
     // MARK: - Accesibilidad
-
-    private static func find(in root: AXUIElement, where match: (AXUIElement) -> Bool) -> AXUIElement? {
-        var queue = [(root, 0)]
-        while !queue.isEmpty {
-            let (element, depth) = queue.removeFirst()
-            if element != root, match(element) { return element }
-            guard depth < 6 else { continue }
-            queue += elements(element, kAXChildrenAttribute).map { ($0, depth + 1) }
-        }
-        return nil
-    }
-
-    private static func actionNames(_ element: AXUIElement) -> [String] {
-        var names: CFArray?
-        AXUIElementCopyActionNames(element, &names)
-        return names as? [String] ?? []
-    }
 
     private static func string(_ element: AXUIElement, _ attribute: String) -> String? {
         var value: CFTypeRef?

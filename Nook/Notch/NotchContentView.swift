@@ -690,7 +690,7 @@ private struct ClockPanel: View {
                                     .contentShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .help(Text("Empezar"))
+                            .help(Text("Iniciar"))
                         }
                     }
                 }
