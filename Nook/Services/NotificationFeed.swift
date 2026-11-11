@@ -130,4 +130,52 @@ final class NotificationFeed {
         guard !heading.isEmpty || !body.isEmpty else { return nil }
         return Notice(bundleID: (plist["app"] as? String) ?? bundleID, title: heading, body: body)
     }
+
+    #if DEBUG
+    /// `-VisorDumpNotification <bundle id>`: estructura de la ultima notificacion de esa
+    /// app (claves y tipos; los textos, enmascarados) para ver que datos trae.
+    nonisolated static func dumpLatest(of bundleID: String, path: String = databasePath) -> String {
+        var db: OpaquePointer?
+        let uri = "file:" + (path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path) + "?mode=ro"
+        guard sqlite3_open_v2(uri, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, nil) == SQLITE_OK else { return "sin acceso" }
+        defer { sqlite3_close(db) }
+        let sql = "SELECT r.data FROM record r JOIN app a ON a.app_id = r.app_id WHERE a.identifier = ? ORDER BY r.rec_id DESC LIMIT 1"
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else { return "consulta: " + String(cString: sqlite3_errmsg(db)) }
+        defer { sqlite3_finalize(statement) }
+        sqlite3_bind_text(statement, 1, bundleID, -1, unsafeBitCast(-1, to: sqlite3_destructor_type.self))
+        guard sqlite3_step(statement) == SQLITE_ROW, let bytes = sqlite3_column_blob(statement, 0) else { return "sin notificaciones de \(bundleID)" }
+        let data = Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, 0)))
+        guard let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) else { return "no es plist" }
+        return describe(plist, indent: "")
+    }
+
+    /// Claves y tipos. Las cadenas, enmascaradas: letras como "a", cifras como "9",
+    /// para ver la forma (un numero de telefono, un JID...) sin el contenido.
+    nonisolated private static func describe(_ value: Any, indent: String) -> String {
+        switch value {
+        case let dict as [String: Any]:
+            return dict.keys.sorted().map { key in "\(indent)\(key): " + describe(dict[key]!, indent: indent + "  ").trimmingCharacters(in: .whitespaces) }
+                .joined(separator: "\n").prefixedNewline
+        case let array as [Any]:
+            return array.prefix(5).map { describe($0, indent: indent + "  ") }.joined(separator: "\n").prefixedNewline
+        case let string as String:
+            let masked = String(string.prefix(60).map { $0.isLetter ? "a" : $0.isNumber ? "9" : $0 })
+            return "\"\(masked)\""
+        case let data as Data:
+            if let inner = try? PropertyListSerialization.propertyList(from: data, format: nil) {
+                return "(plist)" + describe(inner, indent: indent + "  ")
+            }
+            return "<\(data.count) bytes>"
+        default:
+            return String(describing: type(of: value))
+        }
+    }
+    #endif
 }
+
+#if DEBUG
+private extension String {
+    var prefixedNewline: String { isEmpty ? "{}" : "\n" + self }
+}
+#endif

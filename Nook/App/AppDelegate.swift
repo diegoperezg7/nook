@@ -1,3 +1,4 @@
+import EventKit
 import AppKit
 import Carbon.HIToolbox
 import SwiftData
@@ -212,6 +213,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileImporter.add(paths.split(separator: "|").map { URL(fileURLWithPath: String($0)) }, to: store)
         }
         notch.applyDebugLaunchArguments()
+        // Estado de permisos de esta build (pruebas).
+        NSLog("VISORPERMS ax=%d fda=%d calendar=%d", AXAccess.isTrusted ? 1 : 0,
+              FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath) ? 1 : 0,
+              EKEventStore.authorizationStatus(for: .event) == .fullAccess ? 1 : 0)
+        if let app = UserDefaults.standard.string(forKey: "VisorDumpNotification") {
+            DispatchQueue.global().async { NSLog("VISORDUMP\n%@", NotificationFeed.dumpLatest(of: app)) }
+        }
         // `-VisorDemoNotice agent|waiting|notification`: aviso de ejemplo con su tarjeta (capturas).
         if let demo = UserDefaults.standard.string(forKey: "VisorDemoNotice") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.showDemoNotice(demo) }

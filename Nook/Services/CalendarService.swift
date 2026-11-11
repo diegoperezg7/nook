@@ -309,6 +309,18 @@ final class CalendarService {
         dayEvents = events(from: selectedDay, to: Calendar.current.date(byAdding: .day, value: 1, to: selectedDay)!)
         let end = Calendar.current.date(byAdding: .day, value: Self.agendaDays, to: selectedDay)!
         agenda = Self.groupByDay(events(from: selectedDay, to: end), from: selectedDay, days: Self.agendaDays)
+        #if DEBUG
+        // `-VisorDemoEvents YES`: eventos de ejemplo de hoy, sin tocar el calendario real.
+        if UserDefaults.standard.bool(forKey: "VisorDemoEvents") {
+            let now = Date.now, today = Calendar.current.startOfDay(for: now)
+            func demo(_ title: String, _ from: TimeInterval, _ hours: TimeInterval, allDay: Bool = false) -> Event {
+                let start = allDay ? today : now.addingTimeInterval(from * 3600)
+                return Event(id: title, title: title, start: start, end: allDay ? today.addingTimeInterval(86400) : start.addingTimeInterval(hours * 3600), isAllDay: allDay, color: .systemBlue)
+            }
+            let events = [demo("Terminó hace 1 h", -2, 1), demo("En curso", -0.5, 1), demo("Esta tarde", 3, 1), demo("Todo el día", 0, 0, allDay: true)]
+            agenda = Self.groupByDay(events, from: selectedDay, days: Self.agendaDays)
+        }
+        #endif
     }
 
     /// Agrupa por dia de inicio (los de varios dias salen en cada dia que tocan).
