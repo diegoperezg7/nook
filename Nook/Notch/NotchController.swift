@@ -351,7 +351,11 @@ final class NotchController {
         case "mail": .mail
         default: .shelf
         }
-        model.open(reason: .pinned, tab: tab)
+        // `-VisorOpenAfter 2`: abre pasados unos segundos, para grabar la apertura.
+        let delay = UserDefaults.standard.double(forKey: "VisorOpenAfter")
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.model.open(reason: .pinned, tab: tab)
+        }
     }
     #endif
 }

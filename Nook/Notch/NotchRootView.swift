@@ -72,13 +72,13 @@ struct NotchRootView: View {
             .offset(x: shift)
             // Tarjeta de un aviso: resplandor detras (solo se ve por fuera) y borde encima.
             .background {
-                if preview != nil { SiriGlow(shape: shape, halo: true).transition(.opacity) }
+                if preview != nil { SiriGlow(shape: shape, halo: true, band: metrics.notchHeight).transition(.opacity) }
             }
             .overlay {
                 if model.isDropTargeted, model.isOpen {
                     DropGlow(shape: shape)
                 } else if preview != nil {
-                    SiriGlow(shape: shape, halo: false).transition(.opacity)
+                    SiriGlow(shape: shape, halo: false, band: metrics.notchHeight).transition(.opacity)
                 }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
@@ -159,6 +159,9 @@ private struct CardBackground: View {
     var body: some View {
         ZStack {
             Color.clear.liquidGlass(in: shape, tint: AppColors.notch.opacity(0.65))
+            // El tinte del cristal apenas oscurece: este velo deja el texto blanco por
+            // encima de 4,5:1 aunque detras haya una pagina blanca.
+            shape.fill(AppColors.notch.opacity(0.42))
             // Colores del borde, suaves, para que el cristal no sea gris.
             shape.fill(LinearGradient(colors: AppColors.glow.map { $0.opacity(0.32) }, startPoint: .leading, endPoint: .trailing))
             shape.fill(LinearGradient(stops: [
@@ -189,11 +192,14 @@ private struct DropGlow: View {
 }
 
 /// Borde de la tarjeta de un aviso pulsado, como la nueva Siri: un degradado
-/// multicolor que recorre el contorno. `halo` es el resplandor difuso de detras.
-/// Con "Reducir movimiento", el degradado queda quieto.
+/// multicolor que recorre los lados y el fondo. Arriba no: el tramo recto queda
+/// pegado al borde de la pantalla, y la franja del notch se funde sin linea.
+/// `halo` es el resplandor difuso de detras. Con "Reducir movimiento", quieto.
 private struct SiriGlow: View {
     let shape: NotchShape
     let halo: Bool
+    /// Alto de la franja del notch: ahi el borde aun no se ve.
+    let band: CGFloat
 
     var body: some View {
         Group {
@@ -206,12 +212,25 @@ private struct SiriGlow: View {
                 }
             }
         }
+        .mask {
+            GeometryReader { proxy in
+                let start = min(1, band / max(proxy.size.height, 1))
+                LinearGradient(stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .clear, location: start * 0.6),
+                    .init(color: .black, location: min(1, start + 0.15)),
+                ], startPoint: .top, endPoint: .bottom)
+                // El halo sale por fuera de la forma: la mascara no lo recorta de lado.
+                .padding(-40)
+            }
+        }
         .allowsHitTesting(false)
     }
 
     @ViewBuilder
     private func ring(_ angle: Angle) -> some View {
         let gradient = AngularGradient(colors: AppColors.glow, center: .center, angle: angle)
+        let shape = NotchShape(topRadius: shape.topRadius, bottomRadius: shape.bottomRadius, closesTop: false)
         if halo {
             shape.stroke(gradient, lineWidth: 8).blur(radius: 12).opacity(0.85)
         } else {
