@@ -2471,6 +2471,16 @@
         }
       }
     },
+    "Las notificaciones de cualquier app, WhatsApp incluido, salen del notch. En una llamada, silenciar, cámara y colgar funcionan en cualquier app.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications from any app, WhatsApp included, come out of the notch. On a call, mute, camera and hang up work in any app."
+          }
+        }
+      }
+    },
     "Las sesiones de Claude Code y Codex se ven solas en la pestaña de agentes. El consumo lo escribe la barra de estado claude-hud cada vez que usas Claude Code.": {
       "localizations": {
         "en": {
@@ -3017,6 +3027,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notifications in the notch"
+          }
+        }
+      }
+    },
+    "Notificaciones y llamadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications and calls"
           }
         }
       }
@@ -3887,6 +3907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "A timer with pause and any duration, alarms and keep awake, in a panel like the Clock app."
+          }
+        }
+      }
+    },
+    "Temporizador con rueda de horas, minutos y segundos y tus duraciones recientes, alarmas y mantener despierto, como en la app Reloj.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer with an hours, minutes and seconds wheel and your recent durations, alarms and keep awake, like the Clock app."
           }
         }
       }

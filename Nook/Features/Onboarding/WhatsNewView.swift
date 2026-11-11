@@ -14,13 +14,13 @@ enum WhatsNew {
         Note(icon: "hand.tap.fill", title: "Avisos que se abren",
              detail: "Pulsa un aviso del notch para ver una vista previa y un botón para ir al correo, la sesión, la descarga o la reunión."),
         Note(icon: "timer", title: "Reloj nuevo",
-             detail: "Temporizador con pausa y duración libre, alarmas y mantener despierto, en un panel como el de la app Reloj."),
+             detail: "Temporizador con rueda de horas, minutos y segundos y tus duraciones recientes, alarmas y mantener despierto, como en la app Reloj."),
         Note(icon: "gauge.with.dots.needle.67percent", title: "Consumo de Claude",
              detail: "El % gastado de 5 h y de la semana, con la hora a la que se reinicia, y aviso al pasar del 80 % y del 95 %."),
         Note(icon: "envelope.fill", title: "Correo",
              detail: "Ves también los leídos, respondes desde el notch y eliges de quién quieres aviso."),
-        Note(icon: "qrcode", title: "Herramientas",
-             detail: "Código QR del texto copiado, cuentagotas en el menú ⋯, texto de una captura y «Copiar como»."),
+        Note(icon: "bell.badge.fill", title: "Notificaciones y llamadas",
+             detail: "Las notificaciones de cualquier app, WhatsApp incluido, salen del notch. En una llamada, silenciar, cámara y colgar funcionan en cualquier app."),
     ]
 
     static var version: String {
