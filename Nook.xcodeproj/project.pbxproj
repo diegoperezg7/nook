@@ -934,7 +934,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 31;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Visor;
@@ -952,7 +952,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.22.3;
+				MARKETING_VERSION = 0.22.4;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.visor;
 				PRODUCT_MODULE_NAME = Nook;
@@ -968,7 +968,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Nook/Nook.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 30;
+				CURRENT_PROJECT_VERSION = 31;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nook/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Visor;
@@ -986,7 +986,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.22.3;
+				MARKETING_VERSION = 0.22.4;
 				NOOK_APP_GROUP = H473PHH58Y.com.diegoperez.nook.debug;
 				PRODUCT_BUNDLE_IDENTIFIER = com.diegoperez.visor.debug;
 				PRODUCT_MODULE_NAME = Nook;
