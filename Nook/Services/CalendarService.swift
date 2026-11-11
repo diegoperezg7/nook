@@ -38,6 +38,13 @@ final class CalendarService {
         var id: Date { day }
         let day: Date
         let events: [Event]
+
+        /// Hoy, sin los eventos que ya terminaron (los de todo el dia se quedan).
+        /// Los demas dias, tal cual: si miras ayer, ves lo que hubo.
+        func upcoming(at now: Date) -> AgendaDay {
+            guard Calendar.current.isDate(day, inSameDayAs: now) else { return self }
+            return AgendaDay(day: day, events: events.filter { $0.isAllDay || $0.end > now })
+        }
     }
 
     static let agendaDays = 4
