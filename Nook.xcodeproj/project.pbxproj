@@ -107,6 +107,7 @@
 		F379C46688C1D44E36A429CE /* SystemStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23055D40A8B72A840805201E /* SystemStats.swift */; };
 		F54D8185779B29779B5F87E3 /* ScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87031FAA3EC00613740ED01 /* ScreenshotsView.swift */; };
 		F63748B0064A8FFD854FD1EF /* FocusTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD887C2BB4E9320640105B18 /* FocusTimer.swift */; };
+		F6BF3940EA415881EC168F4D /* NowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90BC6F6B3AA5EA023657529 /* NowPlaying.swift */; };
 		FA09B67D88C18710F1E272DC /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 321028EC0FB1A80BF6BD907A /* Sparkle */; };
 /* End PBXBuildFile section */
 
@@ -217,6 +218,7 @@
 		DB7DC76F9083EB6111BA1315 /* MeetingControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingControls.swift; sourceTree = "<group>"; };
 		DD887C2BB4E9320640105B18 /* FocusTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimer.swift; sourceTree = "<group>"; };
 		E38638B7B52E5B011EF493C2 /* FileActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileActionsTests.swift; sourceTree = "<group>"; };
+		E90BC6F6B3AA5EA023657529 /* NowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlaying.swift; sourceTree = "<group>"; };
 		EB24003DA478A71487D51AB0 /* Dictation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictation.swift; sourceTree = "<group>"; };
 		EDDBB41C044D6FE7DD35C1C9 /* NotchItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchItem.swift; sourceTree = "<group>"; };
 		F1051F9211BD9A1DBB0DFC0A /* BatteryPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryPanel.swift; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 				3ED07931996342A024C39164 /* MIME.swift */,
 				8943411614DED1AAFACFB874 /* NotificationBanners.swift */,
 				72F8E211D30A2B434D0F5173 /* NotificationFeed.swift */,
+				E90BC6F6B3AA5EA023657529 /* NowPlaying.swift */,
 				BACF81D6408E8F651C5DEA1C /* QuickLookPresenter.swift */,
 				AA0BCF5BE6081D141698EBC9 /* QuickMath.swift */,
 				D8DB70FBFA418B03D230543E /* QuickShare.swift */,
@@ -685,6 +688,7 @@
 				8660AB314716BF15488962FC /* NotchViewModel.swift in Sources */,
 				7E0B0B4A2DD272320093566C /* NotificationBanners.swift in Sources */,
 				79043B3E1FEA96095BF62433 /* NotificationFeed.swift in Sources */,
+				F6BF3940EA415881EC168F4D /* NowPlaying.swift in Sources */,
 				5B1310CE7E610DA05A0CE94E /* OnboardingView.swift in Sources */,
 				3AA1B61A7474A91CD7075BE1 /* PermissionRow.swift in Sources */,
 				E9B9C1761C6E6994D7F32DC7 /* QuickLookPresenter.swift in Sources */,
@@ -940,7 +944,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Visor;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer) y lo que suena en Música o Spotify, con sus controles. No cambia nada en tu correo.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Visor enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada.";
@@ -974,7 +978,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Visor;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer) y lo que suena en Música o Spotify, con sus controles. No cambia nada en tu correo.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo, por ejemplo «Café con Ana mañana a las 10».";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Visor enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada.";

@@ -93,7 +93,7 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: "Visor enseña tu cámara en el notch solo mientras abres el espejo, para que te veas antes de una llamada. No graba nada."
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Visor usa el micrófono solo mientras dictas, para pasar tu voz a texto."
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Visor convierte lo que dictas en texto y lo copia al portapapeles."
-        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer). No cambia nada en tu correo."
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Visor muestra en el notch quién te ha escrito (remitente, asunto y hora de los correos sin leer) y lo que suena en Música o Spotify, con sus controles. No cambia nada en tu correo."
         INFOPLIST_KEY_NSRemindersFullAccessUsageDescription: "Visor muestra tus recordatorios pendientes junto al calendario y te deja marcarlos como hechos o crear uno escribiendo."
         INFOPLIST_KEY_NSCalendarsUsageDescription: "Visor muestra tus eventos en el notch y te deja añadir uno escribiendo."
         INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 Diego Pérez García"

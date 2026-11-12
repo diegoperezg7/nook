@@ -707,7 +707,8 @@ struct NoticeGrid: View {
     @AppStorage(SettingsKey.hudDownloads) private var downloads = true
     @AppStorage(SettingsKey.hudCapsLock) private var capsLock = false
     @AppStorage(SettingsKey.hudNetwork) private var network = true
-    @AppStorage(SettingsKey.hudMediaInUse) private var media = true
+    @AppStorage(SettingsKey.hudMediaInUse) private var media = false
+    @AppStorage(SettingsKey.hudMusic) private var music = true
     @AppStorage(SettingsKey.hudMeetings) private var meetings = true
     @AppStorage(SettingsKey.hudMail) private var mailNotice = true
     @AppStorage(SettingsKey.notifications) private var notifications = true
@@ -730,6 +731,7 @@ struct NoticeGrid: View {
             Chip(symbol: "sparkles", title: "Agentes de IA", isOn: $agents)
             Chip(symbol: "gauge.with.dots.needle.67percent", title: "Consumo de Claude", isOn: $usage)
             Chip(symbol: "moon.fill", title: "Concentración", isOn: $focusMode)
+            Chip(symbol: "music.note", title: "Música", isOn: $music)
         }
     }
 }

@@ -77,6 +77,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let focus = FocusTimer()
         let mail = MailService()
         let battery = BatteryCenter()
+        let nowPlaying = NowPlaying()
+        hud.nowPlaying = nowPlaying
         mail.onNew = { [weak hud, weak mail] message in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail),
                   MailService.isImportant(sender: message.sender,
@@ -205,6 +207,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mail.start()
         agents.start()
         battery.start()
+        hud.nowPlaying?.start()
         basket.start()
         store.trimHistory()
         store.recognizeMissingText()
@@ -242,6 +245,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // `-VisorDemoNotice agent|waiting|notification`: aviso de ejemplo con su tarjeta (capturas).
         if let demo = UserDefaults.standard.string(forKey: "VisorDemoNotice") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.showDemoNotice(demo) }
+        }
+        // Con `-VisorDemoMusic YES`, `-VisorDemoCard YES` abre la tarjeta de la musica.
+        if UserDefaults.standard.bool(forKey: "VisorDemoMusic"), UserDefaults.standard.bool(forKey: "VisorDemoCard") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.activateDemoCard() }
         }
         if UserDefaults.standard.string(forKey: "NookOpen") == "settings" { showSettings(); return }
         if UserDefaults.standard.bool(forKey: "NookWhatsNew") { showWhatsNew(); return }

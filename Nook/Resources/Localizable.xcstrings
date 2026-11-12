@@ -231,6 +231,16 @@
         }
       }
     },
+    "Abrir %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open %@"
+          }
+        }
+      }
+    },
     "Abrir Ajustes": {
       "localizations": {
         "en": {
@@ -657,6 +667,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Action ring next to the cursor"
+          }
+        }
+      }
+    },
+    "Anterior": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous"
           }
         }
       }
@@ -2881,6 +2901,16 @@
         }
       }
     },
+    "Música": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music"
+          }
+        }
+      }
+    },
     "Nada este día": {
       "localizations": {
         "en": {
@@ -3291,6 +3321,16 @@
         }
       }
     },
+    "Pausa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        }
+      }
+    },
     "Pegar al elegir (con ⌃⌘V)": {
       "localizations": {
         "en": {
@@ -3577,6 +3617,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "New clock"
+          }
+        }
+      }
+    },
+    "Reproducir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play"
           }
         }
       }

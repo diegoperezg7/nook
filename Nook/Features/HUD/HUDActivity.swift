@@ -7,6 +7,7 @@ struct HUDActivity: View {
     let metrics: NotchMetrics
     /// Lo que crece el notch a cada lado (segun el hueco libre de la barra de menus).
     let sides: HUDSides
+    @Environment(SystemHUD.self) private var hud
     /// Como isla: icono y valor en una fila bajo el notch, centrados.
     var island = false
 
@@ -24,6 +25,7 @@ struct HUDActivity: View {
         case .notification: return 150
         case .agent: return 84
         case .usage: return 96
+        case .music: return 50
         }
     }
 
@@ -166,6 +168,15 @@ struct HUDActivity: View {
             Self.logo(AgentIcons.claude, fallback: "sparkles")
         case .usage:
             Self.logo(AgentIcons.claude, fallback: "sparkles")
+        case .music:
+            // Caratula de la cancion (o el icono de la app mientras carga).
+            if let image = hud.nowPlaying?.artwork ?? hud.nowPlaying?.player?.icon {
+                Image(nsImage: image).resizable().scaledToFill()
+                    .frame(width: 20, height: 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+            } else {
+                Image(systemName: "music.note").font(.system(size: 13, weight: .semibold))
+            }
         }
     }
 
@@ -271,6 +282,8 @@ struct HUDActivity: View {
                 Text(verbatim: window).font(.system(size: 9, weight: .medium)).opacity(0.75)
             }
             .lineLimit(1)
+        case .music:
+            MusicBars()
         }
     }
 
@@ -449,5 +462,30 @@ struct HUDPreviewCard: View {
                 .frame(width: Self.iconSize, height: Self.iconSize)
                 .background(Circle().fill(AppColors.notchText.opacity(0.12)))
         }
+    }
+}
+
+/// Barras de ecualizador mientras suena la musica. Con "Reducir movimiento", quietas.
+private struct MusicBars: View {
+    var body: some View {
+        if AppMotion.reduceMotion {
+            bars(at: 0)
+        } else {
+            TimelineView(.animation(minimumInterval: 1.0 / 20)) { context in
+                bars(at: context.date.timeIntervalSinceReferenceDate)
+            }
+        }
+    }
+
+    private func bars(at time: TimeInterval) -> some View {
+        HStack(alignment: .center, spacing: 2) {
+            ForEach(0..<4, id: \.self) { index in
+                let phase = time * (3.1 + Double(index) * 0.9) + Double(index) * 1.7
+                Capsule()
+                    .fill(AppColors.success)
+                    .frame(width: 2.5, height: 4 + 9 * (0.5 + 0.5 * sin(phase)))
+            }
+        }
+        .frame(width: 18, height: 14)
     }
 }
