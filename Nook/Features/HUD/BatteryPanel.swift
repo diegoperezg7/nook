@@ -42,7 +42,11 @@ struct BatteryPanel: View {
         }
         .padding(14)
         .frame(minWidth: 220, alignment: .leading)
-        .onAppear { battery.refresh() }
+        // Fondo opaco: con el cristal del popover se transparentaba la bandeja de
+        // detras y el panel parecia quedar por debajo del notch.
+        .presentationBackground(AppColors.panel)
+        // Al abrirlo, la lectura de ahora (la anterior puede ser de hace 2 min).
+        .onAppear { battery.refresh(force: true) }
     }
 
     private func row(symbol: String, name: String, parts: [(String, Int)]) -> some View {

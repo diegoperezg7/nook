@@ -58,10 +58,19 @@ final class ScreenshotLibrary {
 
     /// Donde guarda macOS las capturas (Captura de pantalla > Opciones); por defecto, el Escritorio.
     static var systemFolder: URL {
-        if let path = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location"), !path.isEmpty {
-            return URL(fileURLWithPath: (path as NSString).expandingTildeInPath, isDirectory: true)
+        let prefs = UserDefaults(suiteName: "com.apple.screencapture")
+        for key in locationKeys {
+            if let path = prefs?.string(forKey: key), !path.isEmpty {
+                return URL(fileURLWithPath: (path as NSString).expandingTildeInPath, isDirectory: true)
+            }
         }
         return realHome.appendingPathComponent("Desktop", isDirectory: true)
+    }
+
+    /// true si se lee la carpeta donde macOS guarda las capturas. Una carpeta heredada
+    /// de Nook (elegida a mano en su dia) puede no serlo, y la seccion salia vacia.
+    var usesSystemFolder: Bool {
+        folder.map { Self.samePath($0, Self.systemFolder) } ?? false
     }
 
     /// Usa la carpeta de macOS sin dialogo (Nook no esta en sandbox).
@@ -71,6 +80,60 @@ final class ScreenshotLibrary {
             defaults.set(bookmark, forKey: Self.bookmarkKey)
         }
         use(url)
+    }
+
+    static let ownFolderKey = "screenshotsOwnFolderDone"
+
+    /// Una vez: si macOS guarda las capturas en el Escritorio, crea (o reutiliza)
+    /// Imagenes/Capturas de pantalla, le dice a macOS que las guarde ahi, mueve alli
+    /// las capturas que ya hay en el Escritorio y Visor pasa a leer esa carpeta.
+    /// Si el usuario ya tenia otra carpeta configurada en macOS, no se toca.
+    func moveScreenshotsOutOfDesktopOnce() {
+        guard !defaults.bool(forKey: Self.ownFolderKey) else { return }
+        defaults.set(true, forKey: Self.ownFolderKey)
+        let desktop = Self.realHome.appendingPathComponent("Desktop", isDirectory: true)
+        guard Self.samePath(Self.systemFolder, desktop) else {
+            // macOS ya guarda en otra carpeta: Visor lee esa.
+            if !usesSystemFolder { useSystemFolder() }
+            return
+        }
+        let target = Self.realHome
+            .appendingPathComponent("Pictures", isDirectory: true)
+            .appendingPathComponent(String(localized: "Capturas de pantalla"), isDirectory: true)
+        let files = FileManager.default
+        do {
+            try files.createDirectory(at: target, withIntermediateDirectories: true)
+        } catch {
+            return
+        }
+        Self.setSystemFolder(target)
+        for shot in Self.screenshots(in: desktop) {
+            let destination = target.appendingPathComponent(shot.url.lastPathComponent)
+            guard !files.fileExists(atPath: destination.path) else { continue }
+            try? files.moveItem(at: shot.url, to: destination)
+        }
+        if let bookmark = try? target.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
+            defaults.set(bookmark, forKey: Self.bookmarkKey)
+        }
+        use(target)
+    }
+
+    /// Carpeta donde macOS guarda las capturas (lo mismo que Captura de pantalla >
+    /// Opciones). macOS 27 lee `location-screenshot`; las versiones anteriores, `location`.
+    private static func setSystemFolder(_ url: URL) {
+        for key in locationKeys {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+            process.arguments = ["write", "com.apple.screencapture", key, "-string", url.path]
+            try? process.run()
+            process.waitUntilExit()
+        }
+    }
+
+    private static let locationKeys = ["location-screenshot", "location"]
+
+    private static func samePath(_ a: URL, _ b: URL) -> Bool {
+        a.standardizedFileURL.resolvingSymlinksInPath().path == b.standardizedFileURL.resolvingSymlinksInPath().path
     }
 
     /// La miniatura flotante de macOS retiene cada captura unos 5 s antes de guardarla:

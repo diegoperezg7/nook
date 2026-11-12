@@ -32,6 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let windowSnap = WindowSnap()
     private var selection: SelectionActions?
     private let notificationFeed = NotificationFeed()
+    private let notificationBanners = NotificationBanners()
     private let launcher = LauncherController()
     private var launcherHotKey: HotKey?
 
@@ -40,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SettingsKey.registerDefaults()
         // Los tests usan la app como host: sin panel ni monitores.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+        permissions.onGranted = { [weak self] in self?.permissionGranted() }
 
         if DataHome.dataLeftInContainer {
             let alert = NSAlert()
@@ -63,12 +65,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LegacyImport.run(into: store)
         #endif
         let screenshots = ScreenshotLibrary()
+        // La build Debug no toca la carpeta de capturas del sistema salvo que se pida.
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "VisorScreenshotSetup") { screenshots.moveScreenshotsOutOfDesktopOnce() }
+        #else
+        screenshots.moveScreenshotsOutOfDesktopOnce()
+        #endif
         let agents = AgentMonitor()
         let hud = SystemHUD()
         let calendar = CalendarService()
         let focus = FocusTimer()
         let mail = MailService()
         let battery = BatteryCenter()
+        let nowPlaying = NowPlaying()
+        hud.nowPlaying = nowPlaying
         mail.onNew = { [weak hud, weak mail] message in
             guard UserDefaults.standard.bool(forKey: SettingsKey.hudMail),
                   MailService.isImportant(sender: message.sender,
@@ -153,7 +163,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.dictation = dictation
         self.ring = ring
         self.selection = SelectionActions(store: store)
-        notificationFeed.onNotice = { [weak hud] notice in
+        notificationFeed.onNotice = { [weak hud, weak self] notice in
+            // Con Accesibilidad mandan los avisos de macOS (macOS 27 ya no tiene la base): sin duplicar.
+            guard self?.notificationBanners.isRunning != true || !AXAccess.isTrusted else { return }
             let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: notice.bundleID)
             let preview = SystemHUD.Preview(
                 symbol: "bell.fill", appIcon: AgentIcons.icon(notice.bundleID),
@@ -164,6 +176,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 NSWorkspace.shared.openApplication(at: app, configuration: NSWorkspace.OpenConfiguration())
             }
             hud?.show(.notification(bundleID: notice.bundleID, title: notice.title, body: notice.body), for: 5, preview: preview)
+        }
+        notificationBanners.onBanner = { [weak hud, weak self] banner in
+            guard banner.appName != "Visor" else { return }
+            let bundleID = banner.bundleID ?? ""
+            let appURL = banner.bundleID.flatMap { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) }
+            let preview = SystemHUD.Preview(
+                symbol: "bell.fill", appIcon: AgentIcons.icon(bundleID),
+                title: banner.appName, subtitle: banner.title,
+                body: banner.subtitle.isEmpty ? banner.body : banner.subtitle + " · " + banner.body,
+                actionTitle: String(localized: "Abrir app")
+            ) {
+                // Con el aviso de macOS aun en pantalla, se abre en ese mensaje.
+                if self?.notificationBanners.open(banner.id) == true { return }
+                guard let appURL else { return }
+                NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration())
+            }
+            hud?.show(.notification(bundleID: bundleID, title: banner.title, body: banner.body), for: 5, preview: preview)
         }
         windowSnap.onNeedsPermission = { [weak hud] in
             hud?.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
@@ -178,6 +207,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mail.start()
         agents.start()
         battery.start()
+        hud.nowPlaying?.start()
         basket.start()
         store.trimHistory()
         store.recognizeMissingText()
@@ -212,6 +242,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileImporter.add(paths.split(separator: "|").map { URL(fileURLWithPath: String($0)) }, to: store)
         }
         notch.applyDebugLaunchArguments()
+        // `-VisorDemoNotice agent|waiting|notification`: aviso de ejemplo con su tarjeta (capturas).
+        if let demo = UserDefaults.standard.string(forKey: "VisorDemoNotice") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.showDemoNotice(demo) }
+        }
+        // Con `-VisorDemoMusic YES`, `-VisorDemoCard YES` abre la tarjeta de la musica.
+        if UserDefaults.standard.bool(forKey: "VisorDemoMusic"), UserDefaults.standard.bool(forKey: "VisorDemoCard") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.activateDemoCard() }
+        }
         if UserDefaults.standard.string(forKey: "NookOpen") == "settings" { showSettings(); return }
         if UserDefaults.standard.bool(forKey: "NookWhatsNew") { showWhatsNew(); return }
         #endif
@@ -222,6 +260,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             showOnboarding()
         }
     }
+
+    #if DEBUG
+    /// `-VisorDemoCard YES`: pulsa el aviso un segundo despues de salir (se ve el paso
+    /// de aviso a tarjeta); `-VisorDemoCardFor 3` cierra la tarjeta pasados esos segundos.
+    private func activateDemoCard() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.hud?.activate()
+            let hold = UserDefaults.standard.double(forKey: "VisorDemoCardFor")
+            guard hold > 0 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + hold) { self?.hud?.dismissActivated() }
+        }
+    }
+
+    private func showDemoNotice(_ kind: String) {
+        let hold = UserDefaults.standard.double(forKey: "VisorDemoHold")
+        let duration: TimeInterval = hold > 0 ? hold : 4
+        switch kind {
+        case "notification":
+            let preview = SystemHUD.Preview(
+                symbol: "bell.fill", appIcon: AgentIcons.icon("com.apple.MobileSMS"), title: "Mensajes",
+                subtitle: "Ana", body: "¿Quedamos a las ocho en el sitio de siempre?", actionTitle: String(localized: "Abrir app")
+            ) {}
+            hud?.show(.notification(bundleID: "com.apple.MobileSMS", title: "Ana", body: "¿Quedamos a las ocho?"), for: duration, preview: preview)
+            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { activateDemoCard() }
+        default:
+            let waiting = kind == "waiting"
+            let preview = SystemHUD.Preview(
+                symbol: "terminal.fill", title: "visor",
+                subtitle: waiting ? String(localized: "Espera tu respuesta") : String(localized: "Ha terminado"),
+                actionTitle: String(localized: "Ir a la terminal")
+            ) {}
+            hud?.show(.agent(project: "visor", waiting: waiting), for: duration, preview: preview)
+            if UserDefaults.standard.bool(forKey: "VisorDemoCard") { activateDemoCard() }
+        }
+    }
+    #endif
 
     /// Novedades tras actualizar (una vez por version).
     private func showWhatsNew() {
@@ -236,8 +310,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.center()
             whatsNewWindow = window
         }
-        NSApp.activate()
-        whatsNewWindow?.makeKeyAndOrderFront(nil)
+        present(whatsNewWindow)
     }
 
     private func applySettings() {
@@ -256,6 +329,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowSnap.apply()
         selection?.apply()
         notificationFeed.apply()
+        if UserDefaults.standard.bool(forKey: SettingsKey.notifications) {
+            notificationBanners.start()
+        } else {
+            notificationBanners.stop()
+        }
         let wantsLauncher = UserDefaults.standard.bool(forKey: SettingsKey.launcher)
         if wantsLauncher, launcherHotKey == nil {
             // ⌥Espacio.
@@ -343,8 +421,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.center()
             settingsWindow = window
         }
-        NSApp.activate()
-        settingsWindow?.makeKeyAndOrderFront(nil)
+        present(settingsWindow)
     }
 
     /// Introduccion del primer arranque (y "Ver de nuevo" en Ajustes).
@@ -355,6 +432,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if onboardingWindow == nil {
             let view = OnboardingView(calendar: calendar, mail: mail, screenshots: screenshots, permissions: permissions) { [weak self] in
                 UserDefaults.standard.set(true, forKey: SettingsKey.onboardingDone)
+                UserDefaults.standard.removeObject(forKey: OnboardingView.stepKey)
                 self?.onboardingWindow?.close()
             }
             let window = NSWindow(contentViewController: NSHostingController(rootView: view))
@@ -366,8 +444,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.center()
             onboardingWindow = window
         }
+        present(onboardingWindow)
+    }
+
+    /// Visor no tiene icono en el Dock: desde macOS 14 el sistema puede ignorar
+    /// `activate()` y la ventana se abria detras de las demas. `orderFrontRegardless`
+    /// la pone delante igualmente.
+    private func present(_ window: NSWindow?) {
+        guard let window else { return }
         NSApp.activate()
-        onboardingWindow?.makeKeyAndOrderFront(nil)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+    }
+
+    /// Tras conceder un permiso (aviso del sistema o Ajustes del Sistema), vuelve al
+    /// frente la ventana desde la que se pidio, para seguir con el siguiente.
+    private func permissionGranted() {
+        for window in [onboardingWindow, settingsWindow] where window?.isVisible == true {
+            present(window)
+            return
+        }
     }
 
     private static func makeContainer() -> ModelContainer {
@@ -383,3 +479,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return try! ModelContainer(for: NotchItem.self, configurations: memory)
     }
 }
+

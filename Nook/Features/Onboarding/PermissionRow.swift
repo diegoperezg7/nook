@@ -1,4 +1,5 @@
 import AppKit
+import EventKit
 import ServiceManagement
 import SwiftUI
 
@@ -9,6 +10,9 @@ import SwiftUI
 final class PermissionState {
     private(set) var accessibility = AXAccess.isTrusted
     private(set) var fullDiskAccess = PermissionState.readsNotifications
+    @ObservationIgnored private var calendar = PermissionState.calendarGranted
+    /// Se llama cuando un permiso pasa a concedido.
+    @ObservationIgnored var onGranted: (() -> Void)?
 
     @ObservationIgnored private var observer: NSObjectProtocol?
     @ObservationIgnored private var timer: Timer?
@@ -33,13 +37,30 @@ final class PermissionState {
     }
 
     func refresh() {
-        let ax = AXAccess.isTrusted, disk = Self.readsNotifications
+        let ax = AXAccess.isTrusted, disk = Self.readsNotifications, cal = Self.calendarGranted
+        let granted = (ax && !accessibility) || (disk && !fullDiskAccess) || (cal && !calendar)
         if ax != accessibility { accessibility = ax }
         if disk != fullDiskAccess { fullDiskAccess = disk }
+        calendar = cal
+        if granted { onGranted?() }
+    }
+
+    private static var calendarGranted: Bool {
+        EKEventStore.authorizationStatus(for: .event) == .fullAccess
     }
 
     private static var readsNotifications: Bool {
         FileManager.default.isReadableFile(atPath: NotificationFeed.databasePath)
+    }
+
+    /// Acceso total al disco solo sirve para leer la base de datos de notificaciones.
+    /// Desde macOS 27 ya no existe (las notificaciones llegan por Accesibilidad) y el
+    /// permiso no se podia dar por concedido nunca: entonces no se pide.
+    /// Sin el permiso, mirar dentro puede dar "sin permiso" en vez de "no existe":
+    /// solo un "no existe" (ENOENT) quita la fila.
+    static var fullDiskAccessNeeded: Bool {
+        var info = stat()
+        return stat(NotificationFeed.databasePath, &info) == 0 || errno != ENOENT
     }
 }
 

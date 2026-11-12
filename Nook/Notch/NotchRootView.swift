@@ -23,26 +23,51 @@ struct NotchRootView: View {
         // Al pulsar un aviso, en su lugar sale su tarjeta (mas alta que el aviso).
         let preview = model.isOpen || model.isCollapsing ? nil : hud.activated
         let notice = model.isOpen || model.isCollapsing || preview != nil ? nil : (hud.current ?? hud.ambient)
-        let card = metrics.previewSize
+        // La tarjeta mide lo que su texto; sin tarjeta guarda la ultima medida para
+        // recogerse desde su tamaño.
+        let card = metrics.previewSize(content: preview.map(HUDPreviewCard.contentSize(for:)) ?? .zero)
         // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
         let free = menuBar.free
-        let sides = HUDSides.make(desired: notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
+        // Una notificacion, o un aviso que no cabe a los dos lados, no va en las alas:
+        // sale como isla, simetrica y hacia abajo.
+        let spec = notice.flatMap { HUDActivity.island(for: $0, leftFree: free.left, rightFree: free.right) }
+        let island = spec != nil
+        let islandSize = metrics.islandSize(content: spec?.content ?? 0, extra: spec?.extra ?? NotchMetrics.islandExtra)
+        let sides = HUDSides.make(desired: island ? 0 : notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
         let closedWidth = metrics.closedSize.width + sides.left + sides.right
-        let width = model.expandedWidth ? open.width : preview != nil ? card.width : closedWidth
+        let width = model.expandedWidth ? open.width : preview != nil ? card.width : island ? islandSize.width : closedWidth
         // Si un lado crece mas que el otro, la forma se desplaza para que el notch
         // fisico siga en su sitio.
-        let shift = model.expandedWidth || preview != nil ? 0 : (sides.right - sides.left) / 2
-        let height = model.expandedHeight ? open.height : preview != nil ? card.height : metrics.closedSize.height
+        let shift = model.expandedWidth || preview != nil || island ? 0 : (sides.right - sides.left) / 2
+        let height = model.expandedHeight ? open.height : preview != nil ? card.height : island ? islandSize.height : metrics.closedSize.height
         let shape = NotchShape(
             topRadius: model.expandedWidth || preview != nil ? NotchMetrics.openEar : NotchMetrics.closedEar,
-            bottomRadius: model.expandedHeight || preview != nil ? NotchMetrics.openBottomRadius : metrics.closedBottomRadius
+            bottomRadius: model.expandedHeight || preview != nil ? NotchMetrics.openBottomRadius
+                : island ? NotchMetrics.islandBottomRadius : metrics.closedBottomRadius
         )
 
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
+                // Los dos fondos estan siempre y se funden: una vista que entra con
+                // transicion toma de golpe el tamaño final y no crece con la forma.
                 NotchBackground(shape: shape)
+                    .opacity(preview != nil ? 0 : 1)
+                CardBackground(shape: shape, bandFraction: metrics.notchHeight / card.height)
+                    .opacity(preview != nil ? 1 : 0)
 
-                if let notice {
+                if let notice, island {
+                    Group {
+                        if case .notification = notice {
+                            NotificationIsland(kind: notice, metrics: metrics)
+                        } else {
+                            HUDActivity(kind: notice, metrics: metrics, sides: sides, island: true)
+                        }
+                    }
+                        .frame(width: islandSize.width, height: islandSize.height)
+                        .contentShape(Rectangle())
+                        .onTapGesture { hud.activate() }
+                        .transition(noticeTransition)
+                } else if let notice {
                     HUDActivity(kind: notice, metrics: metrics, sides: sides)
                         .frame(width: closedWidth)
                         .contentShape(Rectangle())
@@ -66,21 +91,21 @@ struct NotchRootView: View {
             .clipShape(shape)
             .offset(x: shift)
             // Tarjeta de un aviso: resplandor detras (solo se ve por fuera) y borde encima.
+            // Igual que los fondos: siempre presente y con opacidad, para que el borde
+            // crezca con la forma y no aparezca ya con el tamaño de la tarjeta.
             .background {
-                if preview != nil { SiriGlow(shape: shape, halo: true).transition(.opacity) }
+                SiriGlow(shape: shape, halo: true, band: metrics.notchHeight, active: preview != nil)
+                    .opacity(preview != nil ? 1 : 0)
             }
             .overlay {
-                if model.isDropTargeted, model.isOpen {
-                    DropGlow(shape: shape)
-                } else if preview != nil {
-                    SiriGlow(shape: shape, halo: false).transition(.opacity)
-                }
+                SiriGlow(shape: shape, halo: false, band: metrics.notchHeight, active: preview != nil)
+                    .opacity(preview != nil ? 1 : 0)
+            }
+            .overlay {
+                if model.isDropTargeted, model.isOpen { DropGlow(shape: shape) }
             }
             .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
-            // Crece con muelle; al recogerse, sin rebote.
-            .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
             .onChange(of: sides) { _, new in lastSides = new }
-            .animation(AppMotion.open, value: preview != nil)
             // Abrir el notch silencia la alarma que esta sonando y cierra la tarjeta.
             .onChange(of: model.isOpen) { _, open in
                 if open {
@@ -95,6 +120,12 @@ struct NotchRootView: View {
             .animation(AppMotion.snappy, value: model.isDropTargeted)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        // Crece con muelle; al recogerse, sin rebote. La animacion va aqui, por fuera
+        // del marco que centra la forma: dentro, el tamaño se animaba pero el centrado
+        // no, y la forma saltaba a la izquierda y crecia solo hacia la derecha.
+        .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
+        .animation(AppMotion.open, value: preview != nil)
+        .animation(island ? AppMotion.open : AppMotion.close, value: island)
         .onDrop(of: DropReader.types, isTargeted: $model.isDropTargeted) { providers in
             // Una tarjeta arrastrada y soltada en el propio panel no se duplica.
             guard !model.isDraggingOut else { return false }
@@ -106,15 +137,16 @@ struct NotchRootView: View {
         }
     }
 
-    /// El contenido entra cuando el panel ya ha salido, con un leve zoom desde arriba
-    /// y un desenfoque ligero; sale con un fundido rapido para no estorbar al cierre.
+    /// El contenido entra cuando el panel ya ha salido casi entero (0,12 s: antes se
+    /// veia recortado por los lados mientras la forma crecia), con un leve zoom desde
+    /// el centro y un desenfoque ligero; sale con un fundido rapido para no estorbar al cierre.
     private var contentTransition: AnyTransition {
         if AppMotion.reduceMotion { return .opacity }
         return .asymmetric(
             insertion: .modifier(
                 active: RevealModifier(progress: 0),
                 identity: RevealModifier(progress: 1)
-            ).animation(.spring(response: 0.42, dampingFraction: 0.86).delay(0.06)),
+            ).animation(.spring(response: 0.42, dampingFraction: 0.86).delay(0.12)),
             removal: .opacity.animation(.easeOut(duration: 0.1))
         )
     }
@@ -140,6 +172,30 @@ private struct NotchBackground: View {
     }
 }
 
+/// Fondo de la tarjeta de un aviso pulsado, como la nueva Siri: arriba, la franja del
+/// notch en negro; abajo, cristal (Liquid Glass en macOS 26, material antes) con un
+/// velo de los colores del borde. El negro se funde hacia abajo y no queda debajo del
+/// cristal: sobre un fondo opaco el cristal pierde el tinte.
+private struct CardBackground: View {
+    let shape: NotchShape
+    /// Parte de la altura que ocupa la franja del notch.
+    let bandFraction: CGFloat
+
+    var body: some View {
+        ZStack {
+            Color.clear.liquidGlass(in: shape, tint: AppColors.notch.opacity(0.65))
+            // El tinte del cristal apenas oscurece: este velo deja el texto blanco por
+            // encima de 4,5:1 aunque detras haya una pagina blanca.
+            shape.fill(AppColors.notch.opacity(0.42))
+            shape.fill(LinearGradient(stops: [
+                .init(color: AppColors.notch, location: 0),
+                .init(color: AppColors.notch, location: bandFraction),
+                .init(color: AppColors.notch.opacity(0), location: min(1, bandFraction + 0.45)),
+            ], startPoint: .top, endPoint: .bottom))
+        }
+    }
+}
+
 /// Borde azul que late mientras se arrastra algo encima.
 private struct DropGlow: View {
     let shape: NotchShape
@@ -159,21 +215,38 @@ private struct DropGlow: View {
 }
 
 /// Borde de la tarjeta de un aviso pulsado, como la nueva Siri: un degradado
-/// multicolor que recorre el contorno. `halo` es el resplandor difuso de detras.
-/// Con "Reducir movimiento", el degradado queda quieto.
+/// multicolor que recorre los lados y el fondo. Arriba no: el tramo recto queda
+/// pegado al borde de la pantalla, y la franja del notch se funde sin linea.
+/// `halo` es el resplandor difuso de detras. Con "Reducir movimiento", quieto.
 private struct SiriGlow: View {
     let shape: NotchShape
     let halo: Bool
+    /// Alto de la franja del notch: ahi el borde aun no se ve.
+    let band: CGFloat
+    /// Sin tarjeta el borde esta oculto: el giro se para y no gasta.
+    let active: Bool
 
     var body: some View {
         Group {
             if AppMotion.reduceMotion {
                 ring(.zero)
             } else {
-                TimelineView(.animation) { context in
+                TimelineView(.animation(minimumInterval: nil, paused: !active)) { context in
                     // Una vuelta cada 4 s.
                     ring(.degrees(context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 4) * 90))
                 }
+            }
+        }
+        .mask {
+            GeometryReader { proxy in
+                let start = min(1, band / max(proxy.size.height, 1))
+                LinearGradient(stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .clear, location: start * 0.6),
+                    .init(color: .black, location: min(1, start + 0.15)),
+                ], startPoint: .top, endPoint: .bottom)
+                // El halo sale por fuera de la forma: la mascara no lo recorta de lado.
+                .padding(-40)
             }
         }
         .allowsHitTesting(false)
@@ -182,6 +255,7 @@ private struct SiriGlow: View {
     @ViewBuilder
     private func ring(_ angle: Angle) -> some View {
         let gradient = AngularGradient(colors: AppColors.glow, center: .center, angle: angle)
+        let shape = NotchShape(topRadius: shape.topRadius, bottomRadius: shape.bottomRadius, closesTop: false)
         if halo {
             shape.stroke(gradient, lineWidth: 8).blur(radius: 12).opacity(0.85)
         } else {

@@ -12,6 +12,12 @@ struct CalendarView: View {
     private enum Feedback: Equatable { case added(String), notUnderstood }
 
     var body: some View {
+        content
+            // Por si el Mac no aviso del cambio de dia: al abrir, hoy.
+            .onAppear { calendar.followToday() }
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             if calendar.access == .granted {
                 addField
@@ -229,8 +235,10 @@ private struct DayList: View {
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
+            // Cada minuto: un evento de hoy desaparece al terminar.
+            TimelineView(.periodic(from: .now, by: 60)) { context in
             VStack(alignment: .leading, spacing: 5) {
-                ForEach(Array(calendar.agenda.enumerated()), id: \.element.id) { index, day in
+                ForEach(Array(calendar.agenda.map { $0.upcoming(at: context.date) }.enumerated()), id: \.element.id) { index, day in
                     Text(verbatim: Self.title(day.day))
                         .font(AppTypography.bodyStrong)
                         .foregroundStyle(AppColors.textSecondary)
@@ -258,6 +266,8 @@ private struct DayList: View {
                 }
             }
             .padding(.bottom, 8)
+            .animation(AppMotion.snappy, value: context.date)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay(alignment: .topTrailing) {

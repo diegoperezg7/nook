@@ -11,16 +11,16 @@ enum WhatsNew {
     }
 
     static let notes: [Note] = [
-        Note(icon: "hand.tap.fill", title: "Avisos que se abren",
-             detail: "Pulsa un aviso del notch para ver una vista previa y un botón para ir al correo, la sesión, la descarga o la reunión."),
-        Note(icon: "timer", title: "Reloj nuevo",
-             detail: "Temporizador con pausa y duración libre, alarmas y mantener despierto, en un panel como el de la app Reloj."),
-        Note(icon: "gauge.with.dots.needle.67percent", title: "Consumo de Claude",
-             detail: "El % gastado de 5 h y de la semana, con la hora a la que se reinicia, y aviso al pasar del 80 % y del 95 %."),
-        Note(icon: "envelope.fill", title: "Correo",
-             detail: "Ves también los leídos, respondes desde el notch y eliges de quién quieres aviso."),
-        Note(icon: "qrcode", title: "Herramientas",
-             detail: "Código QR del texto copiado, cuentagotas en el menú ⋯, texto de una captura y «Copiar como»."),
+        Note(icon: "music.note", title: "Música en el notch",
+             detail: "Mientras suena Spotify o Música, su logo en el notch abre un reproductor con carátula, progreso y controles."),
+        Note(icon: "phone.fill", title: "Llamadas",
+             detail: "Un solo botón verde con micro, cámara y colgar, y a la vista si estás silenciado."),
+        Note(icon: "camera.viewfinder", title: "Capturas en su carpeta",
+             detail: "Las capturas van a Imágenes/Capturas de pantalla, fuera del Escritorio, y se ven en el notch."),
+        Note(icon: "calendar", title: "Calendario al día",
+             detail: "Al cambiar de día, el calendario marca hoy y la reunión deja de avisar en cuanto entras."),
+        Note(icon: "airpods", title: "AirPods",
+             detail: "Batería de cada auricular y del estuche, también justo al conectarlos."),
     ]
 
     static var version: String {

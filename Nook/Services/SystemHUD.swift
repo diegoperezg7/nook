@@ -41,6 +41,8 @@ final class SystemHUD {
         case mediaInUse(mic: Bool, camera: Bool)
         case stayAwake(until: Date?)
         case alarm(time: Date)
+        /// Musica o Spotify sonando.
+        case music(title: String)
     }
 
     /// Lo que enseña la tarjeta al pulsar un aviso y su boton principal (ir al
@@ -56,6 +58,9 @@ final class SystemHUD {
         var actionTitle: String
         /// Acciones secundarias (iconos junto al boton principal).
         var extras: [Extra] = []
+        /// Si la tiene, la tarjeta no se cierra con una accion secundaria: se vuelve a
+        /// armar con esto (controles de musica: el boton de pausa cambia).
+        var refresh: (() -> Preview?)? = nil
         var action: () -> Void
 
         struct Extra {
@@ -75,6 +80,7 @@ final class SystemHUD {
     private(set) var now = Date.now
 
     @ObservationIgnored var focus: FocusTimer?
+    @ObservationIgnored var nowPlaying: NowPlaying?
     @ObservationIgnored var calendar: CalendarService?
     @ObservationIgnored var dictation: Dictation?
     @ObservationIgnored private var capsLockOn = false
@@ -82,12 +88,23 @@ final class SystemHUD {
     @ObservationIgnored private var path: NWPathMonitor?
     @ObservationIgnored private var lastPath: (online: Bool, vpn: Bool)?
 
+    /// Boton de musica en la cabecera del panel: hay cancion en Musica o Spotify
+    /// (tambien en pausa, para poder seguir).
+    var hasMusic: Bool {
+        defaults.bool(forKey: SettingsKey.hudMusic) && nowPlaying?.track != nil
+    }
+
+    /// En una llamada: el micro lo usa una app de reuniones (o una con boton de colgar).
+    var inCall: Bool { micInUse && MeetingControls.current(micInUse: true) != nil }
+
     /// La actividad que dura con mas prioridad: reunion > temporizador >
     /// microfono o camara > mantener despierto.
     var ambient: Kind? {
         if let dictation, dictation.isListening { return .dictation(text: dictation.transcript) }
         if let ringing = focus?.ringing { return .alarm(time: ringing) }
-        if defaults.bool(forKey: SettingsKey.hudMeetings), let meeting = calendar?.imminentMeeting(at: now) {
+        // Si ya estas en una llamada, el aviso de la reunion sobra (seguia hasta 5 min
+        // despues de la hora aunque ya hubieras entrado).
+        if defaults.bool(forKey: SettingsKey.hudMeetings), !inCall, let meeting = calendar?.imminentMeeting(at: now) {
             return .meeting(title: meeting.title, start: meeting.start)
         }
         if let focus, let end = focus.end { return .timer(end: end, total: focus.total) }
@@ -97,6 +114,10 @@ final class SystemHUD {
             return .mediaInUse(mic: micInUse, camera: cameraInUse)
         }
         if let focus, focus.isAwake { return .stayAwake(until: focus.awakeUntil) }
+        // Solo mientras suena: en pausa el notch vuelve a estar libre.
+        if defaults.bool(forKey: SettingsKey.hudMusic), let nowPlaying, nowPlaying.isPlaying, let track = nowPlaying.track {
+            return .music(title: track.title)
+        }
         return nil
     }
     @ObservationIgnored private var hideWork: DispatchWorkItem?
@@ -230,7 +251,11 @@ final class SystemHUD {
                 guard ticks % 5 == 0 else { return }
                 let mic = MediaUsage.microphoneInUse()
                 let camera = MediaUsage.cameraInUse()
-                if mic != self.micInUse { self.micInUse = mic }
+                if mic != self.micInUse {
+                    self.micInUse = mic
+                    // Fin de la llamada: el micro del Mac vuelve como estaba.
+                    if !mic { MeetingControls.callEnded() }
+                }
                 if camera != self.cameraInUse { self.cameraInUse = camera }
                 if ticks % 50 == 0 { self.now = .now }
             }
@@ -282,7 +307,7 @@ final class SystemHUD {
     var isActionable: Bool {
         if current != nil { return pendingPreview != nil }
         switch ambient {
-        case .meeting, .alarm: return true
+        case .meeting, .alarm, .music: return true
         default: return false
         }
     }
@@ -300,6 +325,8 @@ final class SystemHUD {
             return
         }
         switch ambient {
+        case .music:
+            activated = musicPreview()
         case .meeting:
             guard let calendar, let meeting = calendar.imminentMeeting(at: now) else { return }
             let link = meeting.meetingURL.map { String(localized: "Enlace: \($0.host() ?? $0.absoluteString)") }
@@ -322,10 +349,38 @@ final class SystemHUD {
         preview?.action()
     }
 
-    /// Accion secundaria de la tarjeta: la ejecuta y cierra la tarjeta.
+    /// Accion secundaria de la tarjeta: la ejecuta y cierra la tarjeta (salvo las que
+    /// se rearman, como la musica: la cancion nueva llega un instante despues).
     func performExtra(_ extra: Preview.Extra) {
-        activated = nil
+        guard let refresh = activated?.refresh else {
+            activated = nil
+            extra.action()
+            return
+        }
         extra.action()
+        activated = refresh()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+            guard let self, self.activated != nil else { return }
+            self.activated = refresh()
+        }
+    }
+
+    /// Tarjeta de lo que suena: cancion, artista y controles; el boton abre la app.
+    private func musicPreview() -> Preview? {
+        guard let nowPlaying, let track = nowPlaying.track, let player = nowPlaying.player else { return nil }
+        let name = player == .music ? String(localized: "Música") : "Spotify"
+        return Preview(
+            symbol: "music.note", appIcon: nowPlaying.artwork ?? player.icon,
+            title: track.title, subtitle: track.artist, body: track.album,
+            actionTitle: String(localized: "Abrir \(name)"),
+            extras: [
+                .init(symbol: "backward.fill", title: String(localized: "Anterior")) { nowPlaying.previous() },
+                .init(symbol: nowPlaying.isPlaying ? "pause.fill" : "play.fill",
+                      title: nowPlaying.isPlaying ? String(localized: "Pausa") : String(localized: "Reproducir")) { nowPlaying.playPause() },
+                .init(symbol: "forward.fill", title: String(localized: "Siguiente")) { nowPlaying.next() },
+            ],
+            refresh: { [weak self] in self?.musicPreview() }
+        ) { nowPlaying.openPlayer() }
     }
 
     func dismissActivated() {

@@ -16,6 +16,8 @@ struct NotchContentView: View {
     @State private var showBattery = false
     @State private var showMirror = false
     @State private var showClock = false
+    @State private var showCall = false
+    @State private var showMusic = false
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -45,6 +47,39 @@ struct NotchContentView: View {
         }
         // Al abrir: por si acabas de conectar los AirPods.
         .onAppear { battery.refresh() }
+        #if DEBUG
+        // `-VisorOpenClock YES`: abre el reloj al abrir el panel (capturas).
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenClock") else { return }
+            try? await Task.sleep(for: .seconds(0.8))
+            model.isPreviewing = true
+            showClock = true
+        }
+        // `-VisorOpenBattery YES`: igual con la bateria de los auriculares.
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenBattery") else { return }
+            try? await Task.sleep(for: .seconds(1.5))
+            battery.refresh()
+            model.isPreviewing = true
+            showBattery = true
+        }
+        // `-VisorOpenMusic YES` (con `-VisorDemoMusic YES`): abre el reproductor.
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenMusic") else { return }
+            try? await Task.sleep(for: .seconds(1.5))
+            model.isPreviewing = true
+            showMusic = true
+        }
+        // `-VisorOpenCall YES` (con `-VisorDemoCall <app>`): abre el desplegable de la
+        // llamada; `-VisorDemoMuted YES` lo enseña con el micro silenciado.
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenCall") else { return }
+            CallState.shared.micMuted = UserDefaults.standard.bool(forKey: "VisorDemoMuted")
+            try? await Task.sleep(for: .seconds(1.5))
+            model.isPreviewing = true
+            showCall = true
+        }
+        #endif
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
         // estrecho que la ventana. Sin esto los margenes se quedaban en 2 pt.
         .padding(.horizontal, NotchMetrics.openEar)
@@ -55,16 +90,25 @@ struct NotchContentView: View {
             tabs.frame(maxWidth: .infinity, alignment: .leading)
             // Hueco del notch fisico: ahi no se ve nada.
             Color.clear.frame(width: model.metrics.hasNotch ? model.metrics.notchWidth : 0)
-            HStack(spacing: 8) {
-                // Como mucho cuatro botones por lado: un quinto entraria bajo la
-                // camara en los portatiles. "Añadir archivos…" esta en el menu ⋯.
-                if let call = MeetingControls.current(micInUse: hud.micInUse) {
-                    callControls(call)
+            let call = MeetingControls.current(micInUse: hud.micInUse)
+            // En llamada, un solo boton (que despliega micro, camara y colgar) en lugar
+            // de agentes, reloj y espejo/musica. Con musica, su boton ocupa el sitio del
+            // espejo. La separacion depende de cuantos hay: con cinco (bateria de los
+            // auriculares) van mas juntos para no entrar bajo el notch.
+            let music = call == nil && hud.hasMusic
+            let count = (call != nil ? 1 : 3) + (battery.headline != nil ? 1 : 0) + 1
+            HStack(spacing: NotchMetrics.headerSpacing(buttons: count)) {
+                if let call {
+                    callButton(call)
                 } else {
                     agentsButton
                     timerMenu
+                    if music, let nowPlaying = hud.nowPlaying {
+                        musicButton(nowPlaying)
+                    } else {
+                        mirrorButton
+                    }
                 }
-                mirrorButton
                 batteryButton
                 menu
             }
@@ -105,37 +149,92 @@ struct NotchContentView: View {
         }
     }
 
-    /// En llamada: micro, camara y colgar de la app de la reunion.
-    private func callControls(_ call: MeetingControls.Target) -> some View {
-        HStack(spacing: 8) {
-            callButton("mic.slash.fill", String(localized: "Silenciar o activar el micro en \(call.name)"), .mic, call)
-            callButton("video.slash.fill", String(localized: "Apagar o encender la cámara en \(call.name)"), .camera, call)
-            if call.leave != nil {
-                Button { run(.leave, call) } label: {
-                    Image(systemName: "phone.down.fill")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 30, height: 30)
-                        .background(Circle().fill(AppColors.danger))
-                }
-                .buttonStyle(.plain)
-                .help(Text("Colgar en \(call.name)"))
-            }
+    /// Musica o Spotify: su logo con un aro de progreso; al pulsarlo, el reproductor.
+    private func musicButton(_ nowPlaying: NowPlaying) -> some View {
+        Button {
+            model.isPreviewing = true
+            showMusic = true
+        } label: {
+            CircleIconLabel(icon: "music.note", logo: nowPlaying.player?.icon)
+                .overlay { MusicRing(nowPlaying: nowPlaying) }
+        }
+        .buttonStyle(.plain)
+        .help(Text(verbatim: [nowPlaying.track?.title, nowPlaying.track?.artist].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")))
+        .accessibilityLabel(Text("Música"))
+        .popover(isPresented: $showMusic, arrowEdge: .bottom) { MusicPanel(nowPlaying: nowPlaying) }
+        .onChange(of: showMusic) { _, shown in
+            if !shown { model.isPreviewing = false }
         }
         .transition(.scale.combined(with: .opacity))
     }
 
-    private func callButton(_ icon: String, _ help: String, _ action: MeetingControls.Action, _ call: MeetingControls.Target) -> some View {
-        Button { run(action, call) } label: { CircleIconLabel(icon: icon) }
-            .buttonStyle(.plain)
-            .help(Text(verbatim: help))
-            .accessibilityLabel(Text(verbatim: help))
+    /// En llamada: un boton verde; al pulsarlo salen micro, camara y colgar.
+    private func callButton(_ call: MeetingControls.Target) -> some View {
+        let state = CallState.shared
+        return Button {
+            model.isPreviewing = true
+            showCall = true
+        } label: {
+            Image(systemName: "phone.fill")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(AppColors.onAccent)
+                .frame(width: 30, height: 30)
+                .background(Circle().fill(AppColors.success))
+                // Micro silenciado: se ve sin abrir el boton.
+                .overlay(alignment: .bottomTrailing) {
+                    if state.micMuted {
+                        Image(systemName: "mic.slash.fill")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(AppColors.onAccent)
+                            .frame(width: 15, height: 15)
+                            .background(Circle().fill(AppColors.danger))
+                            .offset(x: 3, y: 3)
+                    }
+                }
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .help(Text("Llamada en \(call.name)"))
+        .accessibilityLabel(Text("Llamada en \(call.name)"))
+        .popover(isPresented: $showCall, arrowEdge: .bottom) {
+            CallPanel(call: call, state: state) { action in run(action, call) }
+        }
+        .onChange(of: showCall) { _, shown in
+            if !shown { model.isPreviewing = false }
+        }
+        .transition(.scale.combined(with: .opacity))
     }
 
     private func run(_ action: MeetingControls.Action, _ call: MeetingControls.Target) {
-        model.close()
-        if !MeetingControls.perform(action, on: call) {
+        // Micro y camara dejan el panel abierto para ver el cambio; colgar lo cierra.
+        if action == .leave {
+            showCall = false
+            model.close()
+        }
+        let outcome = MeetingControls.perform(action, on: call)
+        switch outcome {
+        case .pressed, .shortcut, .systemMute:
+            let state = CallState.shared
+            if action == .mic { state.micMuted.toggle() }
+            if action == .camera { state.cameraOff.toggle() }
+            if action == .leave { state.reset() }
+        case .needsPermission, .failed:
+            break
+        }
+        switch outcome {
+        case .needsPermission:
             hud.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
+        case .failed:
+            let text = switch action {
+            case .mic: String(localized: "No se pudo silenciar en \(call.name)")
+            case .camera: String(localized: "No se pudo apagar la cámara en \(call.name)")
+            case .leave: String(localized: "No se pudo colgar en \(call.name)")
+            }
+            hud.show(.notice(icon: "exclamationmark.triangle.fill", text: text), for: 2.5)
+        case .systemMute:
+            hud.show(.notice(icon: "mic.slash.fill", text: String(localized: "Micro del Mac silenciado")), for: 2)
+        case .pressed, .shortcut:
+            break
         }
     }
 
@@ -436,6 +535,196 @@ private struct TabButton: View {
 }
 
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
+/// Aro verde con lo que lleva la cancion, sobre el boton de musica.
+private struct MusicRing: View {
+    let nowPlaying: NowPlaying
+
+    var body: some View {
+        if let duration = nowPlaying.track?.duration, duration > 0 {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                Circle()
+                    .trim(from: 0, to: min(1, max(0, nowPlaying.currentPosition(at: context.date) / duration)))
+                    .stroke(AppColors.success, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .padding(1)
+            }
+            .allowsHitTesting(false)
+        }
+    }
+}
+
+/// Reproductor del boton de musica: caratula grande, cancion, progreso con tiempos y
+/// controles. El fondo toma el color de la caratula, como el de Apple. Pulsar la
+/// caratula abre la app.
+private struct MusicPanel: View {
+    let nowPlaying: NowPlaying
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
+                Button { nowPlaying.openPlayer() } label: { cover }
+                    .buttonStyle(.plain)
+                    .help(Text("Abrir \(nowPlaying.player == .music ? String(localized: "Música") : "Spotify")"))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: nowPlaying.track?.title ?? "")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AppColors.textPrimary)
+                    Text(verbatim: nowPlaying.track?.artist ?? "")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            progress
+            HStack(spacing: 28) {
+                control("backward.fill", "Anterior") { nowPlaying.previous() }
+                Button { nowPlaying.playPause() } label: {
+                    Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(AppColors.panel)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(AppColors.textPrimary))
+                        .contentTransition(.symbolEffect(.replace))
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(nowPlaying.isPlaying ? "Pausa" : "Reproducir"))
+                control("forward.fill", "Siguiente") { nowPlaying.next() }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(16)
+        .frame(width: 280)
+        .background {
+            LinearGradient(colors: [tint.opacity(0.55), tint.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+        .presentationBackground(AppColors.panel)
+    }
+
+    /// Color medio de la caratula (o del icono de la app mientras carga).
+    private var tint: Color {
+        (nowPlaying.artwork ?? nowPlaying.player?.icon).flatMap(NowPlaying.averageColor).map(Color.init(nsColor:)) ?? AppColors.success
+    }
+
+    @ViewBuilder
+    private var cover: some View {
+        if let image = nowPlaying.artwork ?? nowPlaying.player?.icon {
+            Image(nsImage: image).resizable().scaledToFill()
+                .frame(width: 56, height: 56)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .shadow(color: AppColors.shadow, radius: 6, y: 3)
+        } else {
+            Image(systemName: "music.note")
+                .font(.system(size: 20, weight: .semibold))
+                .frame(width: 56, height: 56)
+                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(AppColors.controlTrack))
+        }
+    }
+
+    @ViewBuilder
+    private var progress: some View {
+        if let duration = nowPlaying.track?.duration, duration > 0 {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                let position = min(duration, nowPlaying.currentPosition(at: context.date))
+                VStack(spacing: 4) {
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(AppColors.textPrimary.opacity(0.18))
+                            Capsule().fill(AppColors.textPrimary).frame(width: proxy.size.width * position / duration)
+                        }
+                    }
+                    .frame(height: 4)
+                    HStack {
+                        Text(verbatim: Self.time(position))
+                        Spacer()
+                        Text(verbatim: "-" + Self.time(duration - position))
+                    }
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
+                    .foregroundStyle(AppColors.textSecondary)
+                }
+            }
+        }
+    }
+
+    private static func time(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds))
+        return String(format: "%d:%02d", total / 60, total % 60)
+    }
+
+    private func control(_ icon: String, _ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(AppColors.textPrimary)
+                .frame(width: 36, height: 36)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(Text(title))
+        .accessibilityLabel(Text(title))
+    }
+}
+
+/// Desplegable del boton de llamada: micro, camara y colgar, con su estado.
+private struct CallPanel: View {
+    let call: MeetingControls.Target
+    let state: CallState
+    let perform: (MeetingControls.Action) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(verbatim: call.name)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(AppColors.textPrimary)
+            HStack(spacing: 18) {
+                toggle(
+                    on: state.micMuted, icon: state.micMuted ? "mic.slash.fill" : "mic.fill",
+                    title: state.micMuted ? "Silenciado" : "Micro", action: .mic
+                )
+                if call.hasCamera {
+                    toggle(
+                        on: state.cameraOff, icon: state.cameraOff ? "video.slash.fill" : "video.fill",
+                        title: state.cameraOff ? "Cámara apagada" : "Cámara", action: .camera
+                    )
+                }
+                button(icon: "phone.down.fill", title: "Colgar", fill: AppColors.danger, tint: AppColors.onAccent, action: .leave)
+            }
+        }
+        .padding(14)
+        .presentationBackground(AppColors.panel)
+    }
+
+    /// Como en FaceTime: activo (silenciado, camara apagada) en relleno claro.
+    private func toggle(on: Bool, icon: String, title: LocalizedStringKey, action: MeetingControls.Action) -> some View {
+        button(icon: icon, title: title, fill: on ? AppColors.textPrimary : AppColors.controlTrack,
+               tint: on ? AppColors.panel : AppColors.textPrimary, action: action)
+    }
+
+    private func button(icon: String, title: LocalizedStringKey, fill: Color, tint: Color, action: MeetingControls.Action) -> some View {
+        Button { perform(action) } label: {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(fill))
+                    .contentTransition(.symbolEffect(.replace))
+                Text(title)
+                    .font(.system(size: 10))
+                    .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+            .frame(minWidth: 56)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
+        .animation(AppMotion.snappy, value: icon)
+    }
+}
+
 private struct CircleIconLabel: View {
     let icon: String
     /// Icono oficial de una app (Reloj, Mail...) en lugar del simbolo.
@@ -471,6 +760,59 @@ private struct CircleIconLabel: View {
 /// Elegir la hora de una alarma, al estilo del Reloj de Apple: la hora grande y
 /// el boton naranja.
 
+/// Columna de la rueda del temporizador: los numeros se desplazan con la rueda o el
+/// trackpad y encajan en la franja central; un clic en un numero tambien lo elige.
+private struct DurationWheel: View {
+    @Binding var value: Int?
+    let range: Range<Int>
+    let unit: String
+    static let rowHeight: CGFloat = 30
+    private static let visibleRows: CGFloat = 3
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(spacing: 0) {
+                    ForEach(range, id: \.self) { number in
+                        Text(verbatim: "\(number)")
+                            .font(.system(size: 20, weight: number == value ? .semibold : .regular).monospacedDigit())
+                            .foregroundStyle(number == value ? AppColors.textPrimary : AppColors.textSecondary)
+                            .frame(width: 40, height: Self.rowHeight, alignment: .trailing)
+                            .contentShape(Rectangle())
+                            .onTapGesture { withAnimation(AppMotion.snappy) { value = number } }
+                            .id(number)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .contentMargins(.vertical, Self.rowHeight, for: .scrollContent)
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: $value, anchor: .center)
+            // El valor inicial no se centra solo: se lleva a la franja al aparecer.
+            .onAppear { proxy.scrollTo(value ?? 0, anchor: .center) }
+            }
+            .frame(width: 44, height: Self.rowHeight * Self.visibleRows)
+            .mask(LinearGradient(colors: [.clear, .black, .black, .clear], startPoint: .top, endPoint: .bottom))
+            Text(verbatim: unit)
+                .font(AppTypography.bodyStrong)
+                .foregroundStyle(AppColors.textSecondary)
+                .frame(width: 26, alignment: .leading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: unit))
+        .accessibilityValue(Text(verbatim: "\(value ?? 0)"))
+        .accessibilityAdjustableAction { direction in
+            let current = value ?? 0
+            switch direction {
+            case .increment: value = min(current + 1, range.upperBound - 1)
+            case .decrement: value = max(current - 1, range.lowerBound)
+            @unknown default: break
+            }
+        }
+    }
+}
+
 /// Lo que queda del temporizador en un aro naranja que se vacia, como el Reloj de Apple.
 private struct TimerRing: View {
     let focus: FocusTimer
@@ -501,10 +843,17 @@ private struct ClockPanel: View {
     @State private var page: Page
     @State private var adding = false
     @State private var newAlarm = FocusTimer.nextOccurrence(of: .now.addingTimeInterval(3600))
-    @State private var customMinutes = 10
+    /// Duracion elegida en la rueda: la ultima usada o 10 min.
+    @State private var hours: Int?
+    @State private var minutes: Int?
+    @State private var seconds: Int?
 
     init(focus: FocusTimer) {
         self.focus = focus
+        let last = focus.recents.first ?? 600
+        _hours = State(initialValue: last / 3600)
+        _minutes = State(initialValue: last / 60 % 60)
+        _seconds = State(initialValue: last % 60)
         _page = State(initialValue: focus.isRunning || focus.isPaused ? .timer : !focus.alarms.isEmpty ? .alarms : focus.isAwake ? .awake : .timer)
     }
 
@@ -529,7 +878,8 @@ private struct ClockPanel: View {
             .transition(.opacity)
         }
         .padding(16)
-        .frame(width: 290)
+        // Ancho para que las tres pestañas del selector quepan enteras.
+        .frame(width: 340)
         .animation(AppMotion.snappy, value: page)
         .animation(AppMotion.snappy, value: focus.isRunning)
         .animation(AppMotion.snappy, value: focus.isPaused)
@@ -577,35 +927,64 @@ private struct ClockPanel: View {
                 }
             }
         } else {
-            VStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    ForEach(FocusTimer.timerPresets, id: \.self) { minutes in
-                        Button { focus.start(minutes: minutes) } label: {
-                            VStack(spacing: 0) {
-                                Text(verbatim: "\(minutes)").font(.system(size: 17, weight: .semibold).monospacedDigit())
-                                Text("min").font(.system(size: 9, weight: .medium))
+            // Como el Reloj de Apple: rueda de horas, minutos y segundos, las
+            // duraciones recientes y Cancelar / Iniciar.
+            VStack(spacing: 14) {
+                HStack(spacing: 4) {
+                    DurationWheel(value: $hours, range: 0..<24, unit: "h")
+                    DurationWheel(value: $minutes, range: 0..<60, unit: "min")
+                    DurationWheel(value: $seconds, range: 0..<60, unit: "s")
+                }
+                .background {
+                    // Franja de la seleccion, detras de las tres columnas.
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(AppColors.textPrimary.opacity(0.08))
+                        .frame(height: DurationWheel.rowHeight)
+                }
+                if !focus.recents.isEmpty {
+                    HStack(spacing: 6) {
+                        ForEach(focus.recents, id: \.self) { duration in
+                            Button { focus.start(seconds: duration) } label: {
+                                Text(verbatim: Self.duration(duration))
+                                    .font(AppTypography.bodyStrong.monospacedDigit())
+                                    .foregroundStyle(AppColors.clock)
+                                    .padding(.horizontal, 10)
+                                    .frame(height: 26)
+                                    .background(Capsule().fill(AppColors.clock.opacity(0.15)))
+                                    .contentShape(Capsule())
                             }
-                            .foregroundStyle(AppColors.clock)
-                            .frame(width: 46, height: 46)
-                            .background(Circle().fill(AppColors.clock.opacity(0.15)))
-                            .contentShape(Circle())
+                            .buttonStyle(.plain)
+                            .help(Text("Iniciar"))
                         }
-                        .buttonStyle(.plain)
-                        .help(minutes == 25 ? Text("Pomodoro") : Text(verbatim: "\(minutes) min"))
                     }
                 }
-                HStack(spacing: 10) {
-                    Stepper(value: $customMinutes, in: 1...240) {
-                        Text(verbatim: "\(customMinutes) min")
-                            .font(.system(size: 15, weight: .medium).monospacedDigit())
-                            .frame(minWidth: 64, alignment: .leading)
-                    }
+                HStack {
+                    // Como en el Reloj: Cancelar solo hace algo con un temporizador en marcha.
+                    pill("Cancelar", color: AppColors.textPrimary.opacity(0.12), text: AppColors.textPrimary) {}
+                        .disabled(true)
+                        .opacity(0.5)
                     Spacer()
-                    pill("Iniciar", color: AppColors.clock, text: .white) { focus.start(minutes: customMinutes) }
+                    pill("Iniciar", color: AppColors.clock, text: .white) { focus.start(seconds: wheelSeconds) }
+                        .disabled(wheelSeconds == 0)
+                        .opacity(wheelSeconds == 0 ? 0.5 : 1)
+                        .keyboardShortcut(.defaultAction)
                 }
-                .padding(.top, 6)
             }
         }
+    }
+
+    private var wheelSeconds: Int {
+        (hours ?? 0) * 3600 + (minutes ?? 0) * 60 + (seconds ?? 0)
+    }
+
+    /// "25 min", "1 h 30 min", "45 s".
+    static func duration(_ total: Int) -> String {
+        let (h, m, s) = (total / 3600, total / 60 % 60, total % 60)
+        var parts: [String] = []
+        if h > 0 { parts.append(String(localized: "\(h) h")) }
+        if m > 0 { parts.append(String(localized: "\(m) min")) }
+        if s > 0 { parts.append(String(localized: "\(s) s")) }
+        return parts.joined(separator: " ")
     }
 
     // MARK: Alarmas

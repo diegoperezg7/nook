@@ -7,6 +7,9 @@ struct HUDActivity: View {
     let metrics: NotchMetrics
     /// Lo que crece el notch a cada lado (segun el hueco libre de la barra de menus).
     let sides: HUDSides
+    @Environment(SystemHUD.self) private var hud
+    /// Como isla: icono y valor en una fila bajo el notch, centrados.
+    var island = false
 
     /// Ancho que pide cada lado del notch para este aviso.
     static func side(for kind: SystemHUD.Kind) -> CGFloat {
@@ -20,14 +23,45 @@ struct HUDActivity: View {
         case .dictation: return 140
         case .accessory: return 112
         case .notification: return 150
-        case .agent: return 120
+        case .agent: return 84
         case .usage: return 96
+        case .music: return 50
         }
     }
 
+    /// Avisos que salen como isla (bajo el notch) en vez de en las alas: ancho del
+    /// contenido y alto bajo el notch, o nil si va en las alas. Una notificacion
+    /// siempre; cualquier otro aviso, si a un lado no le cabe lo que pide (los iconos
+    /// de la barra llegan al notch). Antes iba entero al otro lado y se veia descuadrado.
+    static func island(for kind: SystemHUD.Kind, leftFree: CGFloat?, rightFree: CGFloat?) -> (content: CGFloat, extra: CGFloat)? {
+        if case .notification = kind { return (NotificationIsland.contentWidth(for: kind), NotchMetrics.islandExtra) }
+        let desired = side(for: kind)
+        let sides = HUDSides.make(desired: desired, leftFree: leftFree, rightFree: rightFree)
+        guard sides.merged || sides.left < desired || sides.right < desired else { return nil }
+        return (desired * 2 - 24, NotchMetrics.islandRowExtra)
+    }
+
     var body: some View {
+        if island { islandRow } else { wings }
+    }
+
+    private var islandRow: some View {
+        HStack(spacing: 10) {
+            leading
+            Spacer(minLength: 8)
+            trailing
+        }
+        .lineLimit(1)
+        .foregroundStyle(AppColors.notchText)
+        .frame(height: NotchMetrics.islandRowExtra)
+        .padding(.horizontal, NotchMetrics.islandPadding)
+        .padding(.top, metrics.notchHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private var wings: some View {
         let ear = NotchMetrics.closedEar
-        HStack(spacing: 0) {
+        return HStack(spacing: 0) {
             Group {
                 if sides.merged, sides.left > 0 {
                     HStack(spacing: 8) { leading; trailing }
@@ -129,15 +163,20 @@ struct HUDActivity: View {
                 .foregroundStyle(mic ? AppColors.warning : AppColors.success)
         case .stayAwake:
             Image(systemName: "cup.and.saucer.fill").font(.system(size: 13, weight: .semibold))
-        case let .agent(_, waiting):
-            if #available(macOS 15, *) {
-                Self.logo(AgentIcons.claude, fallback: "sparkles")
-                    .symbolEffect(.bounce, options: .repeat(waiting ? 2 : 1))
-            } else {
-                Self.logo(AgentIcons.claude, fallback: "sparkles")
-            }
+        case .agent:
+            // Sin rebote propio: el aviso entra de una vez, con la forma.
+            Self.logo(AgentIcons.claude, fallback: "sparkles")
         case .usage:
             Self.logo(AgentIcons.claude, fallback: "sparkles")
+        case .music:
+            // Caratula de la cancion (o el icono de la app mientras carga).
+            if let image = hud.nowPlaying?.artwork ?? hud.nowPlaying?.player?.icon {
+                Image(nsImage: image).resizable().scaledToFill()
+                    .frame(width: 20, height: 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+            } else {
+                Image(systemName: "music.note").font(.system(size: 13, weight: .semibold))
+            }
         }
     }
 
@@ -229,17 +268,12 @@ struct HUDActivity: View {
             } else {
                 Image(systemName: "infinity").font(.system(size: 12, weight: .bold))
             }
-        case let .agent(project, waiting):
-            VStack(alignment: .trailing, spacing: 0) {
-                Text(waiting ? "Te espera" : "Terminó")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(waiting ? AppColors.warning : AppColors.success)
-                if let project {
-                    Text(verbatim: project).font(.system(size: 9, weight: .medium)).opacity(0.75)
-                }
-            }
-            .lineLimit(1)
-            .truncationMode(.middle)
+        case let .agent(_, waiting):
+            // Una sola linea; el proyecto sale en la tarjeta al pulsar.
+            Text(waiting ? "Te espera" : "Terminó")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(waiting ? AppColors.warning : AppColors.success)
+                .lineLimit(1)
         case let .usage(percent, window):
             VStack(alignment: .trailing, spacing: 0) {
                 Text(verbatim: "\(percent) %")
@@ -248,6 +282,8 @@ struct HUDActivity: View {
                 Text(verbatim: window).font(.system(size: 9, weight: .medium)).opacity(0.75)
             }
             .lineLimit(1)
+        case .music:
+            MusicBars()
         }
     }
 
@@ -279,6 +315,51 @@ struct HUDActivity: View {
     }
 }
 
+/// Notificacion como la Isla Dinamica: bajo el notch, el icono de la app, quien
+/// escribe y el mensaje en una linea. Al pulsarla sale la tarjeta (responder, abrir).
+struct NotificationIsland: View {
+    let kind: SystemHUD.Kind
+    let metrics: NotchMetrics
+
+    /// Ancho que pide el mensaje (sin margenes): icono y la linea mas larga.
+    static func contentWidth(for kind: SystemHUD.Kind) -> CGFloat {
+        guard case let .notification(_, title, body) = kind else { return 0 }
+        func width(_ text: String, _ size: CGFloat, _ weight: NSFont.Weight) -> CGFloat {
+            (text as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: size, weight: weight)]).width
+        }
+        return 26 + 10 + ceil(max(width(title, 12, .semibold), width(body, 11, .regular)))
+    }
+
+    var body: some View {
+        if case let .notification(bundleID, title, body) = kind {
+            HStack(spacing: 10) {
+                if let icon = AgentIcons.icon(bundleID) {
+                    Image(nsImage: icon).resizable().frame(width: 26, height: 26)
+                } else {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(width: 26, height: 26)
+                        .background(Circle().fill(AppColors.notchText.opacity(0.14)))
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: title).font(AppTypography.bodyStrong).lineLimit(1)
+                    if !body.isEmpty {
+                        Text(verbatim: body).font(AppTypography.subtitle).lineLimit(1)
+                            .foregroundStyle(AppColors.notchText.opacity(0.8))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .truncationMode(.tail)
+            .foregroundStyle(AppColors.notchText)
+            .padding(.horizontal, NotchMetrics.islandPadding)
+            .padding(.top, metrics.notchHeight + 4)
+            .padding(.bottom, 10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+    }
+}
+
 /// Tarjeta que sale al pulsar un aviso: que ha pasado y un boton para ir a su origen.
 struct HUDPreviewCard: View {
     let preview: SystemHUD.Preview
@@ -287,27 +368,70 @@ struct HUDPreviewCard: View {
     let onAction: () -> Void
     @State private var thumbnail: NSImage?
 
+    private static let iconSize: CGFloat = 32
+    private static let spacing: CGFloat = 12
+    private static let lineSpacing: CGFloat = 1
+    private static let extraSize: CGFloat = 30
+
+    /// Tamaño que pide el contenido de la tarjeta (sin margenes), con las mismas
+    /// fuentes que `AppTypography`: la tarjeta crece lo justo para su texto.
+    static func contentSize(for preview: SystemHUD.Preview) -> CGSize {
+        func measure(_ text: String, _ size: CGFloat, _ weight: NSFont.Weight) -> CGSize {
+            let font = NSFont.systemFont(ofSize: size, weight: weight)
+            let width = text.isEmpty ? 0 : (text as NSString).size(withAttributes: [.font: font]).width
+            return CGSize(width: ceil(width), height: ceil(font.ascender - font.descender + font.leading))
+        }
+        var lines = [measure(preview.title, 13, .semibold)]
+        if !preview.subtitle.isEmpty { lines.append(measure(preview.subtitle, 12, .regular)) }
+        if !preview.body.isEmpty { lines.append(measure(preview.body, 11, .regular)) }
+        let text = CGSize(
+            width: lines.map(\.width).max() ?? 0,
+            height: lines.map(\.height).reduce(0, +) + lineSpacing * CGFloat(lines.count - 1)
+        )
+        let button = measure(preview.actionTitle, 12, .semibold).width + 28
+        let extras = CGFloat(preview.extras.count) * (extraSize + spacing)
+        return CGSize(
+            width: iconSize + spacing + text.width + spacing + extras + button,
+            height: max(iconSize, text.height)
+        )
+    }
+
     var body: some View {
-        HStack(spacing: 12) {
+        summaryRow
+            .foregroundStyle(AppColors.notchText)
+            .padding(.horizontal, NotchMetrics.sideMargin)
+            .padding(.top, metrics.notchHeight + NotchMetrics.previewTop)
+            .padding(.bottom, NotchMetrics.previewBottom)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .task(id: preview.file) {
+                guard let file = preview.file else { return }
+                thumbnail = await Thumbnails.image(for: file, size: CGSize(width: 80, height: 80))
+            }
+    }
+
+    private var summaryRow: some View {
+        HStack(spacing: Self.spacing) {
             icon
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Self.lineSpacing) {
                 Text(preview.title).font(AppTypography.title).lineLimit(1)
+                // Sobre el cristal, el texto secundario necesita mas opacidad que sobre negro.
                 if !preview.subtitle.isEmpty {
                     Text(preview.subtitle).font(AppTypography.body).lineLimit(1)
-                        .foregroundStyle(AppColors.notchText.opacity(0.75))
+                        .foregroundStyle(AppColors.notchText.opacity(0.9))
                 }
                 if !preview.body.isEmpty {
-                    Text(preview.body).font(AppTypography.subtitle).lineLimit(2)
-                        .foregroundStyle(AppColors.notchText.opacity(0.55))
+                    Text(preview.body).font(AppTypography.subtitle).lineLimit(1)
+                        .foregroundStyle(AppColors.notchText.opacity(0.8))
                 }
             }
+            .truncationMode(.tail)
             .frame(maxWidth: .infinity, alignment: .leading)
             ForEach(preview.extras.indices, id: \.self) { index in
                 let extra = preview.extras[index]
                 Button { onExtra(extra) } label: {
                     Image(systemName: extra.symbol)
                         .font(.system(size: 12, weight: .bold))
-                        .frame(width: 30, height: 30)
+                        .frame(width: Self.extraSize, height: Self.extraSize)
                         .background(Circle().fill(AppColors.notchText.opacity(0.12)))
                         .contentShape(Circle())
                 }
@@ -326,26 +450,42 @@ struct HUDPreviewCard: View {
             }
             .buttonStyle(.plain)
         }
-        .foregroundStyle(AppColors.notchText)
-        .padding(.horizontal, NotchMetrics.sideMargin)
-        .padding(.top, metrics.notchHeight + 8)
-        .padding(.bottom, 12)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .task(id: preview.file) {
-            guard let file = preview.file else { return }
-            thumbnail = await Thumbnails.image(for: file, size: CGSize(width: 80, height: 80))
-        }
     }
 
     @ViewBuilder
     private var icon: some View {
         if let image = thumbnail ?? preview.appIcon {
-            Image(nsImage: image).resizable().scaledToFit().frame(width: 40, height: 40)
+            Image(nsImage: image).resizable().scaledToFit().frame(width: Self.iconSize, height: Self.iconSize)
         } else {
             Image(systemName: preview.symbol)
-                .font(.system(size: 18, weight: .semibold))
-                .frame(width: 40, height: 40)
+                .font(.system(size: 15, weight: .semibold))
+                .frame(width: Self.iconSize, height: Self.iconSize)
                 .background(Circle().fill(AppColors.notchText.opacity(0.12)))
         }
+    }
+}
+
+/// Barras de ecualizador mientras suena la musica. Con "Reducir movimiento", quietas.
+private struct MusicBars: View {
+    var body: some View {
+        if AppMotion.reduceMotion {
+            bars(at: 0)
+        } else {
+            TimelineView(.animation(minimumInterval: 1.0 / 20)) { context in
+                bars(at: context.date.timeIntervalSinceReferenceDate)
+            }
+        }
+    }
+
+    private func bars(at time: TimeInterval) -> some View {
+        HStack(alignment: .center, spacing: 2) {
+            ForEach(0..<4, id: \.self) { index in
+                let phase = time * (3.1 + Double(index) * 0.9) + Double(index) * 1.7
+                Capsule()
+                    .fill(AppColors.success)
+                    .frame(width: 2.5, height: 4 + 9 * (0.5 + 0.5 * sin(phase)))
+            }
+        }
+        .frame(width: 18, height: 14)
     }
 }

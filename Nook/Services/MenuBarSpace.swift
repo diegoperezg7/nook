@@ -43,7 +43,12 @@ final class MenuBarSpace {
 
     /// Hueco libre a la izquierda y a la derecha del notch (nil si no se conoce).
     var free: (left: CGFloat?, right: CGFloat?) {
-        (menusEnd.map { notchRange.lowerBound - $0 }, extrasStart.map { $0 - notchRange.upperBound })
+        #if DEBUG
+        // `-VisorFreeRight 10`: finge una barra llena a la derecha (capturas).
+        let fake = UserDefaults.standard.double(forKey: "VisorFreeRight")
+        if fake > 0 { return (menusEnd.map { notchRange.lowerBound - $0 }, fake) }
+        #endif
+        return (menusEnd.map { notchRange.lowerBound - $0 }, extrasStart.map { $0 - notchRange.upperBound })
     }
 
     func refresh(full: Bool) {

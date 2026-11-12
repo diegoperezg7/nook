@@ -102,10 +102,59 @@ final class NotchMetricsTests: XCTestCase {
     /// La tarjeta de un aviso pulsado es mas alta que el notch y mas baja que el panel.
     func testPreviewCardSitsBetweenNoticeAndPanel() {
         let metrics = NotchMetrics(hasNotch: true, screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956), notchWidth: 190, notchHeight: 32)
-        XCTAssertGreaterThan(metrics.previewSize.height, metrics.closedSize.height)
-        XCTAssertLessThan(metrics.previewSize.height, metrics.openSize(searchRow: false).height)
-        XCTAssertEqual(metrics.previewHotRect.midX, 735)
-        XCTAssertEqual(metrics.previewHotRect.maxY, 956 + 8)
-        XCTAssertTrue(metrics.previewHotRect.contains(metrics.closedNoticeRect(sides: HUDSides(left: 150, right: 150, merged: false))))
+        let content = CGSize(width: 300, height: 32)
+        XCTAssertGreaterThan(metrics.previewSize(content: content).height, metrics.closedSize.height)
+        XCTAssertLessThan(metrics.previewSize(content: content).height, metrics.openSize(searchRow: false).height)
+        XCTAssertEqual(metrics.previewHotRect(content: content).midX, 735)
+        XCTAssertEqual(metrics.previewHotRect(content: content).maxY, 956 + 8)
+    }
+
+    /// La tarjeta y la isla miden lo que su texto, entre un minimo y un maximo.
+    func testCardAndIslandFollowTheirText() {
+        let metrics = NotchMetrics(hasNotch: true, screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956), notchWidth: 190, notchHeight: 32)
+        let open = metrics.openSize(searchRow: false).width
+        XCTAssertEqual(metrics.previewSize(content: CGSize(width: 300, height: 32)).width, 300 + NotchMetrics.sideMargin * 2)
+        XCTAssertEqual(metrics.previewSize(content: CGSize(width: 2000, height: 32)).width, open)
+        XCTAssertEqual(metrics.previewSize(content: .zero).width, metrics.closedSize.width + NotchMetrics.islandMinSide * 2)
+        XCTAssertEqual(metrics.islandSize(content: 0).width, metrics.closedSize.width + NotchMetrics.islandMinSide * 2)
+        XCTAssertEqual(metrics.islandSize(content: 2000).width, metrics.closedSize.width + NotchMetrics.islandMaxSide * 2)
+        XCTAssertEqual(metrics.islandRect(content: 100).midX, 735)
+    }
+
+    /// En llamada la cabecera derecha lleva cinco botones (micro, camara, colgar,
+    /// bateria, menu): tienen que caber con aire hasta el notch en el Air y los Pro.
+    func testCallButtonsFitBesideTheNotch() {
+        let screens: [(CGFloat, CGFloat, CGFloat)] = [
+            (1470, 956, 645.5), // Air 13"
+            (1512, 982, 662), // Pro 14"
+            (1728, 1117, 770), // Pro 16"
+        ]
+        for (width, height, leftWidth) in screens {
+            let notch: CGFloat = 190
+            let metrics = NotchMetrics.make(
+                screenFrame: CGRect(x: 0, y: 0, width: width, height: height), safeAreaTop: 32,
+                auxiliaryTopLeft: CGRect(x: 0, y: height - 32, width: leftWidth, height: 32),
+                auxiliaryTopRight: CGRect(x: leftWidth + notch, y: height - 32, width: width - leftWidth - notch, height: 32),
+                visibleFrameMaxY: height - 33
+            )
+            let five = NotchMetrics.headerButton * 5 + NotchMetrics.headerSpacing(buttons: 5) * 4
+            let four = NotchMetrics.headerButton * 4 + NotchMetrics.headerSpacing(buttons: 4) * 3
+            XCTAssertLessThanOrEqual(four + 8, metrics.headerSideWidth, "pantalla de \(width) pt")
+            XCTAssertLessThanOrEqual(five + 8, metrics.headerSideWidth, "pantalla de \(width) pt")
+            // Con la separacion normal no cabrian: por eso va mas junta en llamada.
+            let wide = NotchMetrics.headerButton * 5 + NotchMetrics.headerButtonSpacing * 4
+            XCTAssertGreaterThan(wide, metrics.headerSideWidth)
+        }
+    }
+
+    /// Un aviso que no cabe a los dos lados sale como isla (antes iba entero a un lado).
+    func testNoticeWithoutRoomOnOneSideBecomesIsland() {
+        let meeting = SystemHUD.Kind.meeting(title: "Diario", start: .now)
+        XCTAssertNil(HUDActivity.island(for: meeting, leftFree: 400, rightFree: 400))
+        XCTAssertNil(HUDActivity.island(for: meeting, leftFree: nil, rightFree: nil))
+        XCTAssertNotNil(HUDActivity.island(for: meeting, leftFree: 400, rightFree: 10))
+        XCTAssertNotNil(HUDActivity.island(for: meeting, leftFree: 60, rightFree: 400))
+        let message = SystemHUD.Kind.notification(bundleID: "net.whatsapp.WhatsApp", title: "Ana", body: "Hola")
+        XCTAssertEqual(HUDActivity.island(for: message, leftFree: 400, rightFree: 400)?.extra, NotchMetrics.islandExtra)
     }
 }

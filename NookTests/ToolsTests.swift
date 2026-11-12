@@ -37,6 +37,23 @@ final class ToolsTests: XCTestCase {
         XCTAssertFalse(timer.isRunning || timer.isPaused)
     }
 
+    /// Recientes del temporizador: la ultima primero, sin repetir, tres como mucho y
+    /// guardadas para la proxima vez.
+    @MainActor
+    func testTimerRemembersRecentDurations() throws {
+        XCTAssertEqual(FocusTimer.remember(300, in: [600, 1500, 90]), [300, 600, 1500])
+        XCTAssertEqual(FocusTimer.remember(1500, in: [600, 1500, 90]), [1500, 600, 90])
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: "nook-tests-recents"))
+        defer { defaults.removePersistentDomain(forName: "nook-tests-recents") }
+        let timer = FocusTimer(defaults: defaults)
+        timer.start(seconds: 90)
+        timer.start(minutes: 25)
+        timer.stop()
+        XCTAssertEqual(FocusTimer(defaults: defaults).recents, [1500, 90])
+        timer.start(seconds: 0)
+        XCTAssertFalse(timer.isRunning, "cero no arranca")
+    }
+
     func testSettingsAreImportedFromNookOnceWithoutOnboarding() throws {
         let old = "com.diegoperez.nook.import-test", new = "com.diegoperez.visor.import-test"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: new))

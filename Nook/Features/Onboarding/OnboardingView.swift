@@ -88,13 +88,18 @@ struct OnboardingView: View {
         // `-NookOnboardingStep 2` abre directamente ese paso (para revisarlo).
         if let step = Step(rawValue: UserDefaults.standard.integer(forKey: "NookOnboardingStep")) { return step }
         #endif
-        return .welcome
+        return Step(rawValue: UserDefaults.standard.integer(forKey: Self.stepKey)) ?? .welcome
     }
+
+    /// Paso en el que se quedo: al dar Acceso total al disco macOS reinicia Visor, y
+    /// la introduccion sigue donde iba en vez de volver al principio.
+    static let stepKey = "onboardingStep"
 
     private func go(_ delta: Int) {
         guard let next = Step(rawValue: step.rawValue + delta) else { return }
         forward = delta > 0
         withAnimation(AppMotion.reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.38, dampingFraction: 0.9)) { step = next }
+        UserDefaults.standard.set(next.rawValue, forKey: Self.stepKey)
     }
 }
 
@@ -513,7 +518,7 @@ private struct ExtrasPage: View {
                 PermissionRow(
                     title: "Carpeta de capturas",
                     detail: "Visor muestra las capturas que macOS guarda en \(ScreenshotLibrary.systemFolder.lastPathComponent).",
-                    granted: screenshots.folder != nil,
+                    granted: screenshots.usesSystemFolder,
                     actionTitle: "Usar esa carpeta",
                     action: screenshots.useSystemFolder
                 ) { AppBadge(image: AgentIcons.screenshot, symbol: "camera.viewfinder", color: .gray) }
@@ -597,20 +602,28 @@ private struct PermissionsPage: View {
                     action: { AXAccess.request(); AXAccess.openSettings() }
                 ) { AppBadge(symbol: "accessibility", color: .blue) }
 
-                PermissionRow(
-                    title: "Acceso total al disco",
-                    detail: "Mostrar en el notch las notificaciones que entrega macOS. Solo se leen las nuevas y no se guardan.",
-                    granted: permissions.fullDiskAccess,
-                    actionTitle: "Abrir Ajustes",
-                    action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
-                ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+                if PermissionState.fullDiskAccessNeeded {
+                    PermissionRow(
+                        title: "Acceso total al disco",
+                        detail: "Mostrar en el notch las notificaciones que entrega macOS. Solo se leen las nuevas y no se guardan.",
+                        granted: permissions.fullDiskAccess,
+                        actionTitle: "Abrir Ajustes",
+                        action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
+                    ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+                }
             }
             .rise(1)
 
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "lightbulb")
                     .foregroundStyle(AppColors.warning)
-                Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.")
+                Group {
+                    if PermissionState.fullDiskAccessNeeded {
+                        Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo; el acceso al disco puede pedir reabrir Visor.")
+                    } else {
+                        Text("En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo.")
+                    }
+                }
                     .font(.system(size: 11))
                     .foregroundStyle(AppColors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -694,7 +707,8 @@ struct NoticeGrid: View {
     @AppStorage(SettingsKey.hudDownloads) private var downloads = true
     @AppStorage(SettingsKey.hudCapsLock) private var capsLock = false
     @AppStorage(SettingsKey.hudNetwork) private var network = true
-    @AppStorage(SettingsKey.hudMediaInUse) private var media = true
+    @AppStorage(SettingsKey.hudMediaInUse) private var media = false
+    @AppStorage(SettingsKey.hudMusic) private var music = true
     @AppStorage(SettingsKey.hudMeetings) private var meetings = true
     @AppStorage(SettingsKey.hudMail) private var mailNotice = true
     @AppStorage(SettingsKey.notifications) private var notifications = true
@@ -717,6 +731,7 @@ struct NoticeGrid: View {
             Chip(symbol: "sparkles", title: "Agentes de IA", isOn: $agents)
             Chip(symbol: "gauge.with.dots.needle.67percent", title: "Consumo de Claude", isOn: $usage)
             Chip(symbol: "moon.fill", title: "Concentración", isOn: $focusMode)
+            Chip(symbol: "music.note", title: "Música", isOn: $music)
         }
     }
 }

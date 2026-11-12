@@ -55,4 +55,20 @@ final class AccessoryBatteryTests: XCTestCase {
     func testBrokenOutputIsEmpty() {
         XCTAssertTrue(AccessoryBattery.parse(profiler: Data("no json".utf8)).isEmpty)
     }
+
+    /// Los mismos AirPods listados dos veces (uno solo con el estuche) salen una vez,
+    /// con izquierdo, derecho y estuche.
+    func testDuplicatedAirPodsMerge() {
+        let json = """
+        {"SPBluetoothDataType":[{"device_connected":[
+          {"AirPods Pro de Diego":{"device_batteryLevelCase":"49 %"}},
+          {"AirPods Pro de Diego":{"device_batteryLevelCase":"49 %","device_batteryLevelLeft":"77 %","device_batteryLevelRight":"76 %"}}
+        ]}]}
+        """
+        let devices = AccessoryBattery.parse(profiler: Data(json.utf8))
+        XCTAssertEqual(devices.count, 1)
+        XCTAssertEqual(devices.first?.levels.map(\.part), ["L", "R", AccessoryBattery.casePart])
+        XCTAssertEqual(devices.first?.levels.map(\.level), [77, 76, 49])
+        XCTAssertEqual(devices.first?.onlyCase, false)
+    }
 }

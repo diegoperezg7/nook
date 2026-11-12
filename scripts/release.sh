@@ -40,6 +40,10 @@ if [ -n "${DEVELOPER_ID_PROFILE:-}" ]; then
   cp "$DEVELOPER_ID_PROFILE" "$APP/Contents/embedded.provisionprofile"
 else
   /usr/libexec/PlistBuddy -c "Delete :com.apple.developer.usernotifications.communication" "$ENTITLEMENTS" 2>/dev/null || true
+  # Xcode los añade al firmar con perfil; sin perfil dentro, macOS no arranca la app
+  # ("no se puede abrir", launchd error 163).
+  /usr/libexec/PlistBuddy -c "Delete :com.apple.application-identifier" "$ENTITLEMENTS" 2>/dev/null || true
+  /usr/libexec/PlistBuddy -c "Delete :com.apple.developer.team-identifier" "$ENTITLEMENTS" 2>/dev/null || true
   rm -f "$APP/Contents/embedded.provisionprofile"
   echo "Sin DEVELOPER_ID_PROFILE: la release va sin el aviso de Concentración."
 fi

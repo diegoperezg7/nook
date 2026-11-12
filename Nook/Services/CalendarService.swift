@@ -38,6 +38,13 @@ final class CalendarService {
         var id: Date { day }
         let day: Date
         let events: [Event]
+
+        /// Hoy, sin los eventos que ya terminaron (los de todo el dia se quedan).
+        /// Los demas dias, tal cual: si miras ayer, ves lo que hubo.
+        func upcoming(at now: Date) -> AgendaDay {
+            guard Calendar.current.isDate(day, inSameDayAs: now) else { return self }
+            return AgendaDay(day: day, events: events.filter { $0.isAllDay || $0.end > now })
+        }
     }
 
     static let agendaDays = 4
@@ -138,12 +145,36 @@ final class CalendarService {
 
     @ObservationIgnored private let store = EKEventStore()
     @ObservationIgnored private var observer: NSObjectProtocol?
+    @ObservationIgnored private var dayObservers: [NSObjectProtocol] = []
+    /// El dia que era hoy en la ultima carga.
+    @ObservationIgnored private var loadedToday = Calendar.current.startOfDay(for: .now)
 
     func start() {
         updateAccess()
         observer = NotificationCenter.default.addObserver(forName: .EKEventStoreChanged, object: store, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.reloadAll() }
         }
+        // Medianoche, o despertar el Mac al dia siguiente: el calendario pasa a hoy.
+        dayObservers = [
+            NotificationCenter.default.addObserver(forName: .NSCalendarDayChanged, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.followToday() }
+            },
+            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.followToday() }
+            },
+        ]
+        reloadAll()
+    }
+
+    /// Si ha cambiado el dia desde la ultima carga, se elige hoy (y su mes) y se
+    /// recarga todo: antes seguia marcado el dia en que se abrio Visor, y los eventos
+    /// de "hoy" (los avisos de reunion) eran los de ayer.
+    func followToday(now: Date = .now) {
+        let today = Calendar.current.startOfDay(for: now)
+        guard today != loadedToday else { return }
+        loadedToday = today
+        visibleMonth = Self.monthStart(of: today)
+        selectedDay = today
         reloadAll()
     }
 
@@ -302,6 +333,18 @@ final class CalendarService {
         dayEvents = events(from: selectedDay, to: Calendar.current.date(byAdding: .day, value: 1, to: selectedDay)!)
         let end = Calendar.current.date(byAdding: .day, value: Self.agendaDays, to: selectedDay)!
         agenda = Self.groupByDay(events(from: selectedDay, to: end), from: selectedDay, days: Self.agendaDays)
+        #if DEBUG
+        // `-VisorDemoEvents YES`: eventos de ejemplo de hoy, sin tocar el calendario real.
+        if UserDefaults.standard.bool(forKey: "VisorDemoEvents") {
+            let now = Date.now, today = Calendar.current.startOfDay(for: now)
+            func demo(_ title: String, _ from: TimeInterval, _ hours: TimeInterval, allDay: Bool = false) -> Event {
+                let start = allDay ? today : now.addingTimeInterval(from * 3600)
+                return Event(id: title, title: title, start: start, end: allDay ? today.addingTimeInterval(86400) : start.addingTimeInterval(hours * 3600), isAllDay: allDay, color: .systemBlue)
+            }
+            let events = [demo("Terminó hace 1 h", -2, 1), demo("En curso", -0.5, 1), demo("Esta tarde", 3, 1), demo("Todo el día", 0, 0, allDay: true)]
+            agenda = Self.groupByDay(events, from: selectedDay, days: Self.agendaDays)
+        }
+        #endif
     }
 
     /// Agrupa por dia de inicio (los de varios dias salen en cada dia que tocan).

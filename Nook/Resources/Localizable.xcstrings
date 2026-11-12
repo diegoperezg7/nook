@@ -91,6 +91,16 @@
         }
       }
     },
+    "%lld s": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld s"
+          }
+        }
+      }
+    },
     "%lld seleccionadas": {
       "localizations": {
         "en": {
@@ -217,6 +227,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open"
+          }
+        }
+      }
+    },
+    "Abrir %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open %@"
           }
         }
       }
@@ -551,6 +571,16 @@
         }
       }
     },
+    "AirPods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirPods"
+          }
+        }
+      }
+    },
     "Ajustar ventanas": {
       "localizations": {
         "en": {
@@ -601,6 +631,16 @@
         }
       }
     },
+    "Al cambiar de día, el calendario marca hoy y la reunión deja de avisar en cuanto entras.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the day changes, the calendar shows today, and the meeting reminder stops once you join."
+          }
+        }
+      }
+    },
     "Al conectar, macOS pedirá permiso para leer el correo": {
       "localizations": {
         "en": {
@@ -647,6 +687,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Action ring next to the cursor"
+          }
+        }
+      }
+    },
+    "Anterior": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous"
           }
         }
       }
@@ -921,6 +971,16 @@
         }
       }
     },
+    "Batería de cada auricular y del estuche, también justo al conectarlos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery of each earbud and the case, right after connecting them too."
+          }
+        }
+      }
+    },
     "Batería de los auriculares": {
       "localizations": {
         "en": {
@@ -1071,6 +1131,16 @@
         }
       }
     },
+    "Calendario al día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar up to date"
+          }
+        }
+      }
+    },
     "Calendario y correo": {
       "localizations": {
         "en": {
@@ -1157,6 +1227,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Instant screenshots"
+          }
+        }
+      }
+    },
+    "Capturas de pantalla": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots"
+          }
+        }
+      }
+    },
+    "Capturas en su carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots in their folder"
           }
         }
       }
@@ -1257,6 +1347,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "City"
+          }
+        }
+      }
+    },
+    "Colgar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hang up"
           }
         }
       }
@@ -1621,6 +1721,26 @@
         }
       }
     },
+    "Cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        }
+      }
+    },
+    "Cámara apagada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera off"
+          }
+        }
+      }
+    },
     "Código QR del texto copiado, cuentagotas en el menú ⋯, texto de una captura y «Copiar como».": {
       "localizations": {
         "en": {
@@ -1877,6 +1997,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Get started"
+          }
+        }
+      }
+    },
+    "En Ajustes del Sistema, activa Visor en la lista (o añádelo con +). Al volver aquí, el estado se actualiza solo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In System Settings, turn on Visor in the list (or add it with +). When you come back, the status updates by itself."
           }
         }
       }
@@ -2311,6 +2441,16 @@
         }
       }
     },
+    "Iniciar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
     "Instala en Claude Code la barra de estado claude-hud y vuelve aquí para conectarla.": {
       "localizations": {
         "en": {
@@ -2451,6 +2591,26 @@
         }
       }
     },
+    "Las capturas van a Imágenes/Capturas de pantalla, fuera del Escritorio, y se ven en el notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots go to Pictures/Screenshots, off the Desktop, and show up in the notch."
+          }
+        }
+      }
+    },
+    "Las notificaciones de cualquier app, WhatsApp incluido, salen del notch. En una llamada, silenciar, cámara y colgar funcionan en cualquier app.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications from any app, WhatsApp included, come out of the notch. On a call, mute, camera and hang up work in any app."
+          }
+        }
+      }
+    },
     "Las sesiones de Claude Code y Codex se ven solas en la pestaña de agentes. El consumo lo escribe la barra de estado claude-hud cada vez que usas Claude Code.": {
       "localizations": {
         "en": {
@@ -2497,6 +2657,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Done"
+          }
+        }
+      }
+    },
+    "Llamada en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call in %@"
           }
         }
       }
@@ -2651,6 +2821,26 @@
         }
       }
     },
+    "Micro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mic"
+          }
+        }
+      }
+    },
+    "Micro del Mac silenciado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac microphone muted"
+          }
+        }
+      }
+    },
     "Micro y cámara": {
       "localizations": {
         "en": {
@@ -2667,6 +2857,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Microphone or Camera in Use"
+          }
+        }
+      }
+    },
+    "Mientras suena Spotify o Música, su logo en el notch abre un reproductor con carátula, progreso y controles.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While Spotify or Music plays, its logo in the notch opens a player with artwork, progress and controls."
           }
         }
       }
@@ -2767,6 +2967,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Check yourself before a call with the camera button in the notch. It's only on while it's open."
+          }
+        }
+      }
+    },
+    "Música": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music"
+          }
+        }
+      }
+    },
+    "Música en el notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music in the notch"
           }
         }
       }
@@ -2901,12 +3121,42 @@
         }
       }
     },
+    "No se pudo apagar la cámara en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't turn off the camera in %@"
+          }
+        }
+      }
+    },
+    "No se pudo colgar en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't hang up in %@"
+          }
+        }
+      }
+    },
     "No se pudo guardar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't save"
+          }
+        }
+      }
+    },
+    "No se pudo silenciar en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't mute in %@"
           }
         }
       }
@@ -2957,6 +3207,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notifications in the notch"
+          }
+        }
+      }
+    },
+    "Notificaciones y llamadas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications and calls"
           }
         }
       }
@@ -3137,6 +3397,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hover over an email to mark it as read or move it to the Trash without opening it. Made a mistake? You can undo it."
+          }
+        }
+      }
+    },
+    "Pausa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
           }
         }
       }
@@ -3431,6 +3701,16 @@
         }
       }
     },
+    "Reproducir": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play"
+          }
+        }
+      }
+    },
     "Responder": {
       "localizations": {
         "en": {
@@ -3577,6 +3857,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Next"
+          }
+        }
+      }
+    },
+    "Silenciado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muted"
           }
         }
       }
@@ -3831,6 +4121,16 @@
         }
       }
     },
+    "Temporizador con rueda de horas, minutos y segundos y tus duraciones recientes, alarmas y mantener despierto, como en la app Reloj.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer with an hours, minutes and seconds wheel and your recent durations, alarms and keep awake, like the Clock app."
+          }
+        }
+      }
+    },
     "Temporizador y mantener despierto": {
       "localizations": {
         "en": {
@@ -4047,6 +4347,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your meetings, reminders and unread mail, at a glance from the notch."
+          }
+        }
+      }
+    },
+    "Un solo botón verde con micro, cámara y colgar, y a la vista si estás silenciado.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One green button with mic, camera and hang up, and you can see when you're muted."
           }
         }
       }

@@ -28,4 +28,39 @@ final class AgendaTests: XCTestCase {
         let agenda = CalendarService.groupByDay([overnight], from: .now, days: 4)
         XCTAssertEqual(agenda.map { $0.events.count }, [1, 1])
     }
+
+    /// Hoy, lo que ya termino se va; lo que esta en curso, lo futuro y lo de todo el
+    /// dia se quedan. Otro dia no se toca.
+    func testTodayHidesFinishedEvents() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        let now = cal.date(byAdding: .hour, value: 12, to: today)!
+        func at(_ hour: Int, for hours: Int, id: String) -> CalendarService.Event {
+            let start = cal.date(byAdding: .hour, value: hour, to: today)!
+            return CalendarService.Event(id: id, title: id, start: start, end: cal.date(byAdding: .hour, value: hours, to: start)!, isAllDay: false, color: .systemBlue)
+        }
+        let allDay = CalendarService.Event(id: "fiesta", title: "fiesta", start: today, end: cal.date(byAdding: .day, value: 1, to: today)!, isAllDay: true, color: .systemBlue)
+        let day = CalendarService.AgendaDay(day: today, events: [allDay, at(10, for: 1, id: "hace1h"), at(11, for: 2, id: "encurso"), at(15, for: 1, id: "tarde")])
+        XCTAssertEqual(day.upcoming(at: now).events.map(\.id), ["fiesta", "encurso", "tarde"])
+        // Justo al terminar ya no sale.
+        XCTAssertEqual(day.upcoming(at: cal.date(byAdding: .hour, value: 13, to: today)!).events.map(\.id), ["fiesta", "tarde"])
+        let yesterday = cal.date(byAdding: .day, value: -1, to: today)!
+        let past = CalendarService.AgendaDay(day: yesterday, events: [at(-14, for: 1, id: "ayer")])
+        XCTAssertEqual(past.upcoming(at: now), past)
+    }
+
+    /// Al pasar al dia siguiente, el calendario marca hoy aunque se eligiera otro dia.
+    @MainActor
+    func testNewDaySelectsToday() {
+        let calendar = CalendarService()
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        calendar.selectedDay = cal.date(byAdding: .day, value: 3, to: today)!
+        calendar.followToday(now: .now)
+        XCTAssertEqual(calendar.selectedDay, cal.date(byAdding: .day, value: 3, to: today)!, "mismo dia: no se toca")
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: today)!
+        calendar.followToday(now: tomorrow.addingTimeInterval(9 * 3600))
+        XCTAssertEqual(calendar.selectedDay, tomorrow)
+        XCTAssertEqual(calendar.visibleMonth, CalendarService.monthStart(of: tomorrow))
+    }
 }

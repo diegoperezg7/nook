@@ -45,6 +45,8 @@ enum SettingsKey {
     static let hudUsage = "hudUsage"
     /// Aviso al activar o quitar No molestar / Concentracion.
     static let hudFocus = "hudFocus"
+    /// Lo que suena en Musica o Spotify, en el notch cerrado.
+    static let hudMusic = "hudMusic"
     /// Introduccion del primer arranque ya vista.
     static let onboardingDone = "onboardingDone"
     /// Lanzador con ⌥Espacio.
@@ -92,11 +94,12 @@ enum SettingsKey {
             hudDevices: true,
             hudBattery: true,
             hudDownloads: true,
-            // macOS ya muestra Bloq Mayus junto al cursor: el aviso propio va apagado.
-            // El de micro y camara solo sale en llamadas.
+            // macOS ya muestra Bloq Mayus junto al cursor y el punto naranja del micro
+            // en la barra (no se puede quitar): esos avisos propios van apagados.
             hudCapsLock: false,
             hudNetwork: true,
-            hudMediaInUse: true,
+            hudMediaInUse: false,
+            hudMusic: true,
             hudMeetings: true,
             hudMail: true,
             hudAgents: true,

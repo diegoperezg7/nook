@@ -285,13 +285,15 @@ struct SettingsView: View {
                     actionTitle: "Permitir",
                     action: { AXAccess.request(); AXAccess.openSettings() }
                 ) { AppBadge(symbol: "accessibility", color: .blue) }
-                PermissionRow(
-                    title: "Acceso total al disco",
-                    detail: "Notificaciones del sistema en el notch. Solo las nuevas; nada se guarda.",
-                    granted: permissions.fullDiskAccess,
-                    actionTitle: "Abrir Ajustes",
-                    action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
-                ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+                if PermissionState.fullDiskAccessNeeded {
+                    PermissionRow(
+                        title: "Acceso total al disco",
+                        detail: "Notificaciones del sistema en el notch. Solo las nuevas; nada se guarda.",
+                        granted: permissions.fullDiskAccess,
+                        actionTitle: "Abrir Ajustes",
+                        action: { SystemSettingsLink.open("com.apple.preference.security?Privacy_AllFiles") }
+                    ) { AppBadge(symbol: "internaldrive.fill", color: .gray) }
+                }
             }
             .padding(20)
         }

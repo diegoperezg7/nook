@@ -11,6 +11,7 @@ final class BatteryCenter {
     @ObservationIgnored private var timer: Timer?
     @ObservationIgnored private var loading = false
     @ObservationIgnored private var lastRead: Date?
+    @ObservationIgnored private var caseRetries = 0
 
     func start() {
         refresh(force: true)
@@ -25,10 +26,24 @@ final class BatteryCenter {
         guard !loading else { return }
         loading = true
         Task {
-            let list = await AccessoryBattery.readAll().filter { Self.isAudio($0.icon) }
+            var list = await AccessoryBattery.readAll().filter { Self.isAudio($0.icon) }
+            #if DEBUG
+            // `-VisorDemoBattery YES`: unos AirPods de ejemplo para probar el boton sin tenerlos.
+            if UserDefaults.standard.bool(forKey: "VisorDemoBattery") {
+                list = [AccessoryBattery(name: "AirPods Pro", icon: "airpodspro", levels: [("L", 82), ("R", 79), (AccessoryBattery.casePart, 64)])]
+            }
+            #endif
             loading = false
             lastRead = Date()
             if list != headphones { headphones = list }
+            // Recien conectados solo se sabe el estuche: se vuelve a mirar cada 10 s,
+            // como mucho un minuto (con los auriculares guardados no llega nada mas).
+            if list.contains(where: \.onlyCase), caseRetries < 6 {
+                caseRetries += 1
+                DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in self?.refresh(force: true) }
+            } else if !list.contains(where: \.onlyCase) {
+                caseRetries = 0
+            }
         }
     }
 
