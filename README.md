@@ -7,7 +7,7 @@
 <p align="center">
   <strong>Your Mac's notch, turned into a useful place.</strong><br>
   Move the pointer to the top of the screen and your files, everything you copied, your agenda,<br>
-  your mail and your AI agents are right there. No windows, no searching, nothing covered up.
+  your music, your calls and your AI agents are right there. No windows, no searching, nothing covered up.
 </p>
 
 <p align="center">
@@ -48,12 +48,42 @@ the arrow keys and press <kbd>Return</kbd>. Passwords are never saved.
 ## Your day at a glance
 
 - **Agenda** for today and the next few days, with a button to **join the meeting** and a
-  countdown in the notch when it's about to start.
+  countdown in the notch when it's about to start. Events that already ended disappear, and
+  when the day changes it jumps to today.
 - **Reminders** you haven't done yet, to check off without opening anything.
 - **Just type it:** "Coffee with Ana tomorrow at 10" creates the event.
 - **Mail:** your latest messages, read and unread. Open one, read it and **reply** right in
   the notch, or mark it as read. Choose which senders get an alert. Works with Mail and the
   classic Outlook.
+
+## Your music, one click away
+
+<p align="center">
+  <img src="docs/images/music.png" width="760" alt="Spotify player with artwork, progress and controls under the notch">
+</p>
+
+While Spotify or Music is playing, its logo shows up in the notch with a ring for the song's
+progress. Click it for a small player with the artwork, the time left and previous,
+play/pause and next. When nothing else needs your attention, the closed notch shows what's
+playing.
+
+## Calls without hunting for the window
+
+<p align="center">
+  <img src="docs/images/call.png" width="760" alt="Call button with mute, camera and hang up">
+</p>
+
+In a call on Teams, Zoom, Meet, FaceTime or Discord, a green phone button replaces the rest:
+**mute, camera and hang up** without leaving what you're doing. A red badge reminds you when
+you're muted, and the meeting reminder goes away as soon as you join. Visor doesn't repeat
+the microphone indicator macOS already shows.
+
+## AirPods and screenshots
+
+- **AirPods battery** for each earbud and the case, from the moment you connect them.
+- **Screenshots in their own folder:** Visor moves them off the Desktop to
+  *Pictures/Screenshots* (or uses the folder you already had) and shows the latest ones in the
+  notch, ready to drag.
 
 ## Keep an eye on your AI agents
 
@@ -70,15 +100,17 @@ resets**, with an alert at 80 % and 95 %.
 
 Volume, battery, AirPods, finished downloads, meetings, new mail, agents, Focus,
 notifications… they show up beside the notch for a moment and go away. They never cover
-your menu bar icons: if one side has no room, they use the other.
+your menu bar icons: if there's no room beside the notch, the alert grows below it as a small
+island, sized to its text.
 
 **Click an alert** and the notch opens a little to show a preview, with a button to go
 straight to the mail, the session, the download or the meeting.
 
 ## A clock in the notch
 
-A timer with pause and any duration, alarms, and *keep awake*, laid out like the Clock app.
-The time left shows as a ring around the button.
+A timer you set with hours, minutes and seconds wheels, your recent durations a click away,
+alarms and *keep awake*, laid out like the Clock app. The time left shows as a ring around the
+button.
 
 ## And a few shortcuts
 
