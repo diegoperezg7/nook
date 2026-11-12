@@ -43,6 +43,12 @@ struct NotchContentView: View {
             }
             .padding(.top, NotchMetrics.topSpacing)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            if hud.showsMusicBar, let nowPlaying = hud.nowPlaying {
+                MusicBar(nowPlaying: nowPlaying)
+                    .padding(.horizontal, Self.margin)
+                    .frame(height: NotchMetrics.musicBarHeight, alignment: .top)
+                    .transition(.opacity)
+            }
         }
         // Al abrir: por si acabas de conectar los AirPods.
         .onAppear { battery.refresh() }
@@ -501,6 +507,93 @@ private struct TabButton: View {
 }
 
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
+/// Lo que suena en Musica o Spotify, al pie del panel: caratula, cancion, progreso y
+/// controles. Pulsar la caratula o el titulo abre la app.
+private struct MusicBar: View {
+    let nowPlaying: NowPlaying
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button { nowPlaying.openPlayer() } label: {
+                HStack(spacing: 10) {
+                    cover
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(verbatim: nowPlaying.track?.title ?? "")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(AppColors.textPrimary)
+                        Text(verbatim: nowPlaying.track?.artist ?? "")
+                            .font(.system(size: 11))
+                            .foregroundStyle(AppColors.textSecondary)
+                        progress
+                    }
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(Text("Abrir \(nowPlaying.player == .music ? String(localized: "Música") : "Spotify")"))
+
+            HStack(spacing: 6) {
+                control("backward.fill", "Anterior") { nowPlaying.previous() }
+                control(nowPlaying.isPlaying ? "pause.fill" : "play.fill", nowPlaying.isPlaying ? "Pausa" : "Reproducir", size: 34) {
+                    nowPlaying.playPause()
+                }
+                control("forward.fill", "Siguiente") { nowPlaying.next() }
+            }
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 44)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(AppColors.card))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AppColors.cardBorder, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private var cover: some View {
+        if let image = nowPlaying.artwork ?? nowPlaying.player?.icon {
+            Image(nsImage: image).resizable().scaledToFill()
+                .frame(width: 32, height: 32)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        } else {
+            Image(systemName: "music.note")
+                .frame(width: 32, height: 32)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(AppColors.controlTrack))
+        }
+    }
+
+    /// Barra fina con lo que lleva la cancion (si se sabe la duracion).
+    @ViewBuilder
+    private var progress: some View {
+        if let duration = nowPlaying.track?.duration, duration > 0 {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                let fraction = min(1, max(0, nowPlaying.currentPosition(at: context.date) / duration))
+                GeometryReader { proxy in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(AppColors.controlTrack)
+                        Capsule().fill(AppColors.success).frame(width: proxy.size.width * fraction)
+                    }
+                }
+                .frame(height: 3)
+            }
+        }
+    }
+
+    private func control(_ icon: String, _ title: LocalizedStringKey, size: CGFloat = 28, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: size > 30 ? 14 : 11, weight: .bold))
+                .foregroundStyle(AppColors.textPrimary)
+                .frame(width: size, height: size)
+                .background(Circle().fill(AppColors.controlTrack))
+                .contentTransition(.symbolEffect(.replace))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .help(Text(title))
+        .accessibilityLabel(Text(title))
+    }
+}
+
 /// Desplegable del boton de llamada: micro, camara y colgar, con su estado.
 private struct CallPanel: View {
     let call: MeetingControls.Target

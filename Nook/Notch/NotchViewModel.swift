@@ -80,7 +80,15 @@ final class NotchViewModel {
 
     /// Zona del panel visible, segun la pestaña (la bandeja es mas baja).
     var openHotRect: CGRect {
-        metrics.openHotRect(searchRow: tab.hasToolbar, extra: tab.extraHeight)
+        metrics.openHotRect(searchRow: tab.hasToolbar, extra: panelExtra)
+    }
+
+    /// Hay barra de musica al pie del panel (lo decide el controlador).
+    @ObservationIgnored var showsMusicBar: () -> Bool = { false }
+
+    /// Alto que se suma al panel: el lector de correo y la barra de musica.
+    var panelExtra: CGFloat {
+        tab.extraHeight + (showsMusicBar() ? NotchMetrics.musicBarHeight : 0)
     }
 
     /// Zona del notch cerrado que lo abre.
