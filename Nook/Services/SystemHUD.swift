@@ -88,9 +88,9 @@ final class SystemHUD {
     @ObservationIgnored private var path: NWPathMonitor?
     @ObservationIgnored private var lastPath: (online: Bool, vpn: Bool)?
 
-    /// Barra de musica en el panel abierto: hay cancion en Musica o Spotify (tambien
-    /// en pausa, para poder seguir).
-    var showsMusicBar: Bool {
+    /// Boton de musica en la cabecera del panel: hay cancion en Musica o Spotify
+    /// (tambien en pausa, para poder seguir).
+    var hasMusic: Bool {
         defaults.bool(forKey: SettingsKey.hudMusic) && nowPlaying?.track != nil
     }
 

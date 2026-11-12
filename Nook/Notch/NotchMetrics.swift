@@ -87,11 +87,8 @@ struct NotchMetrics: Equatable {
         return CGSize(width: width, height: headerHeight + content + extra)
     }
 
-    /// Barra de musica al pie del panel abierto (mientras hay algo en Musica o Spotify).
-    static let musicBarHeight: CGFloat = 54
-
     /// El mayor de los tamaños: el de la ventana.
-    var openSize: CGSize { openSize(searchRow: true, extra: Self.readerExtra + Self.musicBarHeight) }
+    var openSize: CGSize { openSize(searchRow: true, extra: Self.readerExtra) }
 
     var closedWindowFrame: CGRect {
         CGRect(

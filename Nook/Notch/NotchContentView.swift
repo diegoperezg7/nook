@@ -17,6 +17,7 @@ struct NotchContentView: View {
     @State private var showMirror = false
     @State private var showClock = false
     @State private var showCall = false
+    @State private var showMusic = false
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -43,12 +44,6 @@ struct NotchContentView: View {
             }
             .padding(.top, NotchMetrics.topSpacing)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            if hud.showsMusicBar, let nowPlaying = hud.nowPlaying {
-                MusicBar(nowPlaying: nowPlaying)
-                    .padding(.horizontal, Self.margin)
-                    .frame(height: NotchMetrics.musicBarHeight, alignment: .top)
-                    .transition(.opacity)
-            }
         }
         // Al abrir: por si acabas de conectar los AirPods.
         .onAppear { battery.refresh() }
@@ -67,6 +62,13 @@ struct NotchContentView: View {
             battery.refresh()
             model.isPreviewing = true
             showBattery = true
+        }
+        // `-VisorOpenMusic YES` (con `-VisorDemoMusic YES`): abre el reproductor.
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenMusic") else { return }
+            try? await Task.sleep(for: .seconds(1.5))
+            model.isPreviewing = true
+            showMusic = true
         }
         // `-VisorOpenCall YES` (con `-VisorDemoCall <app>`): abre el desplegable de la
         // llamada; `-VisorDemoMuted YES` lo enseña con el micro silenciado.
@@ -91,14 +93,21 @@ struct NotchContentView: View {
             let call = MeetingControls.current(micInUse: hud.micInUse)
             // Como mucho cuatro botones por lado con separacion 8: un quinto entraria
             // bajo la camara en los portatiles. En llamada, un solo boton (que despliega
-            // micro, camara y colgar) en lugar de agentes, reloj y espejo.
-            HStack(spacing: NotchMetrics.headerButtonSpacing) {
+            // micro, camara y colgar) en lugar de agentes, reloj y espejo. Con musica,
+            // su boton ocupa el sitio del espejo; si ademas hay bateria son cinco y van
+            // mas juntos.
+            let music = call == nil && hud.hasMusic
+            HStack(spacing: music && battery.headline != nil ? NotchMetrics.callButtonSpacing : NotchMetrics.headerButtonSpacing) {
                 if let call {
                     callButton(call)
                 } else {
                     agentsButton
                     timerMenu
-                    mirrorButton
+                    if music, let nowPlaying = hud.nowPlaying {
+                        musicButton(nowPlaying)
+                    } else {
+                        mirrorButton
+                    }
                 }
                 batteryButton
                 menu
@@ -138,6 +147,25 @@ struct NotchContentView: View {
         TabButton(title: title, icon: icon, logo: logo, selected: model.tab == tab, namespace: tabNamespace) {
             withAnimation(AppMotion.snappy) { model.tab = tab }
         }
+    }
+
+    /// Musica o Spotify: su logo con un aro de progreso; al pulsarlo, el reproductor.
+    private func musicButton(_ nowPlaying: NowPlaying) -> some View {
+        Button {
+            model.isPreviewing = true
+            showMusic = true
+        } label: {
+            CircleIconLabel(icon: "music.note", logo: nowPlaying.player?.icon)
+                .overlay { MusicRing(nowPlaying: nowPlaying) }
+        }
+        .buttonStyle(.plain)
+        .help(Text(verbatim: [nowPlaying.track?.title, nowPlaying.track?.artist].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")))
+        .accessibilityLabel(Text("Música"))
+        .popover(isPresented: $showMusic, arrowEdge: .bottom) { MusicPanel(nowPlaying: nowPlaying) }
+        .onChange(of: showMusic) { _, shown in
+            if !shown { model.isPreviewing = false }
+        }
+        .transition(.scale.combined(with: .opacity))
     }
 
     /// En llamada: un boton verde; al pulsarlo salen micro, camara y colgar.
@@ -507,86 +535,130 @@ private struct TabButton: View {
 }
 
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
-/// Lo que suena en Musica o Spotify, al pie del panel: caratula, cancion, progreso y
-/// controles. Pulsar la caratula o el titulo abre la app.
-private struct MusicBar: View {
+/// Aro verde con lo que lleva la cancion, sobre el boton de musica.
+private struct MusicRing: View {
     let nowPlaying: NowPlaying
 
     var body: some View {
-        HStack(spacing: 12) {
-            Button { nowPlaying.openPlayer() } label: {
-                HStack(spacing: 10) {
-                    cover
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(verbatim: nowPlaying.track?.title ?? "")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(AppColors.textPrimary)
-                        Text(verbatim: nowPlaying.track?.artist ?? "")
-                            .font(.system(size: 11))
-                            .foregroundStyle(AppColors.textSecondary)
-                        progress
-                    }
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .contentShape(Rectangle())
+        if let duration = nowPlaying.track?.duration, duration > 0 {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                Circle()
+                    .trim(from: 0, to: min(1, max(0, nowPlaying.currentPosition(at: context.date) / duration)))
+                    .stroke(AppColors.success, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .padding(1)
             }
-            .buttonStyle(.plain)
-            .help(Text("Abrir \(nowPlaying.player == .music ? String(localized: "Música") : "Spotify")"))
+            .allowsHitTesting(false)
+        }
+    }
+}
 
-            HStack(spacing: 6) {
-                control("backward.fill", "Anterior") { nowPlaying.previous() }
-                control(nowPlaying.isPlaying ? "pause.fill" : "play.fill", nowPlaying.isPlaying ? "Pausa" : "Reproducir", size: 34) {
-                    nowPlaying.playPause()
+/// Reproductor del boton de musica: caratula grande, cancion, progreso con tiempos y
+/// controles. El fondo toma el color de la caratula, como el de Apple. Pulsar la
+/// caratula abre la app.
+private struct MusicPanel: View {
+    let nowPlaying: NowPlaying
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
+                Button { nowPlaying.openPlayer() } label: { cover }
+                    .buttonStyle(.plain)
+                    .help(Text("Abrir \(nowPlaying.player == .music ? String(localized: "Música") : "Spotify")"))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: nowPlaying.track?.title ?? "")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AppColors.textPrimary)
+                    Text(verbatim: nowPlaying.track?.artist ?? "")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColors.textSecondary)
                 }
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            progress
+            HStack(spacing: 28) {
+                control("backward.fill", "Anterior") { nowPlaying.previous() }
+                Button { nowPlaying.playPause() } label: {
+                    Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(AppColors.panel)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(AppColors.textPrimary))
+                        .contentTransition(.symbolEffect(.replace))
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(nowPlaying.isPlaying ? "Pausa" : "Reproducir"))
                 control("forward.fill", "Siguiente") { nowPlaying.next() }
             }
+            .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, 10)
-        .frame(height: 44)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(AppColors.card))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AppColors.cardBorder, lineWidth: 1))
+        .padding(16)
+        .frame(width: 280)
+        .background {
+            LinearGradient(colors: [tint.opacity(0.55), tint.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+        .presentationBackground(AppColors.panel)
+    }
+
+    /// Color medio de la caratula (o del icono de la app mientras carga).
+    private var tint: Color {
+        (nowPlaying.artwork ?? nowPlaying.player?.icon).flatMap(NowPlaying.averageColor).map(Color.init(nsColor:)) ?? AppColors.success
     }
 
     @ViewBuilder
     private var cover: some View {
         if let image = nowPlaying.artwork ?? nowPlaying.player?.icon {
             Image(nsImage: image).resizable().scaledToFill()
-                .frame(width: 32, height: 32)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .frame(width: 56, height: 56)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .shadow(color: AppColors.shadow, radius: 6, y: 3)
         } else {
             Image(systemName: "music.note")
-                .frame(width: 32, height: 32)
-                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(AppColors.controlTrack))
+                .font(.system(size: 20, weight: .semibold))
+                .frame(width: 56, height: 56)
+                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(AppColors.controlTrack))
         }
     }
 
-    /// Barra fina con lo que lleva la cancion (si se sabe la duracion).
     @ViewBuilder
     private var progress: some View {
         if let duration = nowPlaying.track?.duration, duration > 0 {
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                let fraction = min(1, max(0, nowPlaying.currentPosition(at: context.date) / duration))
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(AppColors.controlTrack)
-                        Capsule().fill(AppColors.success).frame(width: proxy.size.width * fraction)
+                let position = min(duration, nowPlaying.currentPosition(at: context.date))
+                VStack(spacing: 4) {
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(AppColors.textPrimary.opacity(0.18))
+                            Capsule().fill(AppColors.textPrimary).frame(width: proxy.size.width * position / duration)
+                        }
                     }
+                    .frame(height: 4)
+                    HStack {
+                        Text(verbatim: Self.time(position))
+                        Spacer()
+                        Text(verbatim: "-" + Self.time(duration - position))
+                    }
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
+                    .foregroundStyle(AppColors.textSecondary)
                 }
-                .frame(height: 3)
             }
         }
     }
 
-    private func control(_ icon: String, _ title: LocalizedStringKey, size: CGFloat = 28, action: @escaping () -> Void) -> some View {
+    private static func time(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds))
+        return String(format: "%d:%02d", total / 60, total % 60)
+    }
+
+    private func control(_ icon: String, _ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: size > 30 ? 14 : 11, weight: .bold))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(AppColors.textPrimary)
-                .frame(width: size, height: size)
-                .background(Circle().fill(AppColors.controlTrack))
-                .contentTransition(.symbolEffect(.replace))
-                .contentShape(Circle())
+                .frame(width: 36, height: 36)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .help(Text(title))

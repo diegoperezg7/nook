@@ -165,6 +165,26 @@ final class NowPlaying {
         loadArtwork()
     }
 
+    /// Color medio de una imagen (fondo del reproductor), con brillo moderado para que
+    /// el texto se lea encima.
+    nonisolated static func averageColor(_ image: NSImage) -> NSColor? {
+        guard let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil),
+              let rep = NSBitmapImageRep(
+                  bitmapDataPlanes: nil, pixelsWide: 1, pixelsHigh: 1, bitsPerSample: 8, samplesPerPixel: 4,
+                  hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 4, bitsPerPixel: 32
+              ),
+              let context = NSGraphicsContext(bitmapImageRep: rep) else { return nil }
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = context
+        context.imageInterpolation = .medium
+        NSImage(cgImage: cg, size: NSSize(width: 1, height: 1)).draw(in: NSRect(x: 0, y: 0, width: 1, height: 1))
+        NSGraphicsContext.restoreGraphicsState()
+        guard let color = rep.colorAt(x: 0, y: 0)?.usingColorSpace(.deviceRGB) else { return nil }
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        color.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        return NSColor(hue: hue, saturation: min(1, saturation * 1.2), brightness: min(max(brightness, 0.35), 0.65), alpha: 1)
+    }
+
     /// Una cancion de mas de 10 h no existe: un valor asi viene en milisegundos.
     nonisolated static func seconds(_ value: Double) -> TimeInterval {
         value > 36_000 ? value / 1000 : value

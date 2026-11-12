@@ -30,7 +30,6 @@ final class NotchController {
         self.store = store
         let screen = Self.targetScreen() ?? NSScreen.main ?? NSScreen.screens[0]
         model = NotchViewModel(metrics: NotchMetrics.make(for: screen))
-        model.showsMusicBar = { [weak hud] in hud?.showsMusicBar ?? false }
 
         let root = NotchRootView(model: model, store: store)
             .modelContainer(container)
