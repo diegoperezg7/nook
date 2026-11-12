@@ -270,6 +270,16 @@ extension MeetingControls.Action {
         }
     }
 
+    /// Identificadores de Accesibilidad que no cambian con el idioma. FaceTime etiqueta
+    /// sus botones "Micrófono", "Cámara" y "Finalizar", que no sirven como etiqueta.
+    var identifiers: Set<String> {
+        switch self {
+        case .mic: ["toggleMicMenuButton"]
+        case .camera: ["toggleVideoButton"]
+        case .leave: ["leaveButton"]
+        }
+    }
+
     /// Si una etiqueta corresponde a esta accion.
     func matches(_ label: String) -> Bool {
         let text = label.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
@@ -319,7 +329,9 @@ enum AXTree {
             let (element, depth) = queue.removeFirst()
             visited += 1
             let role = value(element, kAXRoleAttribute) as? String ?? ""
-            if pressRoles.contains(role), isEnabled(element), labels(element).contains(where: action.matches) {
+            if pressRoles.contains(role), isEnabled(element),
+               labels(element).contains(where: action.matches)
+               || (value(element, kAXIdentifierAttribute) as? String).map(action.identifiers.contains) == true {
                 // En menus nunca lo que cierra la app (⌘Q).
                 if !(menus && (value(element, kAXMenuItemCmdCharAttribute) as? String)?.uppercased() == "Q") {
                     return element

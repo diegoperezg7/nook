@@ -11,16 +11,8 @@ enum WhatsNew {
     }
 
     static let notes: [Note] = [
-        Note(icon: "music.note", title: "Música en el notch",
-             detail: "Mientras suena Spotify o Música, su logo en el notch abre un reproductor con carátula, progreso y controles."),
-        Note(icon: "phone.fill", title: "Llamadas",
-             detail: "Un solo botón verde con micro, cámara y colgar, y a la vista si estás silenciado."),
-        Note(icon: "camera.viewfinder", title: "Capturas en su carpeta",
-             detail: "Las capturas van a Imágenes/Capturas de pantalla, fuera del Escritorio, y se ven en el notch."),
-        Note(icon: "calendar", title: "Calendario al día",
-             detail: "Al cambiar de día, el calendario marca hoy y la reunión deja de avisar en cuanto entras."),
-        Note(icon: "airpods", title: "AirPods",
-             detail: "Batería de cada auricular y del estuche, también justo al conectarlos."),
+        Note(icon: "phone.fill", title: "Llamadas de FaceTime y del iPhone",
+             detail: "El botón de llamada sale también en FaceTime y en las llamadas del iPhone que suenan en el Mac (en estas, solo el micro)."),
     ]
 
     static var version: String {
