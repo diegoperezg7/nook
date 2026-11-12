@@ -82,8 +82,8 @@ targets:
         # los tests importan el modulo Nook.
         PRODUCT_NAME: Visor
         PRODUCT_MODULE_NAME: Nook
-        MARKETING_VERSION: "0.22.4"
-        CURRENT_PROJECT_VERSION: "31"
+        MARKETING_VERSION: "0.22.5"
+        CURRENT_PROJECT_VERSION: "32"
         GENERATE_INFOPLIST_FILE: YES
         # Sin icono en el Dock ni menu: la app vive en el notch.
         INFOPLIST_KEY_LSUIElement: YES
