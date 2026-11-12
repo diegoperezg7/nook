@@ -144,4 +144,15 @@ final class NotchMetricsTests: XCTestCase {
             XCTAssertGreaterThan(wide, metrics.headerSideWidth)
         }
     }
+
+    /// Un aviso que no cabe a los dos lados sale como isla (antes iba entero a un lado).
+    func testNoticeWithoutRoomOnOneSideBecomesIsland() {
+        let meeting = SystemHUD.Kind.meeting(title: "Diario", start: .now)
+        XCTAssertNil(HUDActivity.island(for: meeting, leftFree: 400, rightFree: 400))
+        XCTAssertNil(HUDActivity.island(for: meeting, leftFree: nil, rightFree: nil))
+        XCTAssertNotNil(HUDActivity.island(for: meeting, leftFree: 400, rightFree: 10))
+        XCTAssertNotNil(HUDActivity.island(for: meeting, leftFree: 60, rightFree: 400))
+        let message = SystemHUD.Kind.notification(bundleID: "net.whatsapp.WhatsApp", title: "Ana", body: "Hola")
+        XCTAssertEqual(HUDActivity.island(for: message, leftFree: 400, rightFree: 400)?.extra, NotchMetrics.islandExtra)
+    }
 }

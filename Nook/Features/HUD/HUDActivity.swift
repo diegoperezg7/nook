@@ -7,6 +7,8 @@ struct HUDActivity: View {
     let metrics: NotchMetrics
     /// Lo que crece el notch a cada lado (segun el hueco libre de la barra de menus).
     let sides: HUDSides
+    /// Como isla: icono y valor en una fila bajo el notch, centrados.
+    var island = false
 
     /// Ancho que pide cada lado del notch para este aviso.
     static func side(for kind: SystemHUD.Kind) -> CGFloat {
@@ -25,15 +27,39 @@ struct HUDActivity: View {
         }
     }
 
-    /// Avisos que salen como isla (bajo el notch) en vez de en las alas.
-    static func isIsland(_ kind: SystemHUD.Kind) -> Bool {
-        if case .notification = kind { return true }
-        return false
+    /// Avisos que salen como isla (bajo el notch) en vez de en las alas: ancho del
+    /// contenido y alto bajo el notch, o nil si va en las alas. Una notificacion
+    /// siempre; cualquier otro aviso, si a un lado no le cabe lo que pide (los iconos
+    /// de la barra llegan al notch). Antes iba entero al otro lado y se veia descuadrado.
+    static func island(for kind: SystemHUD.Kind, leftFree: CGFloat?, rightFree: CGFloat?) -> (content: CGFloat, extra: CGFloat)? {
+        if case .notification = kind { return (NotificationIsland.contentWidth(for: kind), NotchMetrics.islandExtra) }
+        let desired = side(for: kind)
+        let sides = HUDSides.make(desired: desired, leftFree: leftFree, rightFree: rightFree)
+        guard sides.merged || sides.left < desired || sides.right < desired else { return nil }
+        return (desired * 2 - 24, NotchMetrics.islandRowExtra)
     }
 
     var body: some View {
+        if island { islandRow } else { wings }
+    }
+
+    private var islandRow: some View {
+        HStack(spacing: 10) {
+            leading
+            Spacer(minLength: 8)
+            trailing
+        }
+        .lineLimit(1)
+        .foregroundStyle(AppColors.notchText)
+        .frame(height: NotchMetrics.islandRowExtra)
+        .padding(.horizontal, NotchMetrics.islandPadding)
+        .padding(.top, metrics.notchHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private var wings: some View {
         let ear = NotchMetrics.closedEar
-        HStack(spacing: 0) {
+        return HStack(spacing: 0) {
             Group {
                 if sides.merged, sides.left > 0 {
                     HStack(spacing: 8) { leading; trailing }

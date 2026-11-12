@@ -16,6 +16,7 @@ struct NotchContentView: View {
     @State private var showBattery = false
     @State private var showMirror = false
     @State private var showClock = false
+    @State private var showCall = false
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -53,6 +54,23 @@ struct NotchContentView: View {
             model.isPreviewing = true
             showClock = true
         }
+        // `-VisorOpenBattery YES`: igual con la bateria de los auriculares.
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenBattery") else { return }
+            try? await Task.sleep(for: .seconds(1.5))
+            battery.refresh()
+            model.isPreviewing = true
+            showBattery = true
+        }
+        // `-VisorOpenCall YES` (con `-VisorDemoCall <app>`): abre el desplegable de la
+        // llamada; `-VisorDemoMuted YES` lo enseña con el micro silenciado.
+        .task {
+            guard UserDefaults.standard.bool(forKey: "VisorOpenCall") else { return }
+            CallState.shared.micMuted = UserDefaults.standard.bool(forKey: "VisorDemoMuted")
+            try? await Task.sleep(for: .seconds(1.5))
+            model.isPreviewing = true
+            showCall = true
+        }
         #endif
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
         // estrecho que la ventana. Sin esto los margenes se quedaban en 2 pt.
@@ -66,12 +84,11 @@ struct NotchContentView: View {
             Color.clear.frame(width: model.metrics.hasNotch ? model.metrics.notchWidth : 0)
             let call = MeetingControls.current(micInUse: hud.micInUse)
             // Como mucho cuatro botones por lado con separacion 8: un quinto entraria
-            // bajo la camara en los portatiles. En llamada sale el espejo (la camara ya
-            // la usa la llamada); si ademas hay bateria son cinco y van mas juntos.
-            let spacing = call != nil && battery.headline != nil ? NotchMetrics.callButtonSpacing : NotchMetrics.headerButtonSpacing
-            HStack(spacing: spacing) {
+            // bajo la camara en los portatiles. En llamada, un solo boton (que despliega
+            // micro, camara y colgar) en lugar de agentes, reloj y espejo.
+            HStack(spacing: NotchMetrics.headerButtonSpacing) {
                 if let call {
-                    callControls(call, spacing: spacing)
+                    callButton(call)
                 } else {
                     agentsButton
                     timerMenu
@@ -117,37 +134,60 @@ struct NotchContentView: View {
         }
     }
 
-    /// En llamada: micro, camara y colgar de la app de la reunion.
-    private func callControls(_ call: MeetingControls.Target, spacing: CGFloat) -> some View {
-        HStack(spacing: spacing) {
-            callButton("mic.slash.fill", String(localized: "Silenciar o activar el micro en \(call.name)"), .mic, call)
-            if call.hasCamera {
-                callButton("video.slash.fill", String(localized: "Apagar o encender la cámara en \(call.name)"), .camera, call)
-            }
-            // Colgar siempre: aunque no haya atajo (Meet), se busca el boton de la app.
-            Button { run(.leave, call) } label: {
-                Image(systemName: "phone.down.fill")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Circle().fill(AppColors.danger))
-            }
-            .buttonStyle(.plain)
-            .help(Text("Colgar en \(call.name)"))
+    /// En llamada: un boton verde; al pulsarlo salen micro, camara y colgar.
+    private func callButton(_ call: MeetingControls.Target) -> some View {
+        let state = CallState.shared
+        return Button {
+            model.isPreviewing = true
+            showCall = true
+        } label: {
+            Image(systemName: "phone.fill")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(AppColors.onAccent)
+                .frame(width: 30, height: 30)
+                .background(Circle().fill(AppColors.success))
+                // Micro silenciado: se ve sin abrir el boton.
+                .overlay(alignment: .bottomTrailing) {
+                    if state.micMuted {
+                        Image(systemName: "mic.slash.fill")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(AppColors.onAccent)
+                            .frame(width: 15, height: 15)
+                            .background(Circle().fill(AppColors.danger))
+                            .offset(x: 3, y: 3)
+                    }
+                }
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .help(Text("Llamada en \(call.name)"))
+        .accessibilityLabel(Text("Llamada en \(call.name)"))
+        .popover(isPresented: $showCall, arrowEdge: .bottom) {
+            CallPanel(call: call, state: state) { action in run(action, call) }
+        }
+        .onChange(of: showCall) { _, shown in
+            if !shown { model.isPreviewing = false }
         }
         .transition(.scale.combined(with: .opacity))
     }
 
-    private func callButton(_ icon: String, _ help: String, _ action: MeetingControls.Action, _ call: MeetingControls.Target) -> some View {
-        Button { run(action, call) } label: { CircleIconLabel(icon: icon) }
-            .buttonStyle(.plain)
-            .help(Text(verbatim: help))
-            .accessibilityLabel(Text(verbatim: help))
-    }
-
     private func run(_ action: MeetingControls.Action, _ call: MeetingControls.Target) {
-        model.close()
-        switch MeetingControls.perform(action, on: call) {
+        // Micro y camara dejan el panel abierto para ver el cambio; colgar lo cierra.
+        if action == .leave {
+            showCall = false
+            model.close()
+        }
+        let outcome = MeetingControls.perform(action, on: call)
+        switch outcome {
+        case .pressed, .shortcut, .systemMute:
+            let state = CallState.shared
+            if action == .mic { state.micMuted.toggle() }
+            if action == .camera { state.cameraOff.toggle() }
+            if action == .leave { state.reset() }
+        case .needsPermission, .failed:
+            break
+        }
+        switch outcome {
         case .needsPermission:
             hud.show(.notice(icon: "hand.raised.fill", text: String(localized: "Activa Accesibilidad en Ajustes")), for: 2.5)
         case .failed:
@@ -461,6 +501,65 @@ private struct TabButton: View {
 }
 
 /// Boton redondo de cristal de la cabecera: el icono se tiñe de azul al pasar.
+/// Desplegable del boton de llamada: micro, camara y colgar, con su estado.
+private struct CallPanel: View {
+    let call: MeetingControls.Target
+    let state: CallState
+    let perform: (MeetingControls.Action) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(verbatim: call.name)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(AppColors.textPrimary)
+            HStack(spacing: 18) {
+                toggle(
+                    on: state.micMuted, icon: state.micMuted ? "mic.slash.fill" : "mic.fill",
+                    title: state.micMuted ? "Silenciado" : "Micro", action: .mic
+                )
+                if call.hasCamera {
+                    toggle(
+                        on: state.cameraOff, icon: state.cameraOff ? "video.slash.fill" : "video.fill",
+                        title: state.cameraOff ? "Cámara apagada" : "Cámara", action: .camera
+                    )
+                }
+                button(icon: "phone.down.fill", title: "Colgar", fill: AppColors.danger, tint: AppColors.onAccent, action: .leave)
+            }
+        }
+        .padding(14)
+        .presentationBackground(AppColors.panel)
+    }
+
+    /// Como en FaceTime: activo (silenciado, camara apagada) en relleno claro.
+    private func toggle(on: Bool, icon: String, title: LocalizedStringKey, action: MeetingControls.Action) -> some View {
+        button(icon: icon, title: title, fill: on ? AppColors.textPrimary : AppColors.controlTrack,
+               tint: on ? AppColors.panel : AppColors.textPrimary, action: action)
+    }
+
+    private func button(icon: String, title: LocalizedStringKey, fill: Color, tint: Color, action: MeetingControls.Action) -> some View {
+        Button { perform(action) } label: {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(fill))
+                    .contentTransition(.symbolEffect(.replace))
+                Text(title)
+                    .font(.system(size: 10))
+                    .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+            .frame(minWidth: 56)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
+        .animation(AppMotion.snappy, value: icon)
+    }
+}
+
 private struct CircleIconLabel: View {
     let icon: String
     /// Icono oficial de una app (Reloj, Mail...) en lugar del simbolo.

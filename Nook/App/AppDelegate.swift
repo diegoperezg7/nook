@@ -65,6 +65,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         LegacyImport.run(into: store)
         #endif
         let screenshots = ScreenshotLibrary()
+        // La build Debug no toca la carpeta de capturas del sistema salvo que se pida.
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "VisorScreenshotSetup") { screenshots.moveScreenshotsOutOfDesktopOnce() }
+        #else
+        screenshots.moveScreenshotsOutOfDesktopOnce()
+        #endif
         let agents = AgentMonitor()
         let hud = SystemHUD()
         let calendar = CalendarService()

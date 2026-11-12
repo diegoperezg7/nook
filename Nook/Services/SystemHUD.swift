@@ -82,12 +82,17 @@ final class SystemHUD {
     @ObservationIgnored private var path: NWPathMonitor?
     @ObservationIgnored private var lastPath: (online: Bool, vpn: Bool)?
 
+    /// En una llamada: el micro lo usa una app de reuniones (o una con boton de colgar).
+    var inCall: Bool { micInUse && MeetingControls.current(micInUse: true) != nil }
+
     /// La actividad que dura con mas prioridad: reunion > temporizador >
     /// microfono o camara > mantener despierto.
     var ambient: Kind? {
         if let dictation, dictation.isListening { return .dictation(text: dictation.transcript) }
         if let ringing = focus?.ringing { return .alarm(time: ringing) }
-        if defaults.bool(forKey: SettingsKey.hudMeetings), let meeting = calendar?.imminentMeeting(at: now) {
+        // Si ya estas en una llamada, el aviso de la reunion sobra (seguia hasta 5 min
+        // despues de la hora aunque ya hubieras entrado).
+        if defaults.bool(forKey: SettingsKey.hudMeetings), !inCall, let meeting = calendar?.imminentMeeting(at: now) {
             return .meeting(title: meeting.title, start: meeting.start)
         }
         if let focus, let end = focus.end { return .timer(end: end, total: focus.total) }

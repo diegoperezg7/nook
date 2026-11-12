@@ -28,9 +28,11 @@ struct NotchRootView: View {
         let card = metrics.previewSize(content: preview.map(HUDPreviewCard.contentSize(for:)) ?? .zero)
         // Cada lado crece hasta donde empiezan los menus o los iconos de la barra.
         let free = menuBar.free
-        // Una notificacion no va en las alas: sale como isla, simetrica y hacia abajo.
-        let island = notice.map(HUDActivity.isIsland) ?? false
-        let islandSize = metrics.islandSize(content: island ? notice.map(NotificationIsland.contentWidth(for:)) ?? 0 : 0)
+        // Una notificacion, o un aviso que no cabe a los dos lados, no va en las alas:
+        // sale como isla, simetrica y hacia abajo.
+        let spec = notice.flatMap { HUDActivity.island(for: $0, leftFree: free.left, rightFree: free.right) }
+        let island = spec != nil
+        let islandSize = metrics.islandSize(content: spec?.content ?? 0, extra: spec?.extra ?? NotchMetrics.islandExtra)
         let sides = HUDSides.make(desired: island ? 0 : notice.map(HUDActivity.side(for:)) ?? 0, leftFree: free.left, rightFree: free.right)
         let closedWidth = metrics.closedSize.width + sides.left + sides.right
         let width = model.expandedWidth ? open.width : preview != nil ? card.width : island ? islandSize.width : closedWidth
@@ -54,7 +56,13 @@ struct NotchRootView: View {
                     .opacity(preview != nil ? 1 : 0)
 
                 if let notice, island {
-                    NotificationIsland(kind: notice, metrics: metrics)
+                    Group {
+                        if case .notification = notice {
+                            NotificationIsland(kind: notice, metrics: metrics)
+                        } else {
+                            HUDActivity(kind: notice, metrics: metrics, sides: sides, island: true)
+                        }
+                    }
                         .frame(width: islandSize.width, height: islandSize.height)
                         .contentShape(Rectangle())
                         .onTapGesture { hud.activate() }

@@ -26,18 +26,20 @@ struct NotchMetrics: Equatable {
     static let islandMaxSide: CGFloat = 130
     static let islandPadding: CGFloat = 18
     static let islandExtra: CGFloat = 46
+    /// Alto bajo el notch de una isla de una sola fila (un aviso que no cabia en las alas).
+    static let islandRowExtra: CGFloat = 30
     static let islandBottomRadius: CGFloat = 20
 
-    func islandSize(content: CGFloat) -> CGSize {
+    func islandSize(content: CGFloat, extra: CGFloat = Self.islandExtra) -> CGSize {
         let width = content + Self.islandPadding * 2
         let low = closedSize.width + Self.islandMinSide * 2
         let high = closedSize.width + Self.islandMaxSide * 2
-        return CGSize(width: min(max(width.rounded(.up), low), high), height: notchHeight + Self.islandExtra)
+        return CGSize(width: min(max(width.rounded(.up), low), high), height: notchHeight + extra)
     }
 
     /// Zona de la isla (centrada en el notch).
-    func islandRect(content: CGFloat) -> CGRect {
-        let size = islandSize(content: content)
+    func islandRect(content: CGFloat, extra: CGFloat = Self.islandExtra) -> CGRect {
+        let size = islandSize(content: content, extra: extra)
         return CGRect(x: screenFrame.midX - size.width / 2, y: screenFrame.maxY - size.height, width: size.width, height: size.height)
     }
 

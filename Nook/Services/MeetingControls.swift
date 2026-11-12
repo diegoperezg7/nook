@@ -208,6 +208,23 @@ enum MeetingControls {
     @MainActor
     static func callEnded() {
         SystemMic.restore()
+        CallState.shared.reset()
+    }
+}
+
+/// Lo que Visor ha hecho en la llamada en curso (micro silenciado, camara apagada),
+/// para que los botones lo muestren. Las apps no lo publican: se apunta al pulsar en
+/// Visor y se olvida al colgar. Si se cambia desde la propia app, no se entera.
+@Observable
+@MainActor
+final class CallState {
+    static let shared = CallState()
+    var micMuted = false
+    var cameraOff = false
+
+    func reset() {
+        micMuted = false
+        cameraOff = false
     }
 }
 

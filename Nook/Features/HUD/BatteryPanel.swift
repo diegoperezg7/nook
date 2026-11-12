@@ -42,6 +42,9 @@ struct BatteryPanel: View {
         }
         .padding(14)
         .frame(minWidth: 220, alignment: .leading)
+        // Fondo opaco: con el cristal del popover se transparentaba la bandeja de
+        // detras y el panel parecia quedar por debajo del notch.
+        .presentationBackground(AppColors.panel)
         .onAppear { battery.refresh() }
     }
 

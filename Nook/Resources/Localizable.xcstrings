@@ -1171,6 +1171,16 @@
         }
       }
     },
+    "Capturas de pantalla": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots"
+          }
+        }
+      }
+    },
     "Capturas y agentes de IA": {
       "localizations": {
         "en": {
@@ -1267,6 +1277,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "City"
+          }
+        }
+      }
+    },
+    "Colgar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hang up"
           }
         }
       }
@@ -1627,6 +1647,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Internet Accounts…"
+          }
+        }
+      }
+    },
+    "Cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        }
+      }
+    },
+    "Cámara apagada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera off"
           }
         }
       }
@@ -2541,6 +2581,16 @@
         }
       }
     },
+    "Llamada en %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call in %@"
+          }
+        }
+      }
+    },
     "Llamadas": {
       "localizations": {
         "en": {
@@ -2687,6 +2737,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tomorrow"
+          }
+        }
+      }
+    },
+    "Micro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mic"
           }
         }
       }
@@ -3667,6 +3727,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Next"
+          }
+        }
+      }
+    },
+    "Silenciado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muted"
           }
         }
       }
