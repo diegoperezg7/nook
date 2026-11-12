@@ -60,12 +60,33 @@ struct AccessoryBattery: Equatable, Identifiable {
                         return (part, level)
                     }
                     guard !levels.isEmpty else { continue }
-                    result.append(AccessoryBattery(name: name, icon: icon(for: name, type: info["device_minorType"] as? String, productID: info["device_productID"] as? String), levels: levels))
+                    let device = AccessoryBattery(name: name, icon: icon(for: name, type: info["device_minorType"] as? String, productID: info["device_productID"] as? String), levels: levels)
+                    // Recien conectados, macOS a veces lista los mismos AirPods dos veces
+                    // (y solo con el estuche): se juntan en uno con todas las piezas.
+                    if let index = result.firstIndex(where: { $0.name == name }) {
+                        result[index] = result[index].merged(with: device)
+                    } else {
+                        result.append(device)
+                    }
                 }
             }
         }
         return result
     }
+
+    /// Las piezas de los dos, sin repetir (si una pieza sale dos veces, la primera).
+    func merged(with other: AccessoryBattery) -> AccessoryBattery {
+        var levels = self.levels
+        for item in other.levels where !levels.contains(where: { $0.part == item.part }) {
+            levels.append(item)
+        }
+        let order = ["L", "R", Self.casePart, ""]
+        levels.sort { (order.firstIndex(of: $0.part) ?? 9) < (order.firstIndex(of: $1.part) ?? 9) }
+        return AccessoryBattery(name: name, icon: icon, levels: levels)
+    }
+
+    /// Solo se sabe la del estuche: los auriculares aun no han dicho la suya.
+    var onlyCase: Bool { !levels.isEmpty && levels.allSatisfy { $0.part == Self.casePart } }
 
     /// Modelo de AirPods por su product ID (el nombre se puede cambiar).
     static let airPodsModels: [String: String] = [
