@@ -37,6 +37,15 @@ final class MeetingControlsTests: XCTestCase {
         XCTAssertFalse(leave.matches("Leaves"))
     }
 
+    /// FaceTime: "Micrófono", "Cámara" y "Finalizar" no son etiquetas de accion; valen
+    /// sus identificadores.
+    func testFaceTimeIdentifiers() {
+        XCTAssertTrue(MeetingControls.Action.mic.identifiers.contains("toggleMicMenuButton"))
+        XCTAssertTrue(MeetingControls.Action.camera.identifiers.contains("toggleVideoButton"))
+        XCTAssertTrue(MeetingControls.Action.leave.identifiers.contains("leaveButton"))
+        XCTAssertFalse(MeetingControls.Action.leave.matches("Finalizar"))
+    }
+
     /// Un navegador que graba solo es llamada en una web de reuniones (no al dictar).
     func testBrowserNeedsAMeetingSite() {
         XCTAssertEqual(MeetingControls.meetingSite(in: ["Meet - abc-defg-hij - Google Chrome"]), "Meet")

@@ -688,7 +688,9 @@ private struct CallPanel: View {
                         title: state.cameraOff ? "Cámara apagada" : "Cámara", action: .camera
                     )
                 }
-                button(icon: "phone.down.fill", title: "Colgar", fill: AppColors.danger, tint: AppColors.onAccent, action: .leave)
+                if call.hasLeave {
+                    button(icon: "phone.down.fill", title: "Colgar", fill: AppColors.danger, tint: AppColors.onAccent, action: .leave)
+                }
             }
         }
         .padding(14)

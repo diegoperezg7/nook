@@ -25,9 +25,11 @@ enum MeetingControls {
         let leave: Shortcut?
         /// Hay forma de apagar la camara: atajo conocido o boton encontrado.
         var hasCamera: Bool
+        /// Hay forma de colgar. No en una llamada del iPhone: se cuelga en el iPhone.
+        var hasLeave = true
 
         static func == (lhs: Self, rhs: Self) -> Bool {
-            lhs.pid == rhs.pid && lhs.name == rhs.name && lhs.hasCamera == rhs.hasCamera
+            lhs.pid == rhs.pid && lhs.name == rhs.name && lhs.hasCamera == rhs.hasCamera && lhs.hasLeave == rhs.hasLeave
         }
     }
 
@@ -69,7 +71,24 @@ enum MeetingControls {
         let candidates = users.compactMap { owner(of: $0, in: running) }
         // Las conocidas primero; luego cualquier otra app con ventanas.
         let ordered = candidates.filter { known[$0.bundleIdentifier ?? ""] != nil } + candidates
-        return ordered.lazy.compactMap(target(for:)).first
+        if let found = ordered.lazy.compactMap(target(for:)).first { return found }
+        guard users.contains(conferenceDaemon) else { return nil }
+        return conferenceCall(in: running)
+    }
+
+    /// Las llamadas de FaceTime y las del iPhone pasadas al Mac (telefono, Teams, WhatsApp
+    /// por Continuidad) graban desde este servicio del sistema, no desde una app.
+    static let conferenceDaemon = "com.apple.avconferenced"
+
+    /// Llamada de FaceTime con su ventana (y boton de colgar), o la del iPhone: esa no
+    /// tiene controles en el Mac, solo se puede silenciar el micro del Mac.
+    @MainActor
+    private static func conferenceCall(in running: [NSRunningApplication]) -> Target? {
+        let facetime = running.first { $0.bundleIdentifier == "com.apple.FaceTime" }
+        if let facetime, let target = target(for: facetime) { return target }
+        let host = facetime ?? running.first { $0.bundleIdentifier == "com.apple.InCallService" }
+        return Target(bundleID: conferenceDaemon, pid: host?.processIdentifier ?? -1, name: "iPhone",
+                      mic: nil, camera: nil, leave: nil, hasCamera: false, hasLeave: false)
     }
 
     /// En el navegador solo es llamada si una ventana es de un servicio de reuniones:
@@ -251,6 +270,16 @@ extension MeetingControls.Action {
         }
     }
 
+    /// Identificadores de Accesibilidad que no cambian con el idioma. FaceTime etiqueta
+    /// sus botones "Micrófono", "Cámara" y "Finalizar", que no sirven como etiqueta.
+    var identifiers: Set<String> {
+        switch self {
+        case .mic: ["toggleMicMenuButton"]
+        case .camera: ["toggleVideoButton"]
+        case .leave: ["leaveButton"]
+        }
+    }
+
     /// Si una etiqueta corresponde a esta accion.
     func matches(_ label: String) -> Bool {
         let text = label.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
@@ -300,7 +329,9 @@ enum AXTree {
             let (element, depth) = queue.removeFirst()
             visited += 1
             let role = value(element, kAXRoleAttribute) as? String ?? ""
-            if pressRoles.contains(role), isEnabled(element), labels(element).contains(where: action.matches) {
+            if pressRoles.contains(role), isEnabled(element),
+               labels(element).contains(where: action.matches)
+               || (value(element, kAXIdentifierAttribute) as? String).map(action.identifiers.contains) == true {
                 // En menus nunca lo que cierra la app (⌘Q).
                 if !(menus && (value(element, kAXMenuItemCmdCharAttribute) as? String)?.uppercased() == "Q") {
                     return element

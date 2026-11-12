@@ -1911,6 +1911,16 @@
         }
       }
     },
+    "El botón de llamada sale también en FaceTime y en las llamadas del iPhone que suenan en el Mac (en estas, solo el micro).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The call button also shows up in FaceTime and in iPhone calls on your Mac (for those, only the mic)."
+          }
+        }
+      }
+    },
     "El historial no guarda lo que copias": {
       "localizations": {
         "en": {
@@ -2677,6 +2687,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calls"
+          }
+        }
+      }
+    },
+    "Llamadas de FaceTime y del iPhone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FaceTime and iPhone calls"
           }
         }
       }
