@@ -12,6 +12,12 @@ struct CalendarView: View {
     private enum Feedback: Equatable { case added(String), notUnderstood }
 
     var body: some View {
+        content
+            // Por si el Mac no aviso del cambio de dia: al abrir, hoy.
+            .onAppear { calendar.followToday() }
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             if calendar.access == .granted {
                 addField

@@ -48,4 +48,19 @@ final class AgendaTests: XCTestCase {
         let past = CalendarService.AgendaDay(day: yesterday, events: [at(-14, for: 1, id: "ayer")])
         XCTAssertEqual(past.upcoming(at: now), past)
     }
+
+    /// Al pasar al dia siguiente, el calendario marca hoy aunque se eligiera otro dia.
+    @MainActor
+    func testNewDaySelectsToday() {
+        let calendar = CalendarService()
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        calendar.selectedDay = cal.date(byAdding: .day, value: 3, to: today)!
+        calendar.followToday(now: .now)
+        XCTAssertEqual(calendar.selectedDay, cal.date(byAdding: .day, value: 3, to: today)!, "mismo dia: no se toca")
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: today)!
+        calendar.followToday(now: tomorrow.addingTimeInterval(9 * 3600))
+        XCTAssertEqual(calendar.selectedDay, tomorrow)
+        XCTAssertEqual(calendar.visibleMonth, CalendarService.monthStart(of: tomorrow))
+    }
 }

@@ -145,12 +145,36 @@ final class CalendarService {
 
     @ObservationIgnored private let store = EKEventStore()
     @ObservationIgnored private var observer: NSObjectProtocol?
+    @ObservationIgnored private var dayObservers: [NSObjectProtocol] = []
+    /// El dia que era hoy en la ultima carga.
+    @ObservationIgnored private var loadedToday = Calendar.current.startOfDay(for: .now)
 
     func start() {
         updateAccess()
         observer = NotificationCenter.default.addObserver(forName: .EKEventStoreChanged, object: store, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.reloadAll() }
         }
+        // Medianoche, o despertar el Mac al dia siguiente: el calendario pasa a hoy.
+        dayObservers = [
+            NotificationCenter.default.addObserver(forName: .NSCalendarDayChanged, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.followToday() }
+            },
+            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.followToday() }
+            },
+        ]
+        reloadAll()
+    }
+
+    /// Si ha cambiado el dia desde la ultima carga, se elige hoy (y su mes) y se
+    /// recarga todo: antes seguia marcado el dia en que se abrio Visor, y los eventos
+    /// de "hoy" (los avisos de reunion) eran los de ayer.
+    func followToday(now: Date = .now) {
+        let today = Calendar.current.startOfDay(for: now)
+        guard today != loadedToday else { return }
+        loadedToday = today
+        visibleMonth = Self.monthStart(of: today)
+        selectedDay = today
         reloadAll()
     }
 
