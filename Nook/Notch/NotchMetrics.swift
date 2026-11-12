@@ -49,6 +49,12 @@ struct NotchMetrics: Equatable {
     static let callButtonSpacing: CGFloat = 4
 
     /// Ancho util a cada lado del notch en la cabecera del panel abierto.
+    /// Separacion de los botones de la cabecera: con cinco, la justa para que quepan
+    /// junto al notch (con 8 el primero quedaba debajo de la camara).
+    static func headerSpacing(buttons: Int) -> CGFloat {
+        buttons >= 5 ? callButtonSpacing : headerButtonSpacing
+    }
+
     var headerSideWidth: CGFloat {
         (openSize(searchRow: false).width - Self.openEar * 2 - Self.sideMargin * 2 - (hasNotch ? notchWidth : 0)) / 2
     }

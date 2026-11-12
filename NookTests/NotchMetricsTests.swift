@@ -137,7 +137,9 @@ final class NotchMetricsTests: XCTestCase {
                 auxiliaryTopRight: CGRect(x: leftWidth + notch, y: height - 32, width: width - leftWidth - notch, height: 32),
                 visibleFrameMaxY: height - 33
             )
-            let five = NotchMetrics.headerButton * 5 + NotchMetrics.callButtonSpacing * 4
+            let five = NotchMetrics.headerButton * 5 + NotchMetrics.headerSpacing(buttons: 5) * 4
+            let four = NotchMetrics.headerButton * 4 + NotchMetrics.headerSpacing(buttons: 4) * 3
+            XCTAssertLessThanOrEqual(four + 8, metrics.headerSideWidth, "pantalla de \(width) pt")
             XCTAssertLessThanOrEqual(five + 8, metrics.headerSideWidth, "pantalla de \(width) pt")
             // Con la separacion normal no cabrian: por eso va mas junta en llamada.
             let wide = NotchMetrics.headerButton * 5 + NotchMetrics.headerButtonSpacing * 4

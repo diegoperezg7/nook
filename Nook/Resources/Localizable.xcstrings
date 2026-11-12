@@ -571,6 +571,16 @@
         }
       }
     },
+    "AirPods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirPods"
+          }
+        }
+      }
+    },
     "Ajustar ventanas": {
       "localizations": {
         "en": {
@@ -617,6 +627,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Settings…"
+          }
+        }
+      }
+    },
+    "Al cambiar de día, el calendario marca hoy y la reunión deja de avisar en cuanto entras.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the day changes, the calendar shows today, and the meeting reminder stops once you join."
           }
         }
       }
@@ -951,6 +971,16 @@
         }
       }
     },
+    "Batería de cada auricular y del estuche, también justo al conectarlos.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery of each earbud and the case, right after connecting them too."
+          }
+        }
+      }
+    },
     "Batería de los auriculares": {
       "localizations": {
         "en": {
@@ -1101,6 +1131,16 @@
         }
       }
     },
+    "Calendario al día": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar up to date"
+          }
+        }
+      }
+    },
     "Calendario y correo": {
       "localizations": {
         "en": {
@@ -1197,6 +1237,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Screenshots"
+          }
+        }
+      }
+    },
+    "Capturas en su carpeta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots in their folder"
           }
         }
       }
@@ -2541,6 +2591,16 @@
         }
       }
     },
+    "Las capturas van a Imágenes/Capturas de pantalla, fuera del Escritorio, y se ven en el notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots go to Pictures/Screenshots, off the Desktop, and show up in the notch."
+          }
+        }
+      }
+    },
     "Las notificaciones de cualquier app, WhatsApp incluido, salen del notch. En una llamada, silenciar, cámara y colgar funcionan en cualquier app.": {
       "localizations": {
         "en": {
@@ -2801,6 +2861,16 @@
         }
       }
     },
+    "Mientras suena Spotify o Música, su logo en el notch abre un reproductor con carátula, progreso y controles.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While Spotify or Music plays, its logo in the notch opens a player with artwork, progress and controls."
+          }
+        }
+      }
+    },
     "Minúsculas": {
       "localizations": {
         "en": {
@@ -2907,6 +2977,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Music"
+          }
+        }
+      }
+    },
+    "Música en el notch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music in the notch"
           }
         }
       }
@@ -4267,6 +4347,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your meetings, reminders and unread mail, at a glance from the notch."
+          }
+        }
+      }
+    },
+    "Un solo botón verde con micro, cámara y colgar, y a la vista si estás silenciado.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One green button with mic, camera and hang up, and you can see when you're muted."
           }
         }
       }

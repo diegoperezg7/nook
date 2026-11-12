@@ -91,13 +91,13 @@ struct NotchContentView: View {
             // Hueco del notch fisico: ahi no se ve nada.
             Color.clear.frame(width: model.metrics.hasNotch ? model.metrics.notchWidth : 0)
             let call = MeetingControls.current(micInUse: hud.micInUse)
-            // Como mucho cuatro botones por lado con separacion 8: un quinto entraria
-            // bajo la camara en los portatiles. En llamada, un solo boton (que despliega
-            // micro, camara y colgar) en lugar de agentes, reloj y espejo. Con musica,
-            // su boton ocupa el sitio del espejo; si ademas hay bateria son cinco y van
-            // mas juntos.
+            // En llamada, un solo boton (que despliega micro, camara y colgar) en lugar
+            // de agentes, reloj y espejo/musica. Con musica, su boton ocupa el sitio del
+            // espejo. La separacion depende de cuantos hay: con cinco (bateria de los
+            // auriculares) van mas juntos para no entrar bajo el notch.
             let music = call == nil && hud.hasMusic
-            HStack(spacing: music && battery.headline != nil ? NotchMetrics.callButtonSpacing : NotchMetrics.headerButtonSpacing) {
+            let count = (call != nil ? 1 : 3) + (battery.headline != nil ? 1 : 0) + 1
+            HStack(spacing: NotchMetrics.headerSpacing(buttons: count)) {
                 if let call {
                     callButton(call)
                 } else {
