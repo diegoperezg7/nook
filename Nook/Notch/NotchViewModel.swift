@@ -6,11 +6,23 @@ import SwiftUI
 final class NotchViewModel {
     enum Tab: Hashable {
         case shelf, clipboard, screenshots, calendar, agents, mail
+        /// Secciones de lo que esta en marcha, que abre su boton de la cabecera (como
+        /// la vista ampliada de una Live Activity): la llamada y la musica. El reloj y
+        /// la bateria de los auriculares son desplegables pequeños.
+        case call, music
 
         /// El historial, las capturas y los agentes tienen una fila de herramientas sobre las tarjetas.
-        var hasToolbar: Bool { self != .shelf }
-        /// La pestaña de correo es mas alta: ahi se lee el mensaje.
-        var extraHeight: CGFloat { self == .mail ? NotchMetrics.readerExtra : 0 }
+        var hasToolbar: Bool { [.clipboard, .screenshots, .calendar, .agents, .mail].contains(self) }
+        /// Lo que cada pestaña necesita por encima de la fila de tarjetas: el correo,
+        /// para leer el mensaje; el reloj, para la rueda del temporizador.
+        var extraHeight: CGFloat {
+            switch self {
+            case .mail: NotchMetrics.readerExtra
+            // Una fila (llamada, musica): mas baja que la de tarjetas.
+            case .call, .music: -NotchMetrics.activityRowSaving
+            default: 0
+            }
+        }
     }
 
     enum OpenReason {

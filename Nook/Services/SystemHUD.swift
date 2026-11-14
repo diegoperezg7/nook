@@ -76,6 +76,8 @@ final class SystemHUD {
     /// o al sacar el raton.
     private(set) var activated: Preview?
     private(set) var micInUse = false
+    /// Desde cuando se usa el microfono: el comienzo de la llamada, para su duracion.
+    private(set) var micSince: Date?
     private(set) var cameraInUse = false
     /// Reloj para las actividades que dependen de la hora (la reunion).
     private(set) var now = Date.now
@@ -258,6 +260,7 @@ final class SystemHUD {
                 let camera = MediaUsage.cameraInUse()
                 if mic != self.micInUse {
                     self.micInUse = mic
+                    self.micSince = mic ? .now : nil
                     // Fin de la llamada: el micro del Mac vuelve como estaba.
                     if !mic { MeetingControls.callEnded() }
                 }

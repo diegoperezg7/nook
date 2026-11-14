@@ -491,6 +491,16 @@
         }
       }
     },
+    "Activar micro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmute"
+          }
+        }
+      }
+    },
     "Activar sonido": {
       "localizations": {
         "en": {
@@ -707,6 +717,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Previous"
+          }
+        }
+      }
+    },
+    "Apagar cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn camera off"
           }
         }
       }
@@ -2051,12 +2071,32 @@
         }
       }
     },
+    "En llamada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On a call"
+          }
+        }
+      }
+    },
     "En pausa": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Paused"
+          }
+        }
+      }
+    },
+    "Encender cámara": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn camera on"
           }
         }
       }

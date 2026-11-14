@@ -13,6 +13,9 @@ enum AppColors {
 
     /// Fondo de respaldo sin Liquid Glass (macOS 14-15) y del boton de borrar.
     static let panel = dynamic(light: 0xFFFFFF, dark: 0x000000)
+    /// Desplegables sobre el panel (siempre oscuro): un gris elevado que se separa
+    /// del negro del notch.
+    static let elevated = dynamic(light: 0xFFFFFF, dark: 0x26272B)
     /// Brillo del borde del cristal.
     static let panelBorder = dynamic(light: 0xFFFFFF, dark: 0xFFFFFF, lightAlpha: 0.55, darkAlpha: 0.14)
     /// Velo de las tarjetas sobre el cristal.

@@ -60,6 +60,9 @@ struct NotchMetrics: Equatable {
     }
     /// Alto extra de la pestaña de correo, para leer un mensaje sin salir del notch.
     static let readerExtra: CGFloat = 200
+    /// Lo que la fila de una actividad (llamada, musica) ocupa menos que la
+    /// fila de tarjetas.
+    static let activityRowSaving: CGFloat = 40
     /// Aire de la tarjeta de un aviso pulsado por encima (bajo la fila del notch) y
     /// por debajo de su contenido.
     static let previewTop: CGFloat = 8

@@ -30,7 +30,7 @@ struct BatteryRing: View {
     }
 }
 
-/// Detalle al pulsar: cada auricular y el estuche con su porcentaje.
+/// Seccion de la bateria: cada auricular y el estuche con su porcentaje.
 struct BatteryPanel: View {
     let battery: BatteryCenter
 
@@ -40,11 +40,7 @@ struct BatteryPanel: View {
                 row(symbol: device.icon, name: device.name, parts: device.levels.map { ($0.part, $0.level) })
             }
         }
-        .padding(14)
-        .frame(minWidth: 220, alignment: .leading)
-        // Fondo opaco: con el cristal del popover se transparentaba la bandeja de
-        // detras y el panel parecia quedar por debajo del notch.
-        .presentationBackground(AppColors.panel)
+        .frame(maxWidth: .infinity, alignment: .leading)
         // Al abrirlo, la lectura de ahora (la anterior puede ser de hace 2 min).
         .onAppear { battery.refresh(force: true) }
     }

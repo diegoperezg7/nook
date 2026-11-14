@@ -13,11 +13,9 @@ struct NotchContentView: View {
     @Environment(MailService.self) private var mail
     @Environment(BatteryCenter.self) private var battery
     @Environment(SystemHUD.self) private var hud
-    @State private var showBattery = false
     @State private var showMirror = false
+    @State private var showBattery = false
     @State private var showClock = false
-    @State private var showCall = false
-    @State private var showMusic = false
     @Namespace private var tabNamespace
 
     /// Margen interior entre el borde visible del panel y su contenido.
@@ -40,7 +38,23 @@ struct NotchContentView: View {
                     MailView(mail: mail)
                 case .agents:
                     AgentsView(monitor: agents)
+                case .call:
+                    if let call = currentCall {
+                        CallPanel(call: call, state: CallState.shared, since: callSince) { action in run(action, call) }
+                            .padding(.horizontal, Self.margin)
+                            .padding(.bottom, NotchMetrics.bottomMargin)
+                    }
+                case .music:
+                    if let nowPlaying = hud.nowPlaying {
+                        MusicPanel(nowPlaying: nowPlaying)
+                            .padding(.horizontal, Self.margin)
+                            .padding(.bottom, NotchMetrics.bottomMargin)
+                    }
                 }
+            }
+            // Si lo que tenia la seccion se acaba (cuelgas, para la musica), a la bandeja.
+            .onChange(of: activityGone) { _, gone in
+                if gone { withAnimation(AppMotion.snappy) { model.tab = .shelf } }
             }
             .padding(.top, NotchMetrics.topSpacing)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -67,8 +81,7 @@ struct NotchContentView: View {
         .task {
             guard UserDefaults.standard.bool(forKey: "VisorOpenMusic") else { return }
             try? await Task.sleep(for: .seconds(1.5))
-            model.isPreviewing = true
-            showMusic = true
+            model.tab = .music
         }
         // `-VisorOpenCall YES` (con `-VisorDemoCall <app>`): abre el desplegable de la
         // llamada; `-VisorDemoMuted YES` lo enseña con el micro silenciado.
@@ -78,8 +91,7 @@ struct NotchContentView: View {
                 CallState.shared.micMuted = UserDefaults.standard.bool(forKey: "VisorDemoMuted")
             }
             try? await Task.sleep(for: .seconds(1.5))
-            model.isPreviewing = true
-            showCall = true
+            model.tab = .call
         }
         #endif
         // La forma abierta tiene orejas concavas arriba: su cuerpo visible es mas
@@ -92,7 +104,7 @@ struct NotchContentView: View {
             tabs.frame(maxWidth: .infinity, alignment: .leading)
             // Hueco del notch fisico: ahi no se ve nada.
             Color.clear.frame(width: model.metrics.hasNotch ? model.metrics.notchWidth : 0)
-            let call = MeetingControls.current(micInUse: hud.micInUse)
+            let call = currentCall
             // En llamada, un solo boton (que despliega micro, camara y colgar) en lugar
             // de agentes, reloj y espejo/musica. Con musica, su boton ocupa el sitio del
             // espejo. La separacion depende de cuantos hay: con cinco (bateria de los
@@ -153,20 +165,14 @@ struct NotchContentView: View {
 
     /// Musica o Spotify: su logo con un aro de progreso; al pulsarlo, el reproductor.
     private func musicButton(_ nowPlaying: NowPlaying) -> some View {
-        Button {
-            model.isPreviewing = true
-            showMusic = true
-        } label: {
+        Button { toggle(.music) } label: {
             CircleIconLabel(icon: "music.note", logo: nowPlaying.player?.icon)
                 .overlay { MusicRing(nowPlaying: nowPlaying) }
+                .selectedRing(model.tab == .music)
         }
         .buttonStyle(.plain)
         .help(Text(verbatim: [nowPlaying.track?.title, nowPlaying.track?.artist].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")))
         .accessibilityLabel(Text("Música"))
-        .popover(isPresented: $showMusic, arrowEdge: .bottom) { MusicPanel(nowPlaying: nowPlaying) }
-        .onChange(of: showMusic) { _, shown in
-            if !shown { model.isPreviewing = false }
-        }
         .transition(.scale.combined(with: .opacity))
     }
 
@@ -174,10 +180,7 @@ struct NotchContentView: View {
     /// pulsarlo salen micro, camara y colgar con su estado real.
     private func callButton(_ call: MeetingControls.Target) -> some View {
         let state = CallState.shared
-        return Button {
-            model.isPreviewing = true
-            showCall = true
-        } label: {
+        return Button { toggle(.call) } label: {
             CallAppIcon(call: call, size: 26)
                 .frame(width: 30, height: 30)
                 // Micro silenciado: se ve sin abrir el boton.
@@ -193,17 +196,12 @@ struct NotchContentView: View {
                     }
                 }
                 .animation(AppMotion.snappy, value: state.micMuted)
+                .selectedRing(model.tab == .call)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .help(Text("Llamada en \(call.name)"))
         .accessibilityLabel(Text("Llamada en \(call.name)"))
-        .popover(isPresented: $showCall, arrowEdge: .bottom) {
-            CallPanel(call: call, state: state) { action in run(action, call) }
-        }
-        .onChange(of: showCall) { _, shown in
-            if !shown { model.isPreviewing = false }
-        }
         // Las apps no avisan cuando cambias el micro desde ellas: se lee el estado al
         // abrir el panel y cada 2 s mientras esta abierto.
         .task(id: call.pid) {
@@ -215,10 +213,38 @@ struct NotchContentView: View {
         .transition(.scale.combined(with: .opacity))
     }
 
+    private var currentCall: MeetingControls.Target? { MeetingControls.current(micInUse: hud.micInUse) }
+
+    private var callSince: Date? {
+        #if DEBUG
+        // Llamada fingida (`-VisorDemoCall`): sin micro, la duracion cuenta desde el arranque.
+        if hud.micSince == nil, UserDefaults.standard.string(forKey: "VisorDemoCall") != nil { return Self.launch }
+        #endif
+        return hud.micSince
+    }
+    #if DEBUG
+    private static let launch = Date.now.addingTimeInterval(-754)
+    #endif
+
+    /// La seccion abierta se queda sin contenido: ya no hay llamada, musica o auriculares.
+    private var activityGone: Bool {
+        switch model.tab {
+        case .call: currentCall == nil
+        case .music: hud.nowPlaying?.track == nil
+        default: false
+        }
+    }
+
+    /// Botones de la cabecera de lo que esta en marcha: abren su seccion o, si ya
+    /// esta abierta, vuelven a la bandeja (como el boton de los agentes).
+    private func toggle(_ tab: NotchViewModel.Tab) {
+        withAnimation(AppMotion.snappy) { model.tab = model.tab == tab ? .shelf : tab }
+    }
+
     private func run(_ action: MeetingControls.Action, _ call: MeetingControls.Target) {
         // Micro y camara dejan el panel abierto para ver el cambio; colgar lo cierra.
         if action == .leave {
-            showCall = false
+            model.tab = .shelf
             model.close()
         }
         let outcome = MeetingControls.perform(action, on: call)
@@ -300,7 +326,7 @@ struct NotchContentView: View {
             .help(Text(verbatim: "\(headline.level) %"))
             .accessibilityLabel(Text("Batería de los auriculares"))
             .popover(isPresented: $showBattery, arrowEdge: .bottom) {
-                BatteryPanel(battery: battery)
+                BatteryPanel(battery: battery).padding(14).elevatedPopover()
             }
             .onChange(of: showBattery) { _, shown in
                 if !shown { model.isPreviewing = false }
@@ -382,7 +408,7 @@ struct NotchContentView: View {
         .buttonStyle(.plain)
         .help(Text("Temporizador, alarmas y mantener despierto"))
         .accessibilityLabel(Text("Reloj"))
-        .popover(isPresented: $showClock, arrowEdge: .bottom) { ClockPanel(focus: focus) }
+        .popover(isPresented: $showClock, arrowEdge: .bottom) { ClockPanel(focus: focus).padding(16).elevatedPopover() }
         .onChange(of: showClock) { _, shown in
             if !shown { model.isPreviewing = false }
         }
@@ -443,7 +469,7 @@ struct NotchContentView: View {
                 Button("Vaciar bandeja…", systemImage: "trash", role: .destructive) { confirmClearShelf() }
             case .clipboard:
                 Button("Borrar historial…", systemImage: "trash", role: .destructive) { confirmClearHistory() }
-            case .agents, .calendar, .mail:
+            case .agents, .calendar, .mail, .call, .music:
                 EmptyView()
             case .screenshots:
                 Button("Cambiar carpeta de capturas…", systemImage: "folder.badge.gearshape") {
@@ -576,18 +602,18 @@ private struct MusicRing: View {
     }
 }
 
-/// Reproductor del boton de musica: caratula grande, cancion, progreso con tiempos y
-/// controles. El fondo toma el color de la caratula, como el de Apple. Pulsar la
-/// caratula abre la app.
+/// Seccion de la musica: caratula, cancion con su progreso y controles en una fila.
+/// El fondo toma el color de la caratula, como el de Apple. Pulsar la caratula abre
+/// la app.
 private struct MusicPanel: View {
     let nowPlaying: NowPlaying
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                Button { nowPlaying.openPlayer() } label: { cover }
-                    .buttonStyle(.plain)
-                    .help(Text("Abrir \(nowPlaying.player == .music ? String(localized: "Música") : "Spotify")"))
+        HStack(spacing: 16) {
+            Button { nowPlaying.openPlayer() } label: { cover }
+                .buttonStyle(.plain)
+                .help(Text("Abrir \(nowPlaying.player == .music ? String(localized: "Música") : "Spotify")"))
+            VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: nowPlaying.track?.title ?? "")
                         .font(.system(size: 14, weight: .semibold))
@@ -597,10 +623,10 @@ private struct MusicPanel: View {
                         .foregroundStyle(AppColors.textSecondary)
                 }
                 .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                progress
             }
-            progress
-            HStack(spacing: 28) {
+            .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 18) {
                 control("backward.fill", "Anterior") { nowPlaying.previous() }
                 Button { nowPlaying.playPause() } label: {
                     Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill")
@@ -615,14 +641,16 @@ private struct MusicPanel: View {
                 .accessibilityLabel(Text(nowPlaying.isPlaying ? "Pausa" : "Reproducir"))
                 control("forward.fill", "Siguiente") { nowPlaying.next() }
             }
-            .frame(maxWidth: .infinity)
         }
         .padding(16)
-        .frame(width: 280)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
-            LinearGradient(colors: [tint.opacity(0.55), tint.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            RoundedRectangle(cornerRadius: activityRadius, style: .continuous)
+                .fill(LinearGradient(colors: [tint.opacity(0.55), tint.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing))
         }
-        .presentationBackground(AppColors.panel)
+        .overlay {
+            RoundedRectangle(cornerRadius: activityRadius, style: .continuous).strokeBorder(AppColors.cardBorder)
+        }
     }
 
     /// Color medio de la caratula (o del icono de la app mientras carga).
@@ -689,42 +717,94 @@ private struct MusicPanel: View {
     }
 }
 
-/// Desplegable del boton de llamada: micro, camara y colgar, con su estado.
+/// Seccion de la llamada, como la llamada en la isla del iPhone: la app con su
+/// nombre y lo que dura a la izquierda; micro, camara y colgar en circulos grandes a
+/// la derecha. El fondo toma el color del icono de la app (como la musica con su
+/// caratula).
 private struct CallPanel: View {
     let call: MeetingControls.Target
     let state: CallState
+    /// Comienzo de la llamada (cuando la app empezo a usar el micro).
+    let since: Date?
     let perform: (MeetingControls.Action) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
-                CallAppIcon(call: call, size: 16)
+        HStack(spacing: 14) {
+            CallAppIcon(call: call, size: 46)
+                .shadow(color: AppColors.shadow, radius: 6, y: 3)
+            VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: call.name)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(AppColors.textPrimary)
+                HStack(spacing: 6) {
+                    Circle().fill(AppColors.success).frame(width: 7, height: 7)
+                    if let since {
+                        TimelineView(.periodic(from: .now, by: 1)) { context in
+                            let text = Self.elapsed(context.date.timeIntervalSince(since))
+                            Text(verbatim: text)
+                                .contentTransition(.numericText())
+                                .animation(AppMotion.snappy, value: text)
+                        }
+                        .font(.system(size: 13, weight: .medium).monospacedDigit())
+                    } else {
+                        Text("En llamada").font(.system(size: 13, weight: .medium))
+                    }
+                }
+                .foregroundStyle(AppColors.success)
             }
-            HStack(spacing: 18) {
+            .lineLimit(1)
+            Spacer(minLength: 12)
+            HStack(spacing: 12) {
                 // Sin estado conocido (la app no lo dice), el boton queda neutro: con
                 // el simbolo hueco y sin dar por hecho que el micro esta activo.
                 toggle(
                     on: state.micMuted == true,
                     icon: Self.symbol(state.micMuted, on: "mic.fill", off: "mic.slash.fill", unknown: "mic"),
-                    title: state.micMuted == true ? "Silenciado" : "Micro", action: .mic
+                    title: state.micMuted == true ? "Activar micro" : "Silenciar", action: .mic
                 )
                 if call.hasCamera {
                     toggle(
                         on: state.cameraOff == true,
                         icon: Self.symbol(state.cameraOff, on: "video.fill", off: "video.slash.fill", unknown: "video"),
-                        title: state.cameraOff == true ? "Cámara apagada" : "Cámara", action: .camera
+                        title: state.cameraOff == true ? "Encender cámara" : "Apagar cámara", action: .camera
                     )
                 }
                 if call.hasLeave {
-                    button(icon: "phone.down.fill", title: "Colgar", fill: AppColors.danger, tint: AppColors.onAccent, action: .leave)
+                    Button { perform(.leave) } label: {
+                        Image(systemName: "phone.down.fill")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(AppColors.onAccent)
+                            .frame(width: 64, height: 44)
+                            .background(Capsule().fill(AppColors.danger))
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(PressScaleStyle())
+                    .help(Text("Colgar"))
+                    .accessibilityLabel(Text("Colgar"))
                 }
             }
         }
-        .padding(14)
-        .presentationBackground(AppColors.panel)
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: activityRadius, style: .continuous)
+                .fill(LinearGradient(colors: [tint.opacity(0.42), tint.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: activityRadius, style: .continuous).strokeBorder(AppColors.cardBorder)
+        }
+    }
+
+    /// Color medio del icono de la app (Teams morado, FaceTime verde...).
+    private var tint: Color {
+        MeetingControls.icon(for: call).flatMap(NowPlaying.averageColor).map(Color.init(nsColor:)) ?? AppColors.success
+    }
+
+    /// 4:07, o 1:02:09 desde la hora.
+    static func elapsed(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds))
+        let hours = total / 3600, minutes = total % 3600 / 60, secs = total % 60
+        return hours > 0 ? String(format: "%d:%02d:%02d", hours, minutes, secs) : String(format: "%d:%02d", minutes, secs)
     }
 
     private static func symbol(_ isOff: Bool?, on: String, off: String, unknown: String) -> String {
@@ -732,33 +812,32 @@ private struct CallPanel: View {
         return isOff ? off : on
     }
 
-    /// Como en FaceTime: activo (silenciado, camara apagada) en relleno claro.
+    /// Como en el iPhone: activo (silenciado, camara apagada) en blanco con el simbolo
+    /// oscuro; si no, un circulo translucido. El titulo dice lo que hace al pulsar.
     private func toggle(on: Bool, icon: String, title: LocalizedStringKey, action: MeetingControls.Action) -> some View {
-        button(icon: icon, title: title, fill: on ? AppColors.textPrimary : AppColors.controlTrack,
-               tint: on ? AppColors.panel : AppColors.textPrimary, action: action)
-    }
-
-    private func button(icon: String, title: LocalizedStringKey, fill: Color, tint: Color, action: MeetingControls.Action) -> some View {
         Button { perform(action) } label: {
-            VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(tint)
-                    .frame(width: 40, height: 40)
-                    .background(Circle().fill(fill))
-                    .contentTransition(.symbolEffect(.replace))
-                Text(title)
-                    .font(.system(size: 10))
-                    .foregroundStyle(AppColors.textSecondary)
-                    .lineLimit(1)
-                    .fixedSize()
-            }
-            .frame(minWidth: 56)
-            .contentShape(Rectangle())
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(on ? Color.black : AppColors.textPrimary)
+                .frame(width: 44, height: 44)
+                .background(Circle().fill(on ? Color.white : AppColors.textPrimary.opacity(0.14)))
+                .contentTransition(.symbolEffect(.replace))
+                .contentShape(Circle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressScaleStyle())
+        .help(Text(title))
         .accessibilityLabel(Text(title))
         .animation(AppMotion.snappy, value: icon)
+        .animation(AppMotion.snappy, value: on)
+    }
+}
+
+/// Se encoge un poco al pulsar.
+private struct PressScaleStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !AppMotion.reduceMotion ? 0.92 : 1)
+            .animation(AppMotion.press, value: configuration.isPressed)
     }
 }
 
@@ -914,8 +993,8 @@ private struct ClockPanel: View {
             .frame(maxWidth: .infinity)
             .transition(.opacity)
         }
-        .padding(16)
-        // Ancho para que las tres pestañas del selector quepan enteras.
+        // Ancho para que las tres pestañas del selector quepan enteras (el margen lo
+        // pone la tarjeta de la seccion).
         .frame(width: 340)
         .animation(AppMotion.snappy, value: page)
         .animation(AppMotion.snappy, value: focus.isRunning)
@@ -1165,5 +1244,28 @@ struct CallAppIcon: View {
                 .frame(width: size, height: size)
                 .background(Circle().fill(AppColors.success))
         }
+    }
+}
+
+/// Radio de las tarjetas de las secciones de actividad.
+private let activityRadius: CGFloat = 18
+
+private extension View {
+    /// Desplegable sobre el panel negro: una superficie elevada con borde, para que
+    /// se distinga del notch (con el fondo del panel no se veia sin subir el brillo).
+    func elevatedPopover() -> some View {
+        presentationBackground(AppColors.elevated)
+    }
+
+    /// Boton de la cabecera cuya seccion esta abierta: un aro de acento, como el
+    /// de la pestaña activa.
+    func selectedRing(_ selected: Bool) -> some View {
+        overlay {
+            if selected {
+                Circle().strokeBorder(AppColors.accent, lineWidth: 2).padding(-3)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            }
+        }
+        .animation(AppMotion.snappy, value: selected)
     }
 }

@@ -242,6 +242,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileImporter.add(paths.split(separator: "|").map { URL(fileURLWithPath: String($0)) }, to: store)
         }
         notch.applyDebugLaunchArguments()
+        // `-VisorDemoTimer 300`: arranca un temporizador de prueba (capturas del reloj).
+        if UserDefaults.standard.integer(forKey: "VisorDemoTimer") > 0 {
+            hud.focus?.start(seconds: UserDefaults.standard.integer(forKey: "VisorDemoTimer"))
+        }
         // `-VisorDemoNotice agent|waiting|notification`: aviso de ejemplo con su tarjeta (capturas).
         if let demo = UserDefaults.standard.string(forKey: "VisorDemoNotice") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in self?.showDemoNotice(demo) }

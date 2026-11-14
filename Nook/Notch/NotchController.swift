@@ -281,6 +281,14 @@ final class NotchController {
         withAnimation(AppMotion.peek) { model.isPeeking = peeking }
     }
 
+    /// Lo que esta en marcha y tiene seccion, por prioridad: la llamada y la musica
+    /// que suena.
+    private var liveTab: NotchViewModel.Tab? {
+        if MeetingControls.current(micInUse: hud.micInUse) != nil { return .call }
+        if hud.hasMusic, hud.nowPlaying?.isPlaying == true { return .music }
+        return nil
+    }
+
     /// Un respiro (100 ms por defecto, configurable) evita abrir al cruzar el notch
     /// de paso hacia un menu y deja ver como se asoma.
     private func scheduleOpen() {
@@ -299,6 +307,10 @@ final class NotchController {
                     self.model.open(reason: .hover, tab: .agents)
                 } else if case .mail = self.hud.current {
                     self.model.open(reason: .hover, tab: .mail)
+                } else if let live = self.liveTab {
+                    // Con algo en marcha, su vista ampliada, como al mantener pulsada
+                    // la isla del iPhone o al pulsar una Live Activity en la barra del Mac.
+                    self.model.open(reason: .hover, tab: live)
                 } else {
                     self.model.open(reason: .hover)
                 }
