@@ -38,7 +38,8 @@ final class SystemHUD {
         // Actividades que duran.
         case meeting(title: String, start: Date)
         case timer(end: Date, total: TimeInterval)
-        case mediaInUse(mic: Bool, camera: Bool)
+        /// En una llamada: la app (su icono) y si usa micro y camara.
+        case mediaInUse(mic: Bool, camera: Bool, call: MeetingControls.Target)
         case stayAwake(until: Date?)
         case alarm(time: Date)
         /// Musica o Spotify sonando.
@@ -110,8 +111,8 @@ final class SystemHUD {
         if let focus, let end = focus.end { return .timer(end: end, total: focus.total) }
         // Solo en una llamada: fuera de ellas ya avisa el punto naranja de macOS.
         if defaults.bool(forKey: SettingsKey.hudMediaInUse), micInUse || cameraInUse,
-           MeetingControls.current(micInUse: true) != nil {
-            return .mediaInUse(mic: micInUse, camera: cameraInUse)
+           let call = MeetingControls.current(micInUse: true) {
+            return .mediaInUse(mic: micInUse, camera: cameraInUse, call: call)
         }
         if let focus, focus.isAwake { return .stayAwake(until: focus.awakeUntil) }
         // Solo mientras suena: en pausa el notch vuelve a estar libre.
@@ -137,8 +138,12 @@ final class SystemHUD {
             switch event {
             case let .level(level, muted):
                 if self.defaults.bool(forKey: SettingsKey.hudVolume) { self.show(.volume(level: level, muted: muted)) }
-            case let .device(name, icon):
-                if self.defaults.bool(forKey: SettingsKey.hudDevices) {
+            case let .device(name):
+                guard self.defaults.bool(forKey: SettingsKey.hudDevices) else { return }
+                // El modelo (AirPods Pro 3, AirPods 4...) sale de su product ID en el
+                // perfil de Bluetooth: se lee antes de avisar para no enseñar otro icono.
+                Task {
+                    let icon = await AccessoryBattery.audioIcon(named: name)
                     self.show(.audioDevice(name: name, icon: icon), for: 3)
                     // Despues del nombre, su bateria (si es Bluetooth y la da).
                     self.showBattery(of: name, after: 3)
@@ -395,7 +400,7 @@ final class SystemHUD {
 final class VolumeMonitor {
     enum Event {
         case level(Double, muted: Bool)
-        case device(name: String, icon: String)
+        case device(name: String)
     }
 
     private let onEvent: (Event) -> Void
@@ -458,8 +463,7 @@ final class VolumeMonitor {
         AudioObjectAddPropertyListenerBlock(device, &mute, .main, listener)
         // Solo se avisa de los Bluetooth (AirPods, altavoces): los internos no aportan.
         guard announce, let name = Self.name(of: newDevice), Self.isBluetooth(newDevice) else { return }
-        let icon = name.localizedCaseInsensitiveContains("AirPods") ? "airpods" : "headphones"
-        onEvent(.device(name: name, icon: icon))
+        onEvent(.device(name: name))
     }
 
     private static func currentDevice() -> AudioObjectID {

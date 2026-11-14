@@ -2851,6 +2851,16 @@
         }
       }
     },
+    "Micro del Mac activado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac microphone on"
+          }
+        }
+      }
+    },
     "Micro del Mac silenciado": {
       "localizations": {
         "en": {

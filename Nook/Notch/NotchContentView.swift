@@ -74,7 +74,9 @@ struct NotchContentView: View {
         // llamada; `-VisorDemoMuted YES` lo enseña con el micro silenciado.
         .task {
             guard UserDefaults.standard.bool(forKey: "VisorOpenCall") else { return }
-            CallState.shared.micMuted = UserDefaults.standard.bool(forKey: "VisorDemoMuted")
+            if UserDefaults.standard.object(forKey: "VisorDemoMuted") != nil {
+                CallState.shared.micMuted = UserDefaults.standard.bool(forKey: "VisorDemoMuted")
+            }
             try? await Task.sleep(for: .seconds(1.5))
             model.isPreviewing = true
             showCall = true
@@ -168,29 +170,29 @@ struct NotchContentView: View {
         .transition(.scale.combined(with: .opacity))
     }
 
-    /// En llamada: un boton verde; al pulsarlo salen micro, camara y colgar.
+    /// En llamada: el icono de la app de la llamada (FaceTime, Teams, Zoom...); al
+    /// pulsarlo salen micro, camara y colgar con su estado real.
     private func callButton(_ call: MeetingControls.Target) -> some View {
         let state = CallState.shared
         return Button {
             model.isPreviewing = true
             showCall = true
         } label: {
-            Image(systemName: "phone.fill")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(AppColors.onAccent)
+            CallAppIcon(call: call, size: 26)
                 .frame(width: 30, height: 30)
-                .background(Circle().fill(AppColors.success))
                 // Micro silenciado: se ve sin abrir el boton.
                 .overlay(alignment: .bottomTrailing) {
-                    if state.micMuted {
+                    if state.micMuted == true {
                         Image(systemName: "mic.slash.fill")
                             .font(.system(size: 8, weight: .bold))
                             .foregroundStyle(AppColors.onAccent)
                             .frame(width: 15, height: 15)
                             .background(Circle().fill(AppColors.danger))
                             .offset(x: 3, y: 3)
+                            .transition(.scale.combined(with: .opacity))
                     }
                 }
+                .animation(AppMotion.snappy, value: state.micMuted)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -202,6 +204,14 @@ struct NotchContentView: View {
         .onChange(of: showCall) { _, shown in
             if !shown { model.isPreviewing = false }
         }
+        // Las apps no avisan cuando cambias el micro desde ellas: se lee el estado al
+        // abrir el panel y cada 2 s mientras esta abierto.
+        .task(id: call.pid) {
+            while !Task.isCancelled {
+                await state.refresh(call)
+                try? await Task.sleep(for: .seconds(2))
+            }
+        }
         .transition(.scale.combined(with: .opacity))
     }
 
@@ -212,12 +222,21 @@ struct NotchContentView: View {
             model.close()
         }
         let outcome = MeetingControls.perform(action, on: call)
+        let state = CallState.shared
         switch outcome {
-        case .pressed, .shortcut, .systemMute:
-            let state = CallState.shared
-            if action == .mic { state.micMuted.toggle() }
-            if action == .camera { state.cameraOff.toggle() }
-            if action == .leave { state.reset() }
+        case .pressed, .shortcut:
+            if action == .leave {
+                state.reset()
+            } else {
+                // La app tarda en cambiar la etiqueta (y el atajo sale a los 0,25 s):
+                // se lee despues el estado que ha quedado de verdad.
+                Task {
+                    try? await Task.sleep(for: .seconds(0.6))
+                    await state.refresh(call, assumeToggled: action)
+                }
+            }
+        case .systemMute:
+            state.micMuted = SystemMic.isMuted
         case .needsPermission, .failed:
             break
         }
@@ -232,7 +251,11 @@ struct NotchContentView: View {
             }
             hud.show(.notice(icon: "exclamationmark.triangle.fill", text: text), for: 2.5)
         case .systemMute:
-            hud.show(.notice(icon: "mic.slash.fill", text: String(localized: "Micro del Mac silenciado")), for: 2)
+            if SystemMic.isMuted {
+                hud.show(.notice(icon: "mic.slash.fill", text: String(localized: "Micro del Mac silenciado")), for: 2)
+            } else {
+                hud.show(.notice(icon: "mic.fill", text: String(localized: "Micro del Mac activado")), for: 2)
+            }
         case .pressed, .shortcut:
             break
         }
@@ -674,18 +697,25 @@ private struct CallPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(verbatim: call.name)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(AppColors.textPrimary)
+            HStack(spacing: 6) {
+                CallAppIcon(call: call, size: 16)
+                Text(verbatim: call.name)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(AppColors.textPrimary)
+            }
             HStack(spacing: 18) {
+                // Sin estado conocido (la app no lo dice), el boton queda neutro: con
+                // el simbolo hueco y sin dar por hecho que el micro esta activo.
                 toggle(
-                    on: state.micMuted, icon: state.micMuted ? "mic.slash.fill" : "mic.fill",
-                    title: state.micMuted ? "Silenciado" : "Micro", action: .mic
+                    on: state.micMuted == true,
+                    icon: Self.symbol(state.micMuted, on: "mic.fill", off: "mic.slash.fill", unknown: "mic"),
+                    title: state.micMuted == true ? "Silenciado" : "Micro", action: .mic
                 )
                 if call.hasCamera {
                     toggle(
-                        on: state.cameraOff, icon: state.cameraOff ? "video.slash.fill" : "video.fill",
-                        title: state.cameraOff ? "Cámara apagada" : "Cámara", action: .camera
+                        on: state.cameraOff == true,
+                        icon: Self.symbol(state.cameraOff, on: "video.fill", off: "video.slash.fill", unknown: "video"),
+                        title: state.cameraOff == true ? "Cámara apagada" : "Cámara", action: .camera
                     )
                 }
                 if call.hasLeave {
@@ -695,6 +725,11 @@ private struct CallPanel: View {
         }
         .padding(14)
         .presentationBackground(AppColors.panel)
+    }
+
+    private static func symbol(_ isOff: Bool?, on: String, off: String, unknown: String) -> String {
+        guard let isOff else { return unknown }
+        return isOff ? off : on
     }
 
     /// Como en FaceTime: activo (silenciado, camara apagada) en relleno claro.
@@ -1112,5 +1147,23 @@ private struct ClockPanel: View {
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// Icono de la app de la llamada, o un telefono si no se encuentra.
+struct CallAppIcon: View {
+    let call: MeetingControls.Target
+    let size: CGFloat
+
+    var body: some View {
+        if let icon = MeetingControls.icon(for: call) {
+            Image(nsImage: icon).resizable().interpolation(.high).frame(width: size, height: size)
+        } else {
+            Image(systemName: "phone.fill")
+                .font(.system(size: size * 0.45, weight: .bold))
+                .foregroundStyle(AppColors.onAccent)
+                .frame(width: size, height: size)
+                .background(Circle().fill(AppColors.success))
+        }
     }
 }

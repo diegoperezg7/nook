@@ -171,6 +171,43 @@ enum MeetingControls {
         return found
     }
 
+    // MARK: - Icono
+
+    /// Icono de la app de la llamada: la propia app (FaceTime, Teams, Zoom); en el
+    /// navegador, la app del servicio si esta instalada y si no el navegador; en una
+    /// llamada del iPhone, Telefono.
+    @MainActor
+    static func icon(for target: Target) -> NSImage? {
+        if target.bundleID == conferenceDaemon {
+            return AgentIcons.icon("com.apple.mobilephone") ?? AgentIcons.icon("com.apple.FaceTime")
+        }
+        if browsers.contains(target.bundleID), let app = serviceApps[target.name], let icon = AgentIcons.icon(app) {
+            return icon
+        }
+        return NSRunningApplication(processIdentifier: target.pid)?.icon ?? AgentIcons.icon(target.bundleID)
+    }
+
+    /// App de escritorio de cada servicio de reuniones web.
+    private static let serviceApps = ["Teams": "com.microsoft.teams2", "Zoom": "us.zoom.xos", "Webex": "Cisco-Systems.Spark",
+                                      "Discord": "com.hnc.Discord", "Slack": "com.tinyspeck.slackmacgap"]
+
+    // MARK: - Estado
+
+    /// Estado real del micro y la camara en la app de la llamada, leido de la etiqueta
+    /// de sus botones: "Unmute" quiere decir que esta silenciado. Nil si no se sabe
+    /// (sin Accesibilidad, o un boton que no dice su estado, como el de FaceTime).
+    /// Recorre el arbol de Accesibilidad: llamar fuera del hilo principal.
+    nonisolated static func readState(of target: Target) -> (micMuted: Bool?, cameraOff: Bool?) {
+        guard AXIsProcessTrusted(), target.pid > 0 else { return (nil, nil) }
+        let mic = AXTree.find(.mic, pid: target.pid).flatMap { element in
+            AXTree.labels(element).lazy.compactMap(Action.mic.isOff(label:)).first
+        }
+        let camera = AXTree.find(.camera, pid: target.pid).flatMap { element in
+            AXTree.labels(element).lazy.compactMap(Action.camera.isOff(label:)).first
+        }
+        return (mic, camera)
+    }
+
     // MARK: - Acciones
 
     enum Action { case mic, camera, leave }
@@ -231,19 +268,41 @@ enum MeetingControls {
     }
 }
 
-/// Lo que Visor ha hecho en la llamada en curso (micro silenciado, camara apagada),
-/// para que los botones lo muestren. Las apps no lo publican: se apunta al pulsar en
-/// Visor y se olvida al colgar. Si se cambia desde la propia app, no se entera.
+/// Estado del micro y la camara en la llamada en curso. Se lee de la propia app
+/// (`MeetingControls.readState`) al abrir el panel y tras cada pulsacion; nil si la
+/// app no lo dice. Las apps no avisan del cambio, asi que se vuelve a leer a menudo
+/// mientras el panel esta abierto.
 @Observable
 @MainActor
 final class CallState {
     static let shared = CallState()
-    var micMuted = false
-    var cameraOff = false
+    var micMuted: Bool?
+    var cameraOff: Bool?
+    @ObservationIgnored private var reading = false
+
+    /// Lee el estado en segundo plano (el arbol de Accesibilidad puede tardar).
+    /// `assumeToggled`: tras pulsar un control, si la app no dice su estado pero se
+    /// sabia antes, se da por cambiado.
+    func refresh(_ target: MeetingControls.Target, assumeToggled action: MeetingControls.Action? = nil) async {
+        guard !reading else { return }
+        reading = true
+        defer { reading = false }
+        let state = await Task.detached(priority: .userInitiated) { MeetingControls.readState(of: target) }.value
+        if let mic = state.micMuted {
+            micMuted = mic
+        } else if action == .mic, let known = micMuted {
+            micMuted = !known
+        }
+        if let camera = state.cameraOff {
+            cameraOff = camera
+        } else if action == .camera, let known = cameraOff {
+            cameraOff = !known
+        }
+    }
 
     func reset() {
-        micMuted = false
-        cameraOff = false
+        micMuted = nil
+        cameraOff = nil
     }
 }
 
@@ -256,7 +315,7 @@ extension MeetingControls.Action {
     var labelPrefixes: [String] {
         switch self {
         case .mic:
-            ["mute", "unmute", "silenciar", "activar sonido", "activar el sonido", "quitar silencio", "desactivar silencio",
+            ["mute", "unmute", "silenciar", "reactivar", "activar sonido", "activar el sonido", "quitar silencio", "desactivar silencio",
              "turn off microphone", "turn on microphone", "desactivar microfono", "activar microfono",
              "desactivar el microfono", "activar el microfono", "microphone off", "microphone on"]
         case .camera:
@@ -268,6 +327,40 @@ extension MeetingControls.Action {
             ["leave", "hang up", "end call", "end meeting", "disconnect", "colgar", "abandonar", "finalizar llamada",
              "terminar llamada", "salir de la reunion", "salir de la llamada", "desconectar"]
         }
+    }
+
+    /// Si la etiqueta dice que el control esta apagado (micro silenciado, camara
+    /// apagada): invita a encenderlo. false si invita a apagarlo; nil si no lo dice
+    /// ("Micrófono" a secas, en FaceTime).
+    func isOff(label: String) -> Bool? {
+        let (turnOn, turnOff): ([String], [String]) = switch self {
+        case .mic:
+            (["unmute", "activar sonido", "activar el sonido", "quitar silencio", "desactivar silencio", "reactivar",
+              "turn on microphone", "turn microphone on", "activar microfono", "activar el microfono"],
+             ["mute", "silenciar", "turn off microphone", "turn microphone off", "desactivar microfono", "desactivar el microfono"])
+        case .camera:
+            (["turn on camera", "turn camera on", "start video", "start camera", "activar camara", "activar la camara",
+              "encender camara", "encender la camara", "iniciar video", "activar video"],
+             ["turn off camera", "turn camera off", "stop video", "stop camera", "desactivar camara", "desactivar la camara",
+              "apagar camara", "apagar la camara", "detener video", "desactivar video"])
+        case .leave:
+            ([], [])
+        }
+        let text = Self.normalized(label)
+        if turnOn.contains(where: { Self.starts(text, with: $0) }) { return true }
+        if turnOff.contains(where: { Self.starts(text, with: $0) }) { return false }
+        return nil
+    }
+
+    private static func normalized(_ label: String) -> String {
+        label.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Empieza por esas palabras completas: "mute" no vale para "muted…".
+    private static func starts(_ text: String, with prefix: String) -> Bool {
+        guard text.hasPrefix(prefix) else { return false }
+        return text.dropFirst(prefix.count).first.map { !$0.isLetter } ?? true
     }
 
     /// Identificadores de Accesibilidad que no cambian con el idioma. FaceTime etiqueta
@@ -282,17 +375,11 @@ extension MeetingControls.Action {
 
     /// Si una etiqueta corresponde a esta accion.
     func matches(_ label: String) -> Bool {
-        let text = label.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = Self.normalized(label)
         guard !text.isEmpty else { return false }
         // Teams y Meet: "Salir" a secas es colgar en el boton de la reunion.
         if self == .leave, text == "salir" { return true }
-        return labelPrefixes.contains { prefix in
-            guard text.hasPrefix(prefix) else { return false }
-            // Palabra completa: "mute" no vale para "muted…".
-            let rest = text.dropFirst(prefix.count)
-            return rest.first.map { !$0.isLetter } ?? true
-        }
+        return labelPrefixes.contains { Self.starts(text, with: $0) }
     }
 }
 
@@ -345,7 +432,7 @@ enum AXTree {
         return nil
     }
 
-    private static func labels(_ element: AXUIElement) -> [String] {
+    static func labels(_ element: AXUIElement) -> [String] {
         [kAXTitleAttribute, kAXDescriptionAttribute, kAXHelpAttribute].compactMap { value(element, $0) as? String }
     }
 
@@ -392,6 +479,9 @@ enum AXTree {
 enum SystemMic {
     private static var savedVolume: Float32?
     private static var mutedByUs = false
+
+    /// Si Visor ha silenciado la entrada del sistema.
+    static var isMuted: Bool { mutedByUs }
 
     static func toggle() -> Bool {
         mutedByUs ? restore() : mute()
@@ -492,3 +582,4 @@ extension MeetingControls {
         return users
     }
 }
+

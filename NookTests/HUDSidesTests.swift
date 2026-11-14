@@ -30,6 +30,17 @@ final class HUDSidesTests: XCTestCase {
         XCTAssertFalse(pair.grows(from: pair))
     }
 
+    /// El nombre de unos auriculares cabe entero: el lado crece con el, con tope.
+    func testDeviceNameFits() {
+        let name = "AirPods Pro de Diego"
+        let side = HUDActivity.side(for: .audioDevice(name: name, icon: "airpods.pro"))
+        XCTAssertGreaterThanOrEqual(side - 10, HUDActivity.textWidth(name, size: 11), "contenido = lado menos el margen")
+        XCTAssertEqual(HUDActivity.side(for: .audioDevice(name: "JBL", icon: "headphones")), 112)
+        XCTAssertEqual(HUDActivity.side(for: .audioDevice(name: String(repeating: "x", count: 80), icon: "headphones")), 190)
+        // Si la barra no deja ese sitio, va como isla bajo el notch.
+        XCTAssertNotNil(HUDActivity.island(for: .audioDevice(name: name, icon: "airpods.pro"), leftFree: 300, rightFree: 80))
+    }
+
     func testNoNoticeNoGrowth() {
         XCTAssertEqual(HUDSides.make(desired: 0, leftFree: 10, rightFree: 10), HUDSides(left: 0, right: 0, merged: false))
     }

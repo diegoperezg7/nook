@@ -286,7 +286,11 @@ private struct StatusPill: View {
             } else {
                 Image(systemName: icon).font(.system(size: 9, weight: .bold))
             }
-            Text(verbatim: label).lineLimit(1)
+            if status == .running {
+                ShimmerText(text: label).lineLimit(1)
+            } else {
+                Text(verbatim: label).lineLimit(1)
+            }
         }
         .font(.system(size: 10, weight: .semibold))
         .foregroundStyle(color)

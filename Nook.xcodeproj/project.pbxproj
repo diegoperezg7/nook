@@ -34,6 +34,7 @@
 		3870E74001E74F2543000F87 /* FileImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0BB6FE9458ACA72F8C437F /* FileImporter.swift */; };
 		3AA1B61A7474A91CD7075BE1 /* PermissionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A0D568259038C34AAC8ABF /* PermissionRow.swift */; };
 		3C6B5D785AA42B6BD98A5605 /* MeetingControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7DC76F9083EB6111BA1315 /* MeetingControls.swift */; };
+		43A2DEBB236675B13A0D94FD /* LiveContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 779E0A78618C1B50A87498D4 /* LiveContent.swift */; };
 		46E1ED685D06FDC224C602BE /* WindowLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B146723843256F484B6AD50 /* WindowLayoutTests.swift */; };
 		4BD6BA6E30649A218D1FD177 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649398E11B2755299D34B4F9 /* CalendarView.swift */; };
 		4E58E30C9AAB2D6FFAB5636C /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC933037DE125D3D6007357C /* WindowSnap.swift */; };
@@ -89,6 +90,7 @@
 		C0233DB7A27BA6155A7C9C3E /* Dictation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB24003DA478A71487D51AB0 /* Dictation.swift */; };
 		C49B334F0072110059AEEC30 /* QuickEventParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F317092A40CD6A168EF81E1F /* QuickEventParserTests.swift */; };
 		C9DFFEA1F255B973B1956C1F /* ItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B838B524EC00D7BEE032A3B /* ItemStore.swift */; };
+		D0F7052631AED709E2A4ED65 /* NotchShapeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372277FE9D68E2613227D211 /* NotchShapeTests.swift */; };
 		D151E68959A619D9824D9012 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E25FE7833ADE7338D7590F /* CalendarService.swift */; };
 		D1D1B6D0A65278AA2BF31C63 /* MailHTMLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 489CFBE97631512088A34585 /* MailHTMLView.swift */; };
 		D4A6C9C3C52BB2668532C9B4 /* AppMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D139EB8143C96D2F9DF88190 /* AppMotion.swift */; };
@@ -141,6 +143,7 @@
 		2B9C06AF2B74A5C3A8EA0D39 /* AccessoryBattery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessoryBattery.swift; sourceTree = "<group>"; };
 		2D8AFA3334D93034DA95A1EB /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
 		3544C315A0904C9209943F94 /* Weather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
+		372277FE9D68E2613227D211 /* NotchShapeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchShapeTests.swift; sourceTree = "<group>"; };
 		3783639F2639949672D6FB8B /* DragAllCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragAllCard.swift; sourceTree = "<group>"; };
 		3962A19399805A00EC692FF6 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		3AA003E269F1E0F3206F33F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -169,6 +172,7 @@
 		6AF31C476DBDFF1170647A72 /* Nook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6FB19E6110AF66A80F95871F /* NotificationFeedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFeedTests.swift; sourceTree = "<group>"; };
 		72F8E211D30A2B434D0F5173 /* NotificationFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFeed.swift; sourceTree = "<group>"; };
+		779E0A78618C1B50A87498D4 /* LiveContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveContent.swift; sourceTree = "<group>"; };
 		7AD3CAE2AA017E82652A1978 /* Carousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Carousel.swift; sourceTree = "<group>"; };
 		7B146723843256F484B6AD50 /* WindowLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowLayoutTests.swift; sourceTree = "<group>"; };
 		7D90B748521D8BBAE7554C02 /* TextTransform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextTransform.swift; sourceTree = "<group>"; };
@@ -431,6 +435,7 @@
 				2D8AFA3334D93034DA95A1EB /* AppTypography.swift */,
 				7AD3CAE2AA017E82652A1978 /* Carousel.swift */,
 				3B56727FF7D5505D8067EC82 /* LiquidGlass.swift */,
+				779E0A78618C1B50A87498D4 /* LiveContent.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -470,6 +475,7 @@
 				479C44F803AC35BCB0482F96 /* MeetingControlsTests.swift */,
 				C16CEFF310C97BABADCF9DE3 /* MIMETests.swift */,
 				478C6C3C60ADFB75459EDF0A /* NotchMetricsTests.swift */,
+				372277FE9D68E2613227D211 /* NotchShapeTests.swift */,
 				476E544184CB59C0873293A9 /* NotificationBannersTests.swift */,
 				6FB19E6110AF66A80F95871F /* NotificationFeedTests.swift */,
 				AA44ABB2EFDDE8F0C5976A9D /* PersistenceTests.swift */,
@@ -670,6 +676,7 @@
 				31108173FD48CEB341F1BDE5 /* Launcher.swift in Sources */,
 				E039E503F9F18558DE8D55CA /* LegacyImport.swift in Sources */,
 				5DD31974213CCADFEBF22A86 /* LiquidGlass.swift in Sources */,
+				43A2DEBB236675B13A0D94FD /* LiveContent.swift in Sources */,
 				4ED8A23DDD879A0B64C7AECB /* MIME.swift in Sources */,
 				D1D1B6D0A65278AA2BF31C63 /* MailHTMLView.swift in Sources */,
 				EB41B7D20BD79DA4E0AC74E1 /* MailService.swift in Sources */,
@@ -730,6 +737,7 @@
 				DBC34D6D611680254ABA4E44 /* MailServiceTests.swift in Sources */,
 				ABC869176F78B2F821A436C3 /* MeetingControlsTests.swift in Sources */,
 				91E63B6C2E92DBE904D8ECEE /* NotchMetricsTests.swift in Sources */,
+				D0F7052631AED709E2A4ED65 /* NotchShapeTests.swift in Sources */,
 				7F6EAAE12F6FD4D7D64DCEC2 /* NotificationBannersTests.swift in Sources */,
 				7CB28036B514752A4B5C5CBF /* NotificationFeedTests.swift in Sources */,
 				B9E8F16B26A03558C22E7F58 /* PersistenceTests.swift in Sources */,

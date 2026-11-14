@@ -14,6 +14,8 @@ struct NotchRootView: View {
     @Environment(MenuBarSpace.self) private var menuBar
     /// Lados del aviso en el ultimo cambio: deciden si la forma crece o se recoge.
     @State private var lastSides = HUDSides(left: 0, right: 0, merged: false)
+    /// Raton pulsado sobre un aviso que hace algo al pulsarlo: el notch se hincha un poco.
+    @State private var pressingNotice = false
 
     var body: some View {
         let metrics = model.metrics
@@ -55,6 +57,9 @@ struct NotchRootView: View {
                 CardBackground(shape: shape, bandFraction: metrics.notchHeight / card.height)
                     .opacity(preview != nil ? 1 : 0)
 
+                // `.id(family)`: otro tipo de aviso es otro contenido y se cruza con el
+                // anterior (los dos a la vez, sin hueco negro); el mismo tipo con otro
+                // valor (el volumen que sube) se actualiza en su sitio.
                 if let notice, island {
                     Group {
                         if case .notification = notice {
@@ -66,12 +71,16 @@ struct NotchRootView: View {
                         .frame(width: islandSize.width, height: islandSize.height)
                         .contentShape(Rectangle())
                         .onTapGesture { hud.activate() }
+                        .simultaneousGesture(pressGesture)
+                        .id(notice.family)
                         .transition(noticeTransition)
                 } else if let notice {
                     HUDActivity(kind: notice, metrics: metrics, sides: sides)
                         .frame(width: closedWidth)
                         .contentShape(Rectangle())
                         .onTapGesture { hud.activate() }
+                        .simultaneousGesture(pressGesture)
+                        .id(notice.family)
                         .transition(noticeTransition)
                 }
 
@@ -104,7 +113,10 @@ struct NotchRootView: View {
             .overlay {
                 if model.isDropTargeted, model.isOpen { DropGlow(shape: shape) }
             }
-            .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.8 : 0), radius: 16, y: 8)
+            // Sombra en dos capas (una cercana y otra mas difusa), como la de islandcn,
+            // ajustada al margen de 24 pt que deja la ventana por debajo.
+            .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.75 : 0), radius: 10, y: 8)
+            .shadow(color: AppColors.shadow.opacity(model.expandedHeight ? 0.3 : 0), radius: 16, y: 7)
             .onChange(of: sides) { _, new in lastSides = new }
             // Abrir el notch silencia la alarma que esta sonando y cierra la tarjeta.
             .onChange(of: model.isOpen) { _, open in
@@ -115,6 +127,9 @@ struct NotchRootView: View {
             }
             // Cerrado y con el raton encima, se asoma un poco desde arriba.
             .scaleEffect(model.isPeeking && !model.isOpen && !AppMotion.reduceMotion ? 1.02 : 1, anchor: .top)
+            // Al pulsar un aviso, se hincha un poco mas y vuelve al soltar.
+            .scaleEffect(pressingNotice && notice != nil && !AppMotion.reduceMotion ? 1.05 : 1, anchor: .top)
+            .animation(AppMotion.press, value: pressingNotice)
             // Al arrastrar algo encima, el panel "respira" hacia abajo.
             .scaleEffect(model.isDropTargeted && model.isOpen && !AppMotion.reduceMotion ? 1.03 : 1, anchor: .top)
             .animation(AppMotion.snappy, value: model.isDropTargeted)
@@ -123,7 +138,7 @@ struct NotchRootView: View {
         // Crece con muelle; al recogerse, sin rebote. La animacion va aqui, por fuera
         // del marco que centra la forma: dentro, el tamaño se animaba pero el centrado
         // no, y la forma saltaba a la izquierda y crecia solo hacia la derecha.
-        .animation(sides.grows(from: lastSides) ? AppMotion.open : AppMotion.close, value: sides)
+        .animation(sidesAnimation(to: sides), value: sides)
         .animation(AppMotion.open, value: preview != nil)
         .animation(island ? AppMotion.open : AppMotion.close, value: island)
         .onDrop(of: DropReader.types, isTargeted: $model.isDropTargeted) { providers in
@@ -135,6 +150,24 @@ struct NotchRootView: View {
         .onChange(of: model.isDropTargeted) { _, targeted in
             model.dropTargetChanged(targeted)
         }
+    }
+
+    /// Curva del cambio de ancho de las alas: crecer desde el notch, ajustarse de un
+    /// aviso a otro o volver al notch.
+    private func sidesAnimation(to sides: HUDSides) -> Animation {
+        let before = lastSides.left + lastSides.right, after = sides.left + sides.right
+        if after == 0 { return AppMotion.dismiss }
+        if before == 0 { return AppMotion.open }
+        return AppMotion.resize
+    }
+
+    /// Solo los avisos que hacen algo al pulsarlos se hinchan.
+    private var pressGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { _ in
+                if !pressingNotice, hud.isActionable { pressingNotice = true }
+            }
+            .onEnded { _ in pressingNotice = false }
     }
 
     /// El contenido entra cuando el panel ya ha salido casi entero (0,12 s: antes se
@@ -153,10 +186,16 @@ struct NotchRootView: View {
 
     /// Aviso del notch cerrado: entra con fundido cuando la forma ya ha crecido algo y
     /// sale con fundido y leve escala mientras la forma se recoge.
+    /// Como en islandcn, el que entra se enfoca y el que sale se desenfoca mientras se
+    /// funden, y los dos se solapan.
     private var noticeTransition: AnyTransition {
-        .asymmetric(
-            insertion: .opacity.animation(AppMotion.noticeIn),
-            removal: (AppMotion.reduceMotion ? AnyTransition.opacity : .opacity.combined(with: .scale(scale: 0.94)))
+        if AppMotion.reduceMotion {
+            return .asymmetric(insertion: .opacity.animation(AppMotion.noticeIn), removal: .opacity.animation(AppMotion.noticeOut))
+        }
+        return .asymmetric(
+            insertion: .modifier(active: NoticeBlur(amount: 1, scale: 0.9), identity: NoticeBlur(amount: 0, scale: 1))
+                .animation(AppMotion.noticeIn),
+            removal: .modifier(active: NoticeBlur(amount: 1, scale: 0.94), identity: NoticeBlur(amount: 0, scale: 1))
                 .animation(AppMotion.noticeOut)
         )
     }
@@ -272,5 +311,19 @@ private struct RevealModifier: ViewModifier {
             .opacity(progress)
             .blur(radius: (1 - progress) * 2)
             .scaleEffect(0.86 + 0.14 * progress, anchor: .center)
+    }
+}
+
+/// Entrada y salida de un aviso: fundido con un desenfoque leve y algo de escala.
+private struct NoticeBlur: ViewModifier {
+    /// 0 = nitido y visible; 1 = desenfocado y transparente.
+    let amount: CGFloat
+    let scale: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(1 - amount)
+            .blur(radius: amount * 4)
+            .scaleEffect(scale)
     }
 }

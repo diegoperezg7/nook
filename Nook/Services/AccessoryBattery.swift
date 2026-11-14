@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import IOKit
 
 /// Bateria de AirPods, auriculares, teclados y ratones Bluetooth.
@@ -27,20 +27,52 @@ struct AccessoryBattery: Equatable, Identifiable {
     /// Todos los accesorios conectados con bateria conocida.
     static func readAll() async -> [AccessoryBattery] {
         let profiler = await Task.detached { () -> [AccessoryBattery] in
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
-            process.arguments = ["SPBluetoothDataType", "-json"]
-            let pipe = Pipe()
-            process.standardOutput = pipe
-            process.standardError = FileHandle.nullDevice
-            guard (try? process.run()) != nil else { return [] }
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
-            return parse(profiler: data)
+            profilerData().map(parse(profiler:)) ?? []
         }.value
         let hid = readHID()
         // Si un teclado sale por las dos vias, gana la de IOKit (mas precisa).
         return hid + profiler.filter { device in !hid.contains { $0.name == device.name } }
+    }
+
+    /// Salida de `system_profiler SPBluetoothDataType -json` (unos 60 ms).
+    nonisolated static func profilerData() -> Data? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
+        process.arguments = ["SPBluetoothDataType", "-json"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        guard (try? process.run()) != nil else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        return data
+    }
+
+    /// Icono del modelo de unos auriculares recien conectados, por su nombre. Se busca
+    /// en el perfil de Bluetooth aunque aun no den bateria (justo al conectar no la dan).
+    static func audioIcon(named name: String) async -> String {
+        let data = await Task.detached { profilerData() }.value
+        return audioIcon(named: name, profiler: data)
+    }
+
+    static func audioIcon(named name: String, profiler data: Data?) -> String {
+        if let data, let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let controllers = root["SPBluetoothDataType"] as? [[String: Any]] {
+            for controller in controllers {
+                let entries = (controller["device_connected"] as? [[String: Any]] ?? [])
+                    + (controller["device_not_connected"] as? [[String: Any]] ?? [])
+                for entry in entries {
+                    guard let info = entry[name] as? [String: Any] else { continue }
+                    return audioFallback(icon(for: name, type: info["device_minorType"] as? String, productID: info["device_productID"] as? String))
+                }
+            }
+        }
+        return audioFallback(icon(for: name, type: nil))
+    }
+
+    /// Un altavoz o un dispositivo sin tipo conocido: auriculares genericos.
+    private static func audioFallback(_ icon: String) -> String {
+        icon == genericIcon ? "headphones" : icon
     }
 
     static func parse(profiler data: Data) -> [AccessoryBattery] {
@@ -88,36 +120,51 @@ struct AccessoryBattery: Equatable, Identifiable {
     /// Solo se sabe la del estuche: los auriculares aun no han dicho la suya.
     var onlyCase: Bool { !levels.isEmpty && levels.allSatisfy { $0.part == Self.casePart } }
 
-    /// Modelo de AirPods por su product ID (el nombre se puede cambiar).
-    static let airPodsModels: [String: String] = [
-        "0x2002": "airpods", "0x200F": "airpods",
-        "0x2013": "airpods.gen3",
-        "0x2019": "airpods.gen4", "0x201B": "airpods.gen4",
-        "0x200E": "airpodspro", "0x2014": "airpodspro", "0x2024": "airpodspro",
-        "0x200A": "airpodsmax", "0x201F": "airpodsmax",
+    /// Simbolos de cada modelo de AirPods por su product ID (el nombre se puede
+    /// cambiar), del mas preciso al mas antiguo: los nuevos solo existen en macOS
+    /// recientes (los Pro 3, desde macOS 27) y se usa el primero que haya.
+    static let airPodsModels: [String: [String]] = [
+        "0x2002": ["airpods"], "0x200F": ["airpods"],
+        "0x2013": ["airpods.gen3"],
+        "0x2019": ["airpods.gen4", "airpods.gen3"], "0x201B": ["airpods.gen4", "airpods.gen3"],
+        "0x200E": ["airpods.pro.gen1", "airpodspro"],
+        "0x2014": ["airpods.pro", "airpodspro"], "0x2024": ["airpods.pro", "airpodspro"],
+        "0x2027": ["airpods.pro.gen3", "airpods.pro", "airpodspro"],
+        "0x200A": ["airpods.max", "airpodsmax"], "0x201F": ["airpods.max", "airpodsmax"],
     ]
 
+    static let genericIcon = "dot.radiowaves.left.and.right"
+
     static func icon(for name: String, type: String?, productID: String? = nil) -> String {
-        if let productID, let model = airPodsModels[productID.uppercased().replacingOccurrences(of: "0X", with: "0x")] { return model }
+        if let productID, let models = airPodsModels["0x" + productID.uppercased().replacingOccurrences(of: "0X", with: "")] {
+            return firstAvailable(models)
+        }
         let lower = name.lowercased(), kind = (type ?? "").lowercased()
-        if lower.contains("airpods max") { return "airpodsmax" }
-        if lower.contains("airpods pro") { return "airpodspro" }
+        if lower.contains("airpods max") { return firstAvailable(["airpods.max", "airpodsmax"]) }
+        if lower.contains("airpods pro") { return firstAvailable(["airpods.pro", "airpodspro"]) }
         if lower.contains("airpods") { return "airpods" }
         if lower.contains("beats") { return "beats.headphones" }
         if kind.contains("headphones") || kind.contains("headset") { return "headphones" }
         if kind.contains("keyboard") || lower.contains("keyboard") || lower.contains("teclado") { return "keyboard" }
         if lower.contains("trackpad") { return "rectangle.and.hand.point.up.left.fill" }
         if kind.contains("mouse") || lower.contains("mouse") || lower.contains("ratón") { return "magicmouse.fill" }
-        return "dot.radiowaves.left.and.right"
+        return genericIcon
+    }
+
+    /// El primer simbolo que existe en este macOS (el ultimo de la lista si ninguno).
+    static func firstAvailable(_ symbols: [String]) -> String {
+        symbols.first { NSImage(systemSymbolName: $0, accessibilityDescription: nil) != nil } ?? symbols.last ?? genericIcon
     }
 
     /// Simbolo de cada pieza: auricular izquierdo, derecho y estuche del modelo.
     static func partSymbol(_ part: String, model: String) -> String {
         let pieces: (left: String, right: String, case: String)
         switch model {
+        case "airpods.pro.gen3", "airpods.pro.gen1", "airpods.pro":
+            pieces = (model + ".left", model + ".right", model + ".chargingcase.wireless.fill")
         case "airpodspro": pieces = ("airpodpro.left", "airpodpro.right", "airpodspro.chargingcase.wireless.fill")
+        case "airpods.gen4": pieces = ("airpods.gen4.left", "airpods.gen4.right", "airpods.gen4.chargingcase.wireless.fill")
         case "airpods.gen3": pieces = ("airpod.gen3.left", "airpod.gen3.right", "airpods.gen3.chargingcase.wireless.fill")
-        case "airpods.gen4": pieces = ("airpod.gen3.left", "airpod.gen3.right", "airpods.gen4.chargingcase.wireless.fill")
         case "airpods": pieces = ("airpod.left", "airpod.right", "airpods.chargingcase.fill")
         default: return model
         }

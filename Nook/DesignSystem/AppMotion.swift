@@ -3,6 +3,8 @@ import SwiftUI
 
 /// Curvas de animacion compartidas. Con "Reducir movimiento" activado todo pasa
 /// a fundidos cortos, sin muelles ni desplazamientos.
+/// `resize`, `dismiss` y `press` toman los valores de islandcn (MIT, (c) 2026 Leo;
+/// ver THIRD_PARTY_NOTICES.md), que usa los mismos parametros que SwiftUI.
 enum AppMotion {
     static var reduceMotion: Bool {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
@@ -22,6 +24,24 @@ enum AppMotion {
     /// El notch cerrado se asoma al pasar el raton (escala 1,02 desde arriba).
     static var peek: Animation {
         reduceMotion ? .easeInOut(duration: 0.1) : .spring(response: 0.36, dampingFraction: 0.9)
+    }
+
+    /// Un aviso cambia de tamaño sin desaparecer (de volumen a red, por ejemplo): la
+    /// forma se ajusta sin pasar por cerrada (0,5 / 0,82, `resize` de islandcn).
+    static var resize: Animation {
+        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.5, dampingFraction: 0.82)
+    }
+
+    /// Un aviso se va y el notch vuelve a su tamaño: casi sin rebote (0,442 / 0,97,
+    /// `dismiss` de islandcn).
+    static var dismiss: Animation {
+        reduceMotion ? .easeInOut(duration: 0.12) : .spring(response: 0.442, dampingFraction: 0.97)
+    }
+
+    /// Al pulsar un aviso se hincha un poco desde arriba, y vuelve sobreamortiguado
+    /// (0,30 / 1,5, `press.release` de islandcn), sin rebote.
+    static var press: Animation {
+        reduceMotion ? .easeInOut(duration: 0.08) : .spring(response: 0.3, dampingFraction: 1)
     }
 
     /// Microinteracciones: hover, seleccion de pestaña, insercion de elementos.

@@ -16,6 +16,34 @@ final class MeetingControlsTests: XCTestCase {
         XCTAssertFalse(mic.matches(""))
     }
 
+    /// El estado se lee de lo que el boton invita a hacer: "Unmute" es que esta
+    /// silenciado. Una etiqueta que no lo dice no da estado (no se adivina).
+    func testStateFromLabels() {
+        let mic = MeetingControls.Action.mic
+        XCTAssertEqual(mic.isOff(label: "Unmute mic (⌘+Shift+M)"), true) // Teams silenciado
+        XCTAssertEqual(mic.isOff(label: "Mute mic (⌘+Shift+M)"), false)
+        XCTAssertEqual(mic.isOff(label: "Turn on microphone (⌘ + d)"), true) // Meet
+        XCTAssertEqual(mic.isOff(label: "Turn off microphone (⌘ + d)"), false)
+        XCTAssertEqual(mic.isOff(label: "Activar micrófono"), true)
+        XCTAssertEqual(mic.isOff(label: "Desactivar el micrófono"), false)
+        XCTAssertEqual(mic.isOff(label: "Reactivar micrófono"), true)
+        XCTAssertEqual(mic.isOff(label: "Quitar silencio"), true)
+        XCTAssertEqual(mic.isOff(label: "Silenciar"), false)
+        XCTAssertEqual(mic.isOff(label: "Unmute Audio"), true) // Zoom
+        XCTAssertNil(mic.isOff(label: "Micrófono"), "FaceTime no dice el estado")
+        XCTAssertNil(mic.isOff(label: "Muted"))
+
+        let camera = MeetingControls.Action.camera
+        XCTAssertEqual(camera.isOff(label: "Turn camera on (⌘+Shift+O)"), true) // Teams
+        XCTAssertEqual(camera.isOff(label: "Turn camera off (⌘+Shift+O)"), false)
+        XCTAssertEqual(camera.isOff(label: "Start Video"), true) // Zoom
+        XCTAssertEqual(camera.isOff(label: "Stop Video"), false)
+        XCTAssertEqual(camera.isOff(label: "Activar cámara"), true)
+        XCTAssertEqual(camera.isOff(label: "Apagar la cámara"), false)
+        XCTAssertNil(camera.isOff(label: "Cámara"))
+        XCTAssertNil(MeetingControls.Action.leave.isOff(label: "Leave"))
+    }
+
     func testCameraLabels() {
         let camera = MeetingControls.Action.camera
         XCTAssertTrue(camera.matches("Turn off camera (⌘ + e)"))

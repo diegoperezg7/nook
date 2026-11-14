@@ -14,12 +14,18 @@ struct HUDActivity: View {
     /// Ancho que pide cada lado del notch para este aviso.
     static func side(for kind: SystemHUD.Kind) -> CGFloat {
         switch kind {
+        // El nombre entero ("AirPods Pro de Diego"), sin puntos suspensivos: el lado
+        // crece con el (con tope); si la barra no deja sitio, el aviso sale como isla.
+        case let .audioDevice(name, _):
+            return min(190, max(112, textWidth(name, size: 11) + 14))
+        case let .accessory(name, _, _, low) where low:
+            return min(220, max(112, textWidth(name, size: 10) + 6 + 14 + 6 + textWidth("100 %", size: 12) + 14))
         case .volume, .battery: return 58
         case .mediaInUse: return 44
         case .timer, .stayAwake: return 70
         case .capsLock, .timerDone, .alarm: return 96
         case .network, .meeting: return 104
-        case .audioDevice, .download, .mail, .notice: return 112
+        case .download, .mail, .notice: return 112
         case .dictation: return 140
         case .accessory: return 112
         case .notification: return 150
@@ -147,20 +153,12 @@ struct HUDActivity: View {
         case .meeting:
             Self.logo(AgentIcons.calendar, fallback: "video.fill")
         case let .timer(end, total):
-            TimelineView(.periodic(from: .now, by: 1)) { context in
-                let left = max(0, end.timeIntervalSince(context.date))
-                ZStack {
-                    Circle().stroke(AppColors.notchText.opacity(0.2), lineWidth: 2.5)
-                    Circle().trim(from: 0, to: total > 0 ? left / total : 0)
-                        .stroke(AppColors.clock, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                }
+            CountdownRing(end: end, total: total, color: AppColors.clock)
                 .frame(width: 15, height: 15)
-            }
-        case let .mediaInUse(mic, _):
-            Image(systemName: mic ? "mic.fill" : "video.fill")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(mic ? AppColors.warning : AppColors.success)
+        case let .mediaInUse(_, _, call):
+            // La app de la llamada (FaceTime, Teams...); el punto de la derecha dice
+            // si usa micro (naranja, como macOS) o camara (verde).
+            CallAppIcon(call: call, size: 18)
         case .stayAwake:
             Image(systemName: "cup.and.saucer.fill").font(.system(size: 13, weight: .semibold))
         case .agent:
@@ -192,9 +190,11 @@ struct HUDActivity: View {
             .frame(width: 40, height: 5)
             .animation(.spring(response: 0.25, dampingFraction: 0.85), value: level)
         case let .audioDevice(name, _):
-            Text(verbatim: name).font(.system(size: 11, weight: .semibold)).lineLimit(1).truncationMode(.tail)
+            Text(verbatim: name).font(.system(size: 11, weight: .semibold)).lineLimit(1).fixedSize()
         case let .battery(level, _):
             Text(verbatim: "\(level) %").font(.system(size: 12, weight: .semibold).monospacedDigit())
+                .contentTransition(.numericText(value: Double(level)))
+                .animation(AppMotion.snappy, value: level)
         case let .download(name, _):
             Text(verbatim: name).font(.system(size: 11, weight: .semibold)).lineLimit(1).truncationMode(.middle)
         case let .capsLock(on):
@@ -215,25 +215,20 @@ struct HUDActivity: View {
             HStack(spacing: 6) {
                 if low {
                     Text(verbatim: name).font(.system(size: 10, weight: .semibold)).lineLimit(1).truncationMode(.tail)
+                        .layoutPriority(1)
                 }
-                ZStack {
-                    Circle().stroke(AppColors.notchText.opacity(0.2), lineWidth: 2.5)
-                    Circle().trim(from: 0, to: CGFloat(level) / 100)
-                        .stroke(low ? AppColors.danger : AppColors.success, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                }
-                .frame(width: 14, height: 14)
+                ProgressRing(value: Double(level) / 100, color: low ? AppColors.danger : AppColors.success)
+                    .frame(width: 14, height: 14)
                 Text(verbatim: "\(level) %").font(.system(size: 12, weight: .semibold).monospacedDigit())
                     .foregroundStyle(low ? AppColors.danger : AppColors.notchText)
+                    .contentTransition(.numericText(value: Double(level)))
             }
+            .animation(AppMotion.snappy, value: level)
         case let .notice(_, text):
             Text(verbatim: text).font(.system(size: 11, weight: .semibold)).lineLimit(1)
         case let .dictation(text):
-            // Las ultimas palabras: el principio se corta.
-            Text(text.isEmpty ? String(localized: "Escuchando…") : text)
-                .font(.system(size: 11, weight: .semibold))
-                .lineLimit(1)
-                .truncationMode(.head)
+            // Las ultimas palabras: el principio se pierde con un fundido.
+            TailText(text: text.isEmpty ? String(localized: "Escuchando…") : text, font: .system(size: 11, weight: .semibold))
         case let .mail(sender):
             Text(verbatim: sender).font(.system(size: 11, weight: .semibold)).lineLimit(1).truncationMode(.tail)
         case let .alarm(time):
@@ -246,14 +241,20 @@ struct HUDActivity: View {
                 Text(minutes <= 0 ? String(localized: "Ahora") : String(localized: "en \(minutes) min"))
                     .font(.system(size: 12, weight: .semibold).monospacedDigit())
                     .foregroundStyle(minutes <= 1 ? AppColors.accent : AppColors.notchText)
+                    .contentTransition(.numericText(countsDown: true))
+                    .animation(AppMotion.snappy, value: minutes)
             }
         case let .timer(end, _):
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                Text(verbatim: Self.clock(end.timeIntervalSince(context.date)))
+                let left = end.timeIntervalSince(context.date)
+                Text(verbatim: Self.clock(left))
                     .font(.system(size: 12, weight: .semibold).monospacedDigit())
                     .foregroundStyle(AppColors.clock)
+                    // Solo cambia la cifra que cambia, y se ve cambiar.
+                    .contentTransition(.numericText(countsDown: true))
+                    .animation(AppMotion.snappy, value: Self.clock(left))
             }
-        case let .mediaInUse(mic, camera):
+        case let .mediaInUse(mic, camera, _):
             if mic && camera {
                 Image(systemName: "video.fill").font(.system(size: 12, weight: .semibold)).foregroundStyle(AppColors.success)
             } else {
@@ -262,8 +263,11 @@ struct HUDActivity: View {
         case let .stayAwake(until):
             if let until {
                 TimelineView(.periodic(from: .now, by: 30)) { context in
-                    Text(verbatim: Self.clock(until.timeIntervalSince(context.date)))
+                    let left = until.timeIntervalSince(context.date)
+                    Text(verbatim: Self.clock(left))
                         .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                        .contentTransition(.numericText(countsDown: true))
+                        .animation(AppMotion.snappy, value: Self.clock(left))
                 }
             } else {
                 Image(systemName: "infinity").font(.system(size: 12, weight: .bold))
@@ -279,6 +283,8 @@ struct HUDActivity: View {
                 Text(verbatim: "\(percent) %")
                     .font(.system(size: 11, weight: .bold).monospacedDigit())
                     .foregroundStyle(percent >= 95 ? AppColors.danger : AppColors.warning)
+                    .contentTransition(.numericText(value: Double(percent)))
+                    .animation(AppMotion.snappy, value: percent)
                 Text(verbatim: window).font(.system(size: 9, weight: .medium)).opacity(0.75)
             }
             .lineLimit(1)
@@ -295,6 +301,11 @@ struct HUDActivity: View {
         } else {
             Image(systemName: fallback).font(.system(size: 13, weight: .semibold))
         }
+    }
+
+    /// Ancho de una linea en la fuente del sistema, semibold.
+    static func textWidth(_ text: String, size: CGFloat) -> CGFloat {
+        ceil((text as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: size, weight: .semibold)]).width)
     }
 
     /// 24:59, o 1:20:00 si pasa de una hora.
@@ -487,5 +498,34 @@ private struct MusicBars: View {
             }
         }
         .frame(width: 18, height: 14)
+    }
+}
+
+extension SystemHUD.Kind {
+    /// El tipo de aviso sin sus valores: el mismo tipo con otro valor (el volumen que
+    /// sube) se actualiza en su sitio; otro tipo se cruza con el anterior.
+    var family: String {
+        switch self {
+        case .volume: "volume"
+        case .audioDevice: "audioDevice"
+        case .battery: "battery"
+        case .download: "download"
+        case .capsLock: "capsLock"
+        case .network: "network"
+        case .timerDone: "timerDone"
+        case .mail: "mail"
+        case .notice: "notice"
+        case .dictation: "dictation"
+        case .accessory: "accessory"
+        case .notification: "notification"
+        case .agent: "agent"
+        case .usage: "usage"
+        case .meeting: "meeting"
+        case .timer: "timer"
+        case .mediaInUse: "mediaInUse"
+        case .stayAwake: "stayAwake"
+        case .alarm: "alarm"
+        case .music: "music"
+        }
     }
 }

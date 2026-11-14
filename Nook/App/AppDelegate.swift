@@ -277,6 +277,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let hold = UserDefaults.standard.double(forKey: "VisorDemoHold")
         let duration: TimeInterval = hold > 0 ? hold : 4
         switch kind {
+        case "sequence":
+            runDemoSequence()
         case "notification":
             let preview = SystemHUD.Preview(
                 symbol: "bell.fill", appIcon: AgentIcons.icon("com.apple.MobileSMS"), title: "Mensajes",
@@ -293,6 +295,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             ) {}
             hud?.show(.agent(project: "visor", waiting: waiting), for: duration, preview: preview)
             if UserDefaults.standard.bool(forKey: "VisorDemoCard") { activateDemoCard() }
+        }
+    }
+    /// `-VisorDemoNotice sequence`: un aviso tras otro para revisar cortes, solapes y
+    /// transiciones (el mismo tipo con otro valor, otro tipo, la llamada...).
+    /// `-VisorDemoStep 3` cambia los segundos de cada paso.
+    private func runDemoSequence() {
+        let step = UserDefaults.standard.double(forKey: "VisorDemoStep") > 0 ? UserDefaults.standard.double(forKey: "VisorDemoStep") : 3
+        let airpods = UserDefaults.standard.string(forKey: "VisorDemoDevice") ?? "AirPods Pro de Diego"
+        var steps: [(TimeInterval, @MainActor () -> Void)] = []
+        func add(_ action: @escaping @MainActor () -> Void) { steps.append((Double(steps.count) * step, action)) }
+        add { self.hud?.show(.volume(level: 0.3, muted: false), for: step * 2) }
+        add { self.hud?.show(.volume(level: 0.65, muted: false), for: step) }
+        add { self.hud?.show(.battery(level: 47, charging: false), for: step) }
+        add { self.hud?.show(.battery(level: 46, charging: false), for: step) }
+        add {
+            Task {
+                let icon = await AccessoryBattery.audioIcon(named: airpods)
+                self.hud?.show(.audioDevice(name: airpods, icon: icon), for: step)
+            }
+        }
+        add {
+            Task {
+                let icon = await AccessoryBattery.audioIcon(named: airpods)
+                self.hud?.show(.accessory(name: airpods, icon: icon, level: 18, low: true), for: step)
+            }
+        }
+        add { self.hud?.show(.dictation(text: "Hola"), for: step) }
+        add { self.hud?.show(.dictation(text: "Hola, esto es una prueba larga del dictado para ver como se pierde el principio con un fundido"), for: step) }
+        add { self.hud?.show(.timer(end: .now.addingTimeInterval(20), total: 25), for: step * 2) }
+        add {}
+        add {
+            if let call = MeetingControls.current(micInUse: true) {
+                self.hud?.show(.mediaInUse(mic: true, camera: false, call: call), for: step)
+            }
+        }
+        add { self.hud?.show(.network(online: true, vpn: true), for: step) }
+        for (delay, action) in steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { MainActor.assumeIsolated { action() } }
         }
     }
     #endif
