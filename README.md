@@ -63,24 +63,30 @@ the arrow keys and press <kbd>Return</kbd>. Passwords are never saved.
 </p>
 
 While Spotify or Music is playing, its logo shows up in the notch with a ring for the song's
-progress. Click it for a small player with the artwork, the time left and previous,
-play/pause and next. When nothing else needs your attention, the closed notch shows what's
-playing.
+progress. Move the pointer to the notch and the player is already open: the artwork, the time
+left and previous, play/pause and next. When nothing else needs your attention, the closed
+notch shows what's playing.
 
 ## Calls without hunting for the window
 
 <p align="center">
-  <img src="docs/images/call.png" width="760" alt="Call button with mute, camera and hang up">
+  <img src="docs/images/call.png" width="760" alt="FaceTime call under the notch with its duration, mute, camera and hang up">
 </p>
 
-In a call on Teams, Zoom, Meet, FaceTime or Discord, a green phone button replaces the rest:
-**mute, camera and hang up** without leaving what you're doing. A red badge reminds you when
-you're muted, and the meeting reminder goes away as soon as you join. Visor doesn't repeat
-the microphone indicator macOS already shows.
+In a call on Teams, Zoom, Meet, FaceTime or Discord, move the pointer to the notch and the
+call is right there: the app's icon, how long you've been talking and big **mute, camera and
+hang up** buttons, without leaving what you're doing. In apps that say so (Teams, Zoom, Meet),
+the buttons show whether you're really muted, even if you muted from the app itself. A red
+badge reminds you when you're muted, and the meeting reminder goes away as soon as you join.
 
 ## AirPods and screenshots
 
-- **AirPods battery** for each earbud and the case, from the moment you connect them.
+<p align="center">
+  <img src="docs/images/airpods.png" width="760" alt="AirPods Pro battery for each earbud and the case">
+</p>
+
+- **AirPods battery** for each earbud and the case, from the moment you connect them, with the
+  icon of your exact model, AirPods Pro 3 included.
 - **Screenshots in their own folder:** Visor moves them off the Desktop to
   *Pictures/Screenshots* (or uses the folder you already had) and shows the latest ones in the
   notch, ready to drag.
@@ -101,7 +107,8 @@ resets**, with an alert at 80 % and 95 %.
 Volume, battery, AirPods, finished downloads, meetings, new mail, agents, Focus,
 notifications… they show up beside the notch for a moment and go away. They never cover
 your menu bar icons: if there's no room beside the notch, the alert grows below it as a small
-island, sized to its text.
+island, sized to its text. Numbers turn over smoothly, the timer ring runs continuously and
+long text, like a dictation, fades out at the start instead of being cut.
 
 **Click an alert** and the notch opens a little to show a preview, with a button to go
 straight to the mail, the session, the download or the meeting.
@@ -185,4 +192,6 @@ Notifications to keep the Focus alert; without it, the release ships without tha
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). The continuous corners of the notch and some spring values are adapted from
+[islandcn](https://github.com/opencoredev/islandcn) (MIT); see
+[THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).

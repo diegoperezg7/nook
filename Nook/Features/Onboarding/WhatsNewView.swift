@@ -11,8 +11,12 @@ enum WhatsNew {
     }
 
     static let notes: [Note] = [
-        Note(icon: "phone.fill", title: "Llamadas de FaceTime y del iPhone",
-             detail: "El botón de llamada sale también en FaceTime y en las llamadas del iPhone que suenan en el Mac (en estas, solo el micro)."),
+        Note(icon: "phone.fill", title: "Tu llamada, al pasar el ratón",
+             detail: "En una llamada, el notch se abre en ella: el icono de su app, lo que dura, y silenciar, cámara y colgar con su estado real."),
+        Note(icon: "airpodspro", title: "Cada modelo de AirPods",
+             detail: "Al conectarlos, el aviso muestra tu modelo, también los AirPods Pro 3, y su nombre entero."),
+        Note(icon: "music.note", title: "Más vivo y más claro",
+             detail: "La música se abre al pasar el ratón mientras suena, los números cambian sin saltos y los desplegables se distinguen del negro del notch."),
     ]
 
     static var version: String {

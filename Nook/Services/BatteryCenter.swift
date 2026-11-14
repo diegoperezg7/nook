@@ -30,7 +30,7 @@ final class BatteryCenter {
             #if DEBUG
             // `-VisorDemoBattery YES`: unos AirPods de ejemplo para probar el boton sin tenerlos.
             if UserDefaults.standard.bool(forKey: "VisorDemoBattery") {
-                list = [AccessoryBattery(name: "AirPods Pro", icon: "airpodspro", levels: [("L", 82), ("R", 79), (AccessoryBattery.casePart, 64)])]
+                list = [AccessoryBattery(name: "AirPods Pro", icon: AccessoryBattery.firstAvailable(["airpods.pro.gen3", "airpods.pro", "airpodspro"]), levels: [("L", 82), ("R", 79), (AccessoryBattery.casePart, 64)])]
             }
             #endif
             loading = false

@@ -661,6 +661,16 @@
         }
       }
     },
+    "Al conectarlos, el aviso muestra tu modelo, también los AirPods Pro 3, y su nombre entero.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When you connect them, the alert shows your model, AirPods Pro 3 included, and its full name."
+          }
+        }
+      }
+    },
     "Al instante": {
       "localizations": {
         "en": {
@@ -1137,6 +1147,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Each alert only widens up to the menus and menu bar icons, never covering them (needs Accessibility)."
+          }
+        }
+      }
+    },
+    "Cada modelo de AirPods": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every AirPods model"
           }
         }
       }
@@ -2091,6 +2111,16 @@
         }
       }
     },
+    "En una llamada, el notch se abre en ella: el icono de su app, lo que dura, y silenciar, cámara y colgar con su estado real.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "During a call the notch opens on it: the app's icon, how long it's been, and mute, camera and hang up with their real state."
+          }
+        }
+      }
+    },
     "Encender cámara": {
       "localizations": {
         "en": {
@@ -2611,6 +2641,16 @@
         }
       }
     },
+    "La música se abre al pasar el ratón mientras suena, los números cambian sin saltos y los desplegables se distinguen del negro del notch.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music opens under the pointer while it plays, numbers change smoothly and popovers stand out from the black notch."
+          }
+        }
+      }
+    },
     "La versión clásica, por AppleScript": {
       "localizations": {
         "en": {
@@ -3027,6 +3067,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "More Options"
+          }
+        }
+      }
+    },
+    "Más vivo y más claro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Livelier and clearer"
           }
         }
       }
@@ -4367,6 +4417,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Translate"
+          }
+        }
+      }
+    },
+    "Tu llamada, al pasar el ratón": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your call, right under the pointer"
           }
         }
       }

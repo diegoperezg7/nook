@@ -87,10 +87,10 @@ struct NotchContentView: View {
         // llamada; `-VisorDemoMuted YES` lo enseña con el micro silenciado.
         .task {
             guard UserDefaults.standard.bool(forKey: "VisorOpenCall") else { return }
+            try? await Task.sleep(for: .seconds(1.5))
             if UserDefaults.standard.object(forKey: "VisorDemoMuted") != nil {
                 CallState.shared.micMuted = UserDefaults.standard.bool(forKey: "VisorDemoMuted")
             }
-            try? await Task.sleep(for: .seconds(1.5))
             model.tab = .call
         }
         #endif
@@ -217,8 +217,8 @@ struct NotchContentView: View {
 
     private var callSince: Date? {
         #if DEBUG
-        // Llamada fingida (`-VisorDemoCall`): sin micro, la duracion cuenta desde el arranque.
-        if hud.micSince == nil, UserDefaults.standard.string(forKey: "VisorDemoCall") != nil { return Self.launch }
+        // Llamada fingida (`-VisorDemoCall`): la duracion cuenta desde el arranque.
+        if UserDefaults.standard.string(forKey: "VisorDemoCall") != nil { return Self.launch }
         #endif
         return hud.micSince
     }
